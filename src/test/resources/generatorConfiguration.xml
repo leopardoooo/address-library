@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+  <!-- <classPathEntry location="" />  -->
+
+  <context id="default" defaultModelType="flat" targetRuntime="MyBatis3">
+  
+  	<plugin type="com.yaochen.builder.mybatis.impl.AnnotationPlugin">
+  		<property name="annotation" value="@Repository"/>
+  		<property name="annotationClass" value="com.easyooo.show.data.support.Repository"/>
+  		<property name="table" value="@Table"/>
+  		<property name="tableClass" value="com.easyooo.framework.sharding.annotation.Table"/>
+  	</plugin>
+  	
+    <commentGenerator type="com.yaochen.builder.mybatis.impl.CopyrightCommentGenerator">
+    	<property name="suppressAllComments" value="true"/>
+    </commentGenerator>
+  
+    <!--  MySQL Connection -->
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+        connectionURL="jdbc:mysql://192.168.1.204:3306/yc_push"
+        userId="root"
+        password="123456">
+    </jdbcConnection>
+    
+    <javaModelGenerator targetPackage="?" targetProject="?">
+      <property name="enableSubPackages" value="true" />
+      <property name="trimStrings" value="true" />
+    </javaModelGenerator>
+
+    <sqlMapGenerator targetPackage="?"  targetProject="?">
+      <property name="enableSubPackages" value="true" />
+      <property name="trimStrings" value="true" />
+    </sqlMapGenerator>
+
+    <javaClientGenerator type="XMLMAPPER" targetPackage="?"  targetProject="?">
+      <property name="enableSubPackages" value="true" />
+      <property name="trimStrings" value="true" />
+    </javaClientGenerator>
+    
+    <table tableName="?"></table>
+    
+  </context>
+</generatorConfiguration>

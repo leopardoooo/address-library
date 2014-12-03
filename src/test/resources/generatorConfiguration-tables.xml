@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--  Add Tables Group for MyBatis Generator Configuration,
+	No DTD check -->
+<generatorConfiguration>
+	
+	<project path="D:\Source\qicheng\workspace-trunk\show-parent\show-data-layer"/>
+	
+	<!-- MySQL -->
+	<queryTables>show tables</queryTables>	
+	
+	
+	<properties>
+		<propery name="example" value="false"/>
+	</properties>
+	
+	<target type="mapper" sources="/src/main/java" 
+		package="com.easyooo.show.data.persistence" />
+	
+	<target type="domain" sources="/src/main/java" 
+		package="com.easyooo.show.data.domain" />
+	
+	<target type="sqlmap" sources="/src/main/java"
+		package="com.easyooo.show.data.sqlmap"  />
+
+	<!--
+		The table element equals match
+		The exclude element equals isn't match
+		The include element startWith match
+		
+		module可以嵌套
+	 -->
+	<modules>
+		<!-- push -->
+		<module subPackage="push">
+			<include startWith="push_" />
+		</module>
+	</modules>
+</generatorConfiguration>
