@@ -26,7 +26,7 @@
 	
 	
 	<!-- Mybatis SqlSessionFactory -->
-	<bean id="defaultSqlSessionFactory" class="com.easyooo.show.data.support.SelfishMyBatisFactoryBean">
+	<bean id="defaultSqlSessionFactory" class="com.yaochen.address.support.SelfishMyBatisFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<!-- 接管 MyBatis Spring Transaction -->
 		<property name="transactionFactory">
@@ -50,8 +50,8 @@
 		@see http://mybatis.github.io/spring/zh/mappers.html#MapperScannerConfigurer
 	-->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.easyooo.show.data.persistence" />
-		<property name="annotationClass" value="com.easyooo.show.data.support.Repository" />
+		<property name="basePackage" value="com.yaochen.address.mapper" />
+		<property name="annotationClass" value="com.yaochen.address.support.Repository" />
 		<property name="sqlSessionFactoryBeanName" value="defaultSqlSessionFactory" />
 	</bean>
 	
