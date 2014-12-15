@@ -1,29 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<% String ROOT = request.getContextPath(),
-		RES = ROOT + "/resources" ; %>
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>广西广电网络公司标准地址库管理</title>
-		<!-- bootstrap -->
-		<link href="<%=RES %>/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-		<link href="<%=RES %>/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
-		<!-- font-awesome -->
-		<link href="<%=RES %>/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-		<!-- main -->
-		<link href="<%=RES %>/main/address-main.css" rel="stylesheet">
-
-		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-		<!--[if lt IE 9]>
-		  <script src="<%=RES %>/support/html5shiv.min.js"></script>
-		  <script src="<%=RES %>/support/respond.min.js"></script>
-		<![endif]-->
-	</head>
+<head> <%@ include file="/WEB-INF/common/head.jsp" %> </head>
 <body>
 	<nav id="topNav" class="navbar navbar-static-top" role="navigation">
 	  <div class="container-fluid">
@@ -129,7 +108,9 @@
 				 已定位至 “中国广西南宁市西乡塘区友爱南路8号”，下级地址共 “9,000” 个，含直接下级 “21” 个。
 			</p>
 			<ul class="nav navbar-nav navbar-right" id="tools">
+				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-plus"></i></a></li>
 				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-import"></i></a></li>
+				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-cog"></i></a></li>
 			</ul>
 		</div>
 	</div>
@@ -141,68 +122,105 @@
 			<div class="panel-heading clearfix">
 				<span class="text">地址编辑</span>
 				<div class="pull-right">
-					<button type="button" class="btn btn-default" title="收藏"> <i class="glyphicon glyphicon-pushpin"></i></button>
+					<button type="button" class="btn btn-default" title="收藏"> <i class="glyphicon glyphicon-star-empty"></i></button>
 					<button type="button" class="btn btn-default" title="删除"> <i class="glyphicon glyphicon-trash"></i></button>
-					<button type="button" class="btn btn-default" title="重置"> <i class="glyphicon glyphicon-plus"></i></button>
+					<button type="button" class="btn btn-default" title="添加下级"> <i class="glyphicon glyphicon-plus-sign"></i></button>
 					<button type="button" class="btn btn-default" title="保存"> <i class="glyphicon glyphicon-ok"></i></button>
 				</div>
 			</div>
 			<div class="panel-body" id="editForm">
-				<div class="form-group">
-					<label for="parentLevelAddr">1级/2级/3级</label>
+				<div class="form-group"> 
+					<label for="parentLevelAddr">上级地址</label>
 					<input type="text" class="form-control" id="parentLevelAddr" readonly="readonly" placeholder="南宁市/景秀区">
 				</div>
-				<div class="form-group">
-					<label for="currentLevelAddr">当前级别</label>
-					<input type="text" class="form-control" id="currentLevelAddr" placeholder="修改后会影响到所有下级地址的完整名称" value="民族大道">
-				</div>
 				<div class="form-tabs">
-					<ul class="nav nav-tabs" role="tablist">
-						<li role="presentation" class="active"><a href="#singleMode" role="tab" data-toggle="tab">单一地址</a></li>
-						<li role="presentation"><a href="#batchMode" role="tab" data-toggle="tab">多个地址</a></li>
-						<li role="presentation"><a href="#batchMode" role="tab" data-toggle="tab">地址合并</a></li>
-						<li role="presentation"><a href="#batchMode" role="tab" data-toggle="tab">级别调整</a></li>
+					<ul class="nav nav-pills" role="tablist">
+						<li role="presentation" class="active"><a href="#editMode" role="tab" data-toggle="tab">修改地址</a></li>
+						<li role="presentation"><a href="#addSubTree" role="tab" data-toggle="tab">添加下级地址</a></li>
 					</ul>
-				<div class="tab-content">
-					<div role="tabpanel" class="tab-pane active" id="singleMode">
-						<div class="form-group">
-							<div class="input-group">
-								<input type="text" class="form-control" placeholder="路、街、巷、里、弄、大道">
-								<div class="input-group-btn">
-									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
-									<ul class="dropdown-menu dropdown-menu-right" role="menu">
-										<li><a href="#">Action</a></li>
-										<li><a href="#">Another action</a></li>
-										<li><a href="#">Something else here</a></li>
-										<li class="divider"></li>
-										<li><a href="#">Separated link</a></li>
-									</ul>
-								 </div><!-- /btn-group -->
-							</div><!-- /input-group -->
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane active" id="editMode">
+							<ul class="nav nav-tabs" role="tablist">
+								<li role="presentation"><a href="#normalEdit" role="tab" data-toggle="tab">修改名称</a></li>
+								<li role="presentation"><a href="#mergeAddress" role="tab" data-toggle="tab">地址合并</a></li>
+								<li role="presentation"><a href="#adjustLevel" role="tab" data-toggle="tab">级别调整</a></li>
+							</ul>
+							<div class="tab-content">
+								<div role="tabpanel" class="tab-pane" id="normalEdit">
+									<div class="form-group">
+										<label for="currentLevelAddr">地址名称</label>
+										<input type="text" class="form-control" id="currentLevelAddr" placeholder="修改后会影响到所有下级地址的完整名称">
+									</div>
+								</div>
+								<div role="tabpanel" class="tab-pane" id="mergeAddress">
+									<div class="form-group">
+										<div class="input-group">
+											<input type="text" class="form-control" placeholder="搜索要合并到的地址">
+											<div class="input-group-btn">
+												<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+											</div><!-- /btn-group -->
+										</div><!-- /input-group -->
+									</div>
+								</div>
+								<div role="tabpanel" class="tab-pane" id="adjustLevel">
+									<div class="form-group">
+										<div class="input-group">
+											<input type="text" class="form-control" placeholder="level">
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
-					</div>
-					<div role="tabpanel" class="tab-pane" id="batchMode">
-						<div class="form-group">
-							<input type="text" class="form-control" id="currentLevelAddr" placeholder="请输入起始位置..">
+						<div role="tabpanel" class="tab-pane" id="addSubTree">
+							<ul class="nav nav-tabs" role="tablist">
+								<li role="presentation" class="active"><a href="#singleAdd" role="tab" data-toggle="tab">单一地址</a></li>
+								<li role="presentation"><a href="#batchAdd" role="tab" data-toggle="tab">多个地址</a></li>
+							</ul>
+							<div class="tab-content">
+								<div role="tabpanel" class="tab-pane active" id="singleAdd">
+									<div class="form-group">
+										<div class="input-group">
+											<input type="text" class="form-control" placeholder="路、街、巷、里、弄、大道">
+											<div class="input-group-btn">
+												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
+												<ul class="dropdown-menu dropdown-menu-right" role="menu">
+													<li><a href="#">Action</a></li>
+													<li><a href="#">Another action</a></li>
+													<li><a href="#">Something else here</a></li>
+													<li class="divider"></li>
+													<li><a href="#">Separated link</a></li>
+												</ul>
+											 </div><!-- /btn-group -->
+										</div><!-- /input-group -->
+									</div>
+								</div>
+								<div role="tabpanel" class="tab-pane" id="batchAdd">
+									<div class="form-group">
+										<div class="input-group">
+											<input type="text" class="form-control" placeholder="开始位置">
+											<div class="input-group-addon"> 至 </div>
+											<input type="text" class="form-control" placeholder="结束位置">
+											<div class="input-group-btn">
+												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
+												<ul class="dropdown-menu dropdown-menu-right" role="menu">
+													<li><a href="#">Action</a></li>
+													<li><a href="#">Another action</a></li>
+													<li><a href="#">Something else here</a></li>
+													<li class="divider"></li>
+													<li><a href="#">Separated link</a></li>
+												</ul>
+											</div><!-- /btn-group -->
+										</div><!-- /input-group -->
+									</div>
+								</div>
+							</div>
 						</div>
-						<div class="form-group">
-							<div class="input-group">
-								<input type="text" class="form-control" placeholder="请输入结束位置..">
-								<div class="input-group-btn">
-									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
-									<ul class="dropdown-menu dropdown-menu-right" role="menu">
-										<li><a href="#">Action</a></li>
-										<li><a href="#">Another action</a></li>
-										<li><a href="#">Something else here</a></li>
-										<li class="divider"></li>
-										<li><a href="#">Separated link</a></li>
-									</ul>
-								</div><!-- /btn-group -->
-							</div><!-- /input-group -->
-						</div>
-					</div>
+					</div><!-- /tab-content -->
+				</div><!-- /tabs -->
+				<div class="form-group">
+					<label for="currentLevelAddr">完整地址名称</label>
+					<input type="text" class="form-control" readonly="readonly" value="南宁市/青秀区/民族大道">
 				</div>
-			</div>
 			</div>
 		</div><!-- 编辑区结束 -->
 		<div id="resultList">
@@ -388,8 +406,8 @@
 					if (e.which == 38) index-- ;  								// up
 					if (e.which == 40 && index < $items.length - 1) index++ ;  // down
 					if(index == -1){ 
-						$input.trigger("focus")
-						hide()
+						$input.trigger("focus");
+						hide();
 						return;
 					}
 					if (!~index)  index = 0 ;
@@ -412,8 +430,8 @@
 
 					var index = $items.index(e.target);
 					
-					e.preventDefault()
-					e.stopPropagation()
+					e.preventDefault();
+					e.stopPropagation();
 					
 					if(index === -1) return;
 					
@@ -425,11 +443,15 @@
 				$input.keydown(function(e){
 					if (!/(13|40)/.test(e.which)) return;
 					var $items = $itemParent.find(desc);
-					if ($items.length > 0)  $items.eq(0).trigger("focus"); 
+					if ($items.length > 0)
+						$items.eq(0).trigger("focus");
 					show();
 				});
+				
 				//$input.focus(show);
-				$input.blur(hide);
+				$input.blur(function(e){
+					hide();
+				});
 			}
 		};
 		

@@ -28,6 +28,7 @@
 		<easyooo-framework>1.0.8</easyooo-framework>
 		
 		<httpclient-version>4.3.5</httpclient-version>
+		<xfire-version>1.2.6</xfire-version>
 	</properties>
 	
 	<dependencies>
@@ -171,6 +172,27 @@
 			<groupId>org.mybatis</groupId>
 			<artifactId>mybatis</artifactId>
 			<version>${mybatis-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.xfire</groupId>
+			<artifactId>xfire-all</artifactId>
+			<version>${xfire-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.xfire</groupId>
+			<artifactId>xfire-xmlbeans</artifactId>
+			<version>1.2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-xjc</artifactId>
+			<version>2.2.8-b01</version>
 		</dependency>
 	</dependencies>
 	
