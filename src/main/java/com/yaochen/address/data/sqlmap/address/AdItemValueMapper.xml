@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdItemValueMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdItemValue" >
+    <id column="item_key" property="itemKey" jdbcType="VARCHAR" />
+    <id column="item_value" property="itemValue" jdbcType="VARCHAR" />
+    <result column="item_name" property="itemName" jdbcType="VARCHAR" />
+    <result column="item_desc" property="itemDesc" jdbcType="VARCHAR" />
+    <result column="item_idx" property="itemIdx" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    item_key, item_value, item_name, item_desc, item_idx
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_item_value
+    where item_key = #{itemKey,jdbcType=VARCHAR}
+      and item_value = #{itemValue,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from ad_item_value
+    where item_key = #{itemKey,jdbcType=VARCHAR}
+      and item_value = #{itemValue,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdItemValue" >
+    insert into ad_item_value (item_key, item_value, item_name, 
+      item_desc, item_idx)
+    values (#{itemKey,jdbcType=VARCHAR}, #{itemValue,jdbcType=VARCHAR}, #{itemName,jdbcType=VARCHAR}, 
+      #{itemDesc,jdbcType=VARCHAR}, #{itemIdx,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdItemValue" >
+    insert into ad_item_value
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="itemKey != null" >
+        item_key,
+      </if>
+      <if test="itemValue != null" >
+        item_value,
+      </if>
+      <if test="itemName != null" >
+        item_name,
+      </if>
+      <if test="itemDesc != null" >
+        item_desc,
+      </if>
+      <if test="itemIdx != null" >
+        item_idx,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="itemKey != null" >
+        #{itemKey,jdbcType=VARCHAR},
+      </if>
+      <if test="itemValue != null" >
+        #{itemValue,jdbcType=VARCHAR},
+      </if>
+      <if test="itemName != null" >
+        #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="itemDesc != null" >
+        #{itemDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="itemIdx != null" >
+        #{itemIdx,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdItemValue" >
+    update ad_item_value
+    <set >
+      <if test="itemName != null" >
+        item_name = #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="itemDesc != null" >
+        item_desc = #{itemDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="itemIdx != null" >
+        item_idx = #{itemIdx,jdbcType=INTEGER},
+      </if>
+    </set>
+    where item_key = #{itemKey,jdbcType=VARCHAR}
+      and item_value = #{itemValue,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.address.AdItemValue" >
+    update ad_item_value
+    set item_name = #{itemName,jdbcType=VARCHAR},
+      item_desc = #{itemDesc,jdbcType=VARCHAR},
+      item_idx = #{itemIdx,jdbcType=INTEGER}
+    where item_key = #{itemKey,jdbcType=VARCHAR}
+      and item_value = #{itemValue,jdbcType=VARCHAR}
+  </update>
+</mapper>

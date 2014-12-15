@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdRuleDefineMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdRuleDefine" >
+    <id column="rule_id" property="ruleId" jdbcType="INTEGER" />
+    <result column="rule_name" property="ruleName" jdbcType="VARCHAR" />
+    <result column="scripting_language" property="scriptingLanguage" jdbcType="VARCHAR" />
+    <result column="rule_content" property="ruleContent" jdbcType="VARCHAR" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="return_value" property="returnValue" jdbcType="CHAR" />
+    <result column="return_test" property="returnTest" jdbcType="VARCHAR" />
+    <result column="ule_scene" property="uleScene" jdbcType="VARCHAR" />
+    <result column="rule_desc" property="ruleDesc" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    rule_id, rule_name, scripting_language, rule_content, version, return_value, return_test, 
+    ule_scene, rule_desc, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_rule_define
+    where rule_id = #{ruleId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ad_rule_define
+    where rule_id = #{ruleId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdRuleDefine" >
+    insert into ad_rule_define (rule_id, rule_name, scripting_language, 
+      rule_content, version, return_value, 
+      return_test, ule_scene, rule_desc, 
+      status)
+    values (#{ruleId,jdbcType=INTEGER}, #{ruleName,jdbcType=VARCHAR}, #{scriptingLanguage,jdbcType=VARCHAR}, 
+      #{ruleContent,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{returnValue,jdbcType=CHAR}, 
+      #{returnTest,jdbcType=VARCHAR}, #{uleScene,jdbcType=VARCHAR}, #{ruleDesc,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdRuleDefine" >
+    insert into ad_rule_define
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="ruleId != null" >
+        rule_id,
+      </if>
+      <if test="ruleName != null" >
+        rule_name,
+      </if>
+      <if test="scriptingLanguage != null" >
+        scripting_language,
+      </if>
+      <if test="ruleContent != null" >
+        rule_content,
+      </if>
+      <if test="version != null" >
+        version,
+      </if>
+      <if test="returnValue != null" >
+        return_value,
+      </if>
+      <if test="returnTest != null" >
+        return_test,
+      </if>
+      <if test="uleScene != null" >
+        ule_scene,
+      </if>
+      <if test="ruleDesc != null" >
+        rule_desc,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="ruleId != null" >
+        #{ruleId,jdbcType=INTEGER},
+      </if>
+      <if test="ruleName != null" >
+        #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="scriptingLanguage != null" >
+        #{scriptingLanguage,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleContent != null" >
+        #{ruleContent,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null" >
+        #{version,jdbcType=INTEGER},
+      </if>
+      <if test="returnValue != null" >
+        #{returnValue,jdbcType=CHAR},
+      </if>
+      <if test="returnTest != null" >
+        #{returnTest,jdbcType=VARCHAR},
+      </if>
+      <if test="uleScene != null" >
+        #{uleScene,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null" >
+        #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdRuleDefine" >
+    update ad_rule_define
+    <set >
+      <if test="ruleName != null" >
+        rule_name = #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="scriptingLanguage != null" >
+        scripting_language = #{scriptingLanguage,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleContent != null" >
+        rule_content = #{ruleContent,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=INTEGER},
+      </if>
+      <if test="returnValue != null" >
+        return_value = #{returnValue,jdbcType=CHAR},
+      </if>
+      <if test="returnTest != null" >
+        return_test = #{returnTest,jdbcType=VARCHAR},
+      </if>
+      <if test="uleScene != null" >
+        ule_scene = #{uleScene,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDesc != null" >
+        rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where rule_id = #{ruleId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.address.AdRuleDefine" >
+    update ad_rule_define
+    set rule_name = #{ruleName,jdbcType=VARCHAR},
+      scripting_language = #{scriptingLanguage,jdbcType=VARCHAR},
+      rule_content = #{ruleContent,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER},
+      return_value = #{returnValue,jdbcType=CHAR},
+      return_test = #{returnTest,jdbcType=VARCHAR},
+      ule_scene = #{uleScene,jdbcType=VARCHAR},
+      rule_desc = #{ruleDesc,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR}
+    where rule_id = #{ruleId,jdbcType=INTEGER}
+  </update>
+</mapper>

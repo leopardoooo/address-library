@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <!--  Add Tables Group for MyBatis Generator Configuration,
 	No DTD check -->
 <generatorConfiguration>
 	
-	<project path="D:\Source\qicheng\workspace-trunk\show-parent\show-data-layer"/>
+	<project path="F:\WorkBenchs\addressLib\address-library"/>
 	
-	<!-- MySQL -->
+	<!-- MySQL  1 -->
 	<queryTables>show tables</queryTables>	
 	
 	
@@ -15,13 +15,13 @@
 	</properties>
 	
 	<target type="mapper" sources="/src/main/java" 
-		package="com.easyooo.show.data.persistence" />
+		package="com.yaochen.address.data.mapper" />
 	
 	<target type="domain" sources="/src/main/java" 
-		package="com.easyooo.show.data.domain" />
+		package="com.yaochen.address.data.domain" />
 	
 	<target type="sqlmap" sources="/src/main/java"
-		package="com.easyooo.show.data.sqlmap"  />
+		package="com.yaochen.address.data.sqlmap"  />
 
 	<!--
 		The table element equals match
@@ -32,8 +32,8 @@
 	 -->
 	<modules>
 		<!-- push -->
-		<module subPackage="push">
-			<include startWith="push_" />
+		<module subPackage="address">
+			<include startWith="ad_" />
 		</module>
 	</modules>
 </generatorConfiguration>

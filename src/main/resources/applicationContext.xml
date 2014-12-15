@@ -32,7 +32,7 @@
 		<property name="transactionFactory">
     		<bean class="com.easyooo.framework.sharding.transaction.RountingManagedTransactionFactory" />
   		</property> 
-		<property name="mapperLocations" value="classpath*:com/easyooo/show/data/sqlmap/**/*.xml" />
+		<property name="mapperLocations" value="classpath*:com/yaochen/address/data/sqlmap/**/*.xml" />
 		<property name="plugins">
 			<list>
 				<!-- paging plugins -->
@@ -50,7 +50,7 @@
 		@see http://mybatis.github.io/spring/zh/mappers.html#MapperScannerConfigurer
 	-->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.yaochen.address.mapper" />
+		<property name="basePackage" value="com.yaochen.address.data.mapper" />
 		<property name="annotationClass" value="com.yaochen.address.support.Repository" />
 		<property name="sqlSessionFactoryBeanName" value="defaultSqlSessionFactory" />
 	</bean>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdSysCfgMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdSysCfg" >
+    <id column="param_id" property="paramId" jdbcType="VARCHAR" />
+    <result column="param_name" property="paramName" jdbcType="VARCHAR" />
+    <result column="param_value" property="paramValue" jdbcType="VARCHAR" />
+    <result column="unit_type" property="unitType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    param_id, param_name, param_value, unit_type
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_sys_cfg
+    where param_id = #{paramId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from ad_sys_cfg
+    where param_id = #{paramId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdSysCfg" >
+    insert into ad_sys_cfg (param_id, param_name, param_value, 
+      unit_type)
+    values (#{paramId,jdbcType=VARCHAR}, #{paramName,jdbcType=VARCHAR}, #{paramValue,jdbcType=VARCHAR}, 
+      #{unitType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdSysCfg" >
+    insert into ad_sys_cfg
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="paramId != null" >
+        param_id,
+      </if>
+      <if test="paramName != null" >
+        param_name,
+      </if>
+      <if test="paramValue != null" >
+        param_value,
+      </if>
+      <if test="unitType != null" >
+        unit_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="paramId != null" >
+        #{paramId,jdbcType=VARCHAR},
+      </if>
+      <if test="paramName != null" >
+        #{paramName,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null" >
+        #{paramValue,jdbcType=VARCHAR},
+      </if>
+      <if test="unitType != null" >
+        #{unitType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdSysCfg" >
+    update ad_sys_cfg
+    <set >
+      <if test="paramName != null" >
+        param_name = #{paramName,jdbcType=VARCHAR},
+      </if>
+      <if test="paramValue != null" >
+        param_value = #{paramValue,jdbcType=VARCHAR},
+      </if>
+      <if test="unitType != null" >
+        unit_type = #{unitType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where param_id = #{paramId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.address.AdSysCfg" >
+    update ad_sys_cfg
+    set param_name = #{paramName,jdbcType=VARCHAR},
+      param_value = #{paramValue,jdbcType=VARCHAR},
+      unit_type = #{unitType,jdbcType=VARCHAR}
+    where param_id = #{paramId,jdbcType=VARCHAR}
+  </update>
+</mapper>
