@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdRoleResMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdRoleRes" >
+    <id column="role_id" property="roleId" jdbcType="INTEGER" />
+    <id column="res_type" property="resType" jdbcType="VARCHAR" />
+    <id column="res_code" property="resCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from ad_role_res
+    where role_id = #{roleId,jdbcType=INTEGER}
+      and res_type = #{resType,jdbcType=VARCHAR}
+      and res_code = #{resCode,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdRoleRes" >
+    insert into ad_role_res (role_id, res_type, res_code
+      )
+    values (#{roleId,jdbcType=INTEGER}, #{resType,jdbcType=VARCHAR}, #{resCode,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdRoleRes" >
+    insert into ad_role_res
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="roleId != null" >
+        role_id,
+      </if>
+      <if test="resType != null" >
+        res_type,
+      </if>
+      <if test="resCode != null" >
+        res_code,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="roleId != null" >
+        #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="resType != null" >
+        #{resType,jdbcType=VARCHAR},
+      </if>
+      <if test="resCode != null" >
+        #{resCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

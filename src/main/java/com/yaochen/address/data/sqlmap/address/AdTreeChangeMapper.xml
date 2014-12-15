@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdTreeChangeMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdTreeChange" >
+    <id column="change_sn" property="changeSn" jdbcType="INTEGER" />
+    <result column="change_type" property="changeType" jdbcType="VARCHAR" />
+    <result column="change_cause" property="changeCause" jdbcType="VARCHAR" />
+    <result column="merge_addr_id" property="mergeAddrId" jdbcType="INTEGER" />
+    <result column="change_optr_id" property="changeOptrId" jdbcType="VARCHAR" />
+    <result column="change_done_code" property="changeDoneCode" jdbcType="INTEGER" />
+    <result column="change_time" property="changeTime" jdbcType="TIMESTAMP" />
+    <result column="addr_id" property="addrId" jdbcType="INTEGER" />
+    <result column="addr_name" property="addrName" jdbcType="VARCHAR" />
+    <result column="addr_level" property="addrLevel" jdbcType="INTEGER" />
+    <result column="addr_type" property="addrType" jdbcType="VARCHAR" />
+    <result column="addr_use" property="addrUse" jdbcType="VARCHAR" />
+    <result column="is_blank" property="isBlank" jdbcType="CHAR" />
+    <result column="addr_parent" property="addrParent" jdbcType="INTEGER" />
+    <result column="addr_private_name" property="addrPrivateName" jdbcType="VARCHAR" />
+    <result column="addr_full_name" property="addrFullName" jdbcType="VARCHAR" />
+    <result column="addr_code" property="addrCode" jdbcType="VARCHAR" />
+    <result column="county_id" property="countyId" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_optr_id" property="createOptrId" jdbcType="VARCHAR" />
+    <result column="create_done_code" property="createDoneCode" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="str1" property="str1" jdbcType="VARCHAR" />
+    <result column="str2" property="str2" jdbcType="VARCHAR" />
+    <result column="str3" property="str3" jdbcType="VARCHAR" />
+    <result column="str4" property="str4" jdbcType="VARCHAR" />
+    <result column="str5" property="str5" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    change_sn, change_type, change_cause, merge_addr_id, change_optr_id, change_done_code, 
+    change_time, addr_id, addr_name, addr_level, addr_type, addr_use, is_blank, addr_parent, 
+    addr_private_name, addr_full_name, addr_code, county_id, create_time, create_optr_id, 
+    create_done_code, status, str1, str2, str3, str4, str5
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree_change
+    where change_sn = #{changeSn,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ad_tree_change
+    where change_sn = #{changeSn,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
+    insert into ad_tree_change (change_sn, change_type, change_cause, 
+      merge_addr_id, change_optr_id, change_done_code, 
+      change_time, addr_id, addr_name, 
+      addr_level, addr_type, addr_use, 
+      is_blank, addr_parent, addr_private_name, 
+      addr_full_name, addr_code, county_id, 
+      create_time, create_optr_id, create_done_code, 
+      status, str1, str2, 
+      str3, str4, str5)
+    values (#{changeSn,jdbcType=INTEGER}, #{changeType,jdbcType=VARCHAR}, #{changeCause,jdbcType=VARCHAR}, 
+      #{mergeAddrId,jdbcType=INTEGER}, #{changeOptrId,jdbcType=VARCHAR}, #{changeDoneCode,jdbcType=INTEGER}, 
+      #{changeTime,jdbcType=TIMESTAMP}, #{addrId,jdbcType=INTEGER}, #{addrName,jdbcType=VARCHAR}, 
+      #{addrLevel,jdbcType=INTEGER}, #{addrType,jdbcType=VARCHAR}, #{addrUse,jdbcType=VARCHAR}, 
+      #{isBlank,jdbcType=CHAR}, #{addrParent,jdbcType=INTEGER}, #{addrPrivateName,jdbcType=VARCHAR}, 
+      #{addrFullName,jdbcType=VARCHAR}, #{addrCode,jdbcType=VARCHAR}, #{countyId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{createOptrId,jdbcType=VARCHAR}, #{createDoneCode,jdbcType=INTEGER}, 
+      #{status,jdbcType=VARCHAR}, #{str1,jdbcType=VARCHAR}, #{str2,jdbcType=VARCHAR}, 
+      #{str3,jdbcType=VARCHAR}, #{str4,jdbcType=VARCHAR}, #{str5,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
+    insert into ad_tree_change
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="changeSn != null" >
+        change_sn,
+      </if>
+      <if test="changeType != null" >
+        change_type,
+      </if>
+      <if test="changeCause != null" >
+        change_cause,
+      </if>
+      <if test="mergeAddrId != null" >
+        merge_addr_id,
+      </if>
+      <if test="changeOptrId != null" >
+        change_optr_id,
+      </if>
+      <if test="changeDoneCode != null" >
+        change_done_code,
+      </if>
+      <if test="changeTime != null" >
+        change_time,
+      </if>
+      <if test="addrId != null" >
+        addr_id,
+      </if>
+      <if test="addrName != null" >
+        addr_name,
+      </if>
+      <if test="addrLevel != null" >
+        addr_level,
+      </if>
+      <if test="addrType != null" >
+        addr_type,
+      </if>
+      <if test="addrUse != null" >
+        addr_use,
+      </if>
+      <if test="isBlank != null" >
+        is_blank,
+      </if>
+      <if test="addrParent != null" >
+        addr_parent,
+      </if>
+      <if test="addrPrivateName != null" >
+        addr_private_name,
+      </if>
+      <if test="addrFullName != null" >
+        addr_full_name,
+      </if>
+      <if test="addrCode != null" >
+        addr_code,
+      </if>
+      <if test="countyId != null" >
+        county_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createOptrId != null" >
+        create_optr_id,
+      </if>
+      <if test="createDoneCode != null" >
+        create_done_code,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="str1 != null" >
+        str1,
+      </if>
+      <if test="str2 != null" >
+        str2,
+      </if>
+      <if test="str3 != null" >
+        str3,
+      </if>
+      <if test="str4 != null" >
+        str4,
+      </if>
+      <if test="str5 != null" >
+        str5,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="changeSn != null" >
+        #{changeSn,jdbcType=INTEGER},
+      </if>
+      <if test="changeType != null" >
+        #{changeType,jdbcType=VARCHAR},
+      </if>
+      <if test="changeCause != null" >
+        #{changeCause,jdbcType=VARCHAR},
+      </if>
+      <if test="mergeAddrId != null" >
+        #{mergeAddrId,jdbcType=INTEGER},
+      </if>
+      <if test="changeOptrId != null" >
+        #{changeOptrId,jdbcType=VARCHAR},
+      </if>
+      <if test="changeDoneCode != null" >
+        #{changeDoneCode,jdbcType=INTEGER},
+      </if>
+      <if test="changeTime != null" >
+        #{changeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="addrId != null" >
+        #{addrId,jdbcType=INTEGER},
+      </if>
+      <if test="addrName != null" >
+        #{addrName,jdbcType=VARCHAR},
+      </if>
+      <if test="addrLevel != null" >
+        #{addrLevel,jdbcType=INTEGER},
+      </if>
+      <if test="addrType != null" >
+        #{addrType,jdbcType=VARCHAR},
+      </if>
+      <if test="addrUse != null" >
+        #{addrUse,jdbcType=VARCHAR},
+      </if>
+      <if test="isBlank != null" >
+        #{isBlank,jdbcType=CHAR},
+      </if>
+      <if test="addrParent != null" >
+        #{addrParent,jdbcType=INTEGER},
+      </if>
+      <if test="addrPrivateName != null" >
+        #{addrPrivateName,jdbcType=VARCHAR},
+      </if>
+      <if test="addrFullName != null" >
+        #{addrFullName,jdbcType=VARCHAR},
+      </if>
+      <if test="addrCode != null" >
+        #{addrCode,jdbcType=VARCHAR},
+      </if>
+      <if test="countyId != null" >
+        #{countyId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createOptrId != null" >
+        #{createOptrId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDoneCode != null" >
+        #{createDoneCode,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="str1 != null" >
+        #{str1,jdbcType=VARCHAR},
+      </if>
+      <if test="str2 != null" >
+        #{str2,jdbcType=VARCHAR},
+      </if>
+      <if test="str3 != null" >
+        #{str3,jdbcType=VARCHAR},
+      </if>
+      <if test="str4 != null" >
+        #{str4,jdbcType=VARCHAR},
+      </if>
+      <if test="str5 != null" >
+        #{str5,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
+    update ad_tree_change
+    <set >
+      <if test="changeType != null" >
+        change_type = #{changeType,jdbcType=VARCHAR},
+      </if>
+      <if test="changeCause != null" >
+        change_cause = #{changeCause,jdbcType=VARCHAR},
+      </if>
+      <if test="mergeAddrId != null" >
+        merge_addr_id = #{mergeAddrId,jdbcType=INTEGER},
+      </if>
+      <if test="changeOptrId != null" >
+        change_optr_id = #{changeOptrId,jdbcType=VARCHAR},
+      </if>
+      <if test="changeDoneCode != null" >
+        change_done_code = #{changeDoneCode,jdbcType=INTEGER},
+      </if>
+      <if test="changeTime != null" >
+        change_time = #{changeTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="addrId != null" >
+        addr_id = #{addrId,jdbcType=INTEGER},
+      </if>
+      <if test="addrName != null" >
+        addr_name = #{addrName,jdbcType=VARCHAR},
+      </if>
+      <if test="addrLevel != null" >
+        addr_level = #{addrLevel,jdbcType=INTEGER},
+      </if>
+      <if test="addrType != null" >
+        addr_type = #{addrType,jdbcType=VARCHAR},
+      </if>
+      <if test="addrUse != null" >
+        addr_use = #{addrUse,jdbcType=VARCHAR},
+      </if>
+      <if test="isBlank != null" >
+        is_blank = #{isBlank,jdbcType=CHAR},
+      </if>
+      <if test="addrParent != null" >
+        addr_parent = #{addrParent,jdbcType=INTEGER},
+      </if>
+      <if test="addrPrivateName != null" >
+        addr_private_name = #{addrPrivateName,jdbcType=VARCHAR},
+      </if>
+      <if test="addrFullName != null" >
+        addr_full_name = #{addrFullName,jdbcType=VARCHAR},
+      </if>
+      <if test="addrCode != null" >
+        addr_code = #{addrCode,jdbcType=VARCHAR},
+      </if>
+      <if test="countyId != null" >
+        county_id = #{countyId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createOptrId != null" >
+        create_optr_id = #{createOptrId,jdbcType=VARCHAR},
+      </if>
+      <if test="createDoneCode != null" >
+        create_done_code = #{createDoneCode,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="str1 != null" >
+        str1 = #{str1,jdbcType=VARCHAR},
+      </if>
+      <if test="str2 != null" >
+        str2 = #{str2,jdbcType=VARCHAR},
+      </if>
+      <if test="str3 != null" >
+        str3 = #{str3,jdbcType=VARCHAR},
+      </if>
+      <if test="str4 != null" >
+        str4 = #{str4,jdbcType=VARCHAR},
+      </if>
+      <if test="str5 != null" >
+        str5 = #{str5,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where change_sn = #{changeSn,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
+    update ad_tree_change
+    set change_type = #{changeType,jdbcType=VARCHAR},
+      change_cause = #{changeCause,jdbcType=VARCHAR},
+      merge_addr_id = #{mergeAddrId,jdbcType=INTEGER},
+      change_optr_id = #{changeOptrId,jdbcType=VARCHAR},
+      change_done_code = #{changeDoneCode,jdbcType=INTEGER},
+      change_time = #{changeTime,jdbcType=TIMESTAMP},
+      addr_id = #{addrId,jdbcType=INTEGER},
+      addr_name = #{addrName,jdbcType=VARCHAR},
+      addr_level = #{addrLevel,jdbcType=INTEGER},
+      addr_type = #{addrType,jdbcType=VARCHAR},
+      addr_use = #{addrUse,jdbcType=VARCHAR},
+      is_blank = #{isBlank,jdbcType=CHAR},
+      addr_parent = #{addrParent,jdbcType=INTEGER},
+      addr_private_name = #{addrPrivateName,jdbcType=VARCHAR},
+      addr_full_name = #{addrFullName,jdbcType=VARCHAR},
+      addr_code = #{addrCode,jdbcType=VARCHAR},
+      county_id = #{countyId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_optr_id = #{createOptrId,jdbcType=VARCHAR},
+      create_done_code = #{createDoneCode,jdbcType=INTEGER},
+      status = #{status,jdbcType=VARCHAR},
+      str1 = #{str1,jdbcType=VARCHAR},
+      str2 = #{str2,jdbcType=VARCHAR},
+      str3 = #{str3,jdbcType=VARCHAR},
+      str4 = #{str4,jdbcType=VARCHAR},
+      str5 = #{str5,jdbcType=VARCHAR}
+    where change_sn = #{changeSn,jdbcType=INTEGER}
+  </update>
+</mapper>

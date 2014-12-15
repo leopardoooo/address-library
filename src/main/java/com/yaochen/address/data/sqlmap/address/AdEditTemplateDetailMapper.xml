@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdEditTemplateDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdEditTemplateDetail" >
+    <id column="template_id" property="templateId" jdbcType="INTEGER" />
+    <id column="level_num" property="levelNum" jdbcType="INTEGER" />
+    <result column="config_type" property="configType" jdbcType="VARCHAR" />
+    <result column="config_json" property="configJson" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    template_id, level_num, config_type, config_json
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_edit_template_detail
+    where template_id = #{templateId,jdbcType=INTEGER}
+      and level_num = #{levelNum,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from ad_edit_template_detail
+    where template_id = #{templateId,jdbcType=INTEGER}
+      and level_num = #{levelNum,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdEditTemplateDetail" >
+    insert into ad_edit_template_detail (template_id, level_num, config_type, 
+      config_json)
+    values (#{templateId,jdbcType=INTEGER}, #{levelNum,jdbcType=INTEGER}, #{configType,jdbcType=VARCHAR}, 
+      #{configJson,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdEditTemplateDetail" >
+    insert into ad_edit_template_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="templateId != null" >
+        template_id,
+      </if>
+      <if test="levelNum != null" >
+        level_num,
+      </if>
+      <if test="configType != null" >
+        config_type,
+      </if>
+      <if test="configJson != null" >
+        config_json,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="templateId != null" >
+        #{templateId,jdbcType=INTEGER},
+      </if>
+      <if test="levelNum != null" >
+        #{levelNum,jdbcType=INTEGER},
+      </if>
+      <if test="configType != null" >
+        #{configType,jdbcType=VARCHAR},
+      </if>
+      <if test="configJson != null" >
+        #{configJson,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdEditTemplateDetail" >
+    update ad_edit_template_detail
+    <set >
+      <if test="configType != null" >
+        config_type = #{configType,jdbcType=VARCHAR},
+      </if>
+      <if test="configJson != null" >
+        config_json = #{configJson,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where template_id = #{templateId,jdbcType=INTEGER}
+      and level_num = #{levelNum,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.address.AdEditTemplateDetail" >
+    update ad_edit_template_detail
+    set config_type = #{configType,jdbcType=VARCHAR},
+      config_json = #{configJson,jdbcType=VARCHAR}
+    where template_id = #{templateId,jdbcType=INTEGER}
+      and level_num = #{levelNum,jdbcType=INTEGER}
+  </update>
+</mapper>

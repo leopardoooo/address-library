@@ -21,7 +21,7 @@
   
     <!--  MySQL Connection -->
     <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-        connectionURL="jdbc:mysql://192.168.1.204:3306/yc_push"
+        connectionURL="jdbc:mysql://192.168.1.204:3306/address"
         userId="root"
         password="123456">
     </jdbcConnection>

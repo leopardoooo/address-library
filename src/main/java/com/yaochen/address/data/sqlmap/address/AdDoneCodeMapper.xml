@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdDoneCodeMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdDoneCode" >
+    <id column="done_code" property="doneCode" jdbcType="INTEGER" />
+    <result column="busi_code" property="busiCode" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="optr_id" property="optrId" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    done_code, busi_code, create_time, optr_id, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_done_code
+    where done_code = #{doneCode,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from ad_done_code
+    where done_code = #{doneCode,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" >
+    insert into ad_done_code (done_code, busi_code, create_time, 
+      optr_id, remark)
+    values (#{doneCode,jdbcType=INTEGER}, #{busiCode,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{optrId,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" >
+    insert into ad_done_code
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="doneCode != null" >
+        done_code,
+      </if>
+      <if test="busiCode != null" >
+        busi_code,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="optrId != null" >
+        optr_id,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="doneCode != null" >
+        #{doneCode,jdbcType=INTEGER},
+      </if>
+      <if test="busiCode != null" >
+        #{busiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="optrId != null" >
+        #{optrId,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" >
+    update ad_done_code
+    <set >
+      <if test="busiCode != null" >
+        busi_code = #{busiCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="optrId != null" >
+        optr_id = #{optrId,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where done_code = #{doneCode,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" >
+    update ad_done_code
+    set busi_code = #{busiCode,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      optr_id = #{optrId,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where done_code = #{doneCode,jdbcType=INTEGER}
+  </update>
+</mapper>
