@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <!--  Add Tables Group for MyBatis Generator Configuration,
 	No DTD check -->
@@ -6,7 +6,7 @@
 	
 	<project path="F:\WorkBenchs\addressLib\address-library"/>
 	
-	<!-- MySQL -->
+	<!-- MySQL  1 -->
 	<queryTables>show tables</queryTables>	
 	
 	
