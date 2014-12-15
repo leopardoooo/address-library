@@ -1,7 +1,3 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<% String ROOT = request.getContextPath(),
-		RES = ROOT + "/resources" ; %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -10,18 +6,18 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>广西广电网络公司标准地址库管理</title>
 		<!-- bootstrap -->
-		<link href="<%=RES %>/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-		<link href="<%=RES %>/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<link href="./bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
 		<!-- font-awesome -->
-		<link href="<%=RES %>/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+		<link href="./font-awesome/css/font-awesome.min.css" rel="stylesheet">
 		<!-- main -->
-		<link href="<%=RES %>/main/address-main.css" rel="stylesheet">
+		<link href="./main/address-main.css" rel="stylesheet">
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 		<!--[if lt IE 9]>
-		  <script src="<%=RES %>/support/html5shiv.min.js"></script>
-		  <script src="<%=RES %>/support/respond.min.js"></script>
+		  <script src="./support/html5shiv.min.js"></script>
+		  <script src="./support/respond.min.js"></script>
 		<![endif]-->
 	</head>
 <body>
@@ -53,7 +49,7 @@
 		  <ul class="nav navbar-nav navbar-right">
 			<li><a href="#" title="地址库"><i class="glyphicon glyphicon-map-marker" ></i></a></li>
 			<li><a href="#" title="光纤管理"><i class="glyphicon glyphicon-send"></i></a></li>
-			<li><a href="#" class="admin-pic"> <img alt="" class="img-circle" src="<%=RES %>/main/t2.jpg"> </a></li>
+			<li><a href="#" class="admin-pic"> <img alt="" class="img-circle" src="./main/t2.jpg"> </a></li>
 			<li class="dropdown">
 				  <a href="#" class="dropdown-toggle admin-info" data-toggle="dropdown">
 					Hi, Administrator <i class="fa fa-angle-down"></i></a>
@@ -357,11 +353,13 @@
 	</div>
 </body>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="<%=RES %>/support/jquery.min.js"></script>
+<script src="./support/jquery.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="<%=RES %>/bootstrap/js/bootstrap.min.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
 
 <script>
+	$('#switchCityModal').modal("show");
+	
 	// 
 	Search = function(W){
 		
@@ -437,8 +435,6 @@
 	
 	
 	$(document).ready(function(){
-		$('#switchCityModal').modal("show");
-		
 		(function(){
 			var desc = 'btn-success';
 			$('#switchCityModal .item-list button').click(function(){
