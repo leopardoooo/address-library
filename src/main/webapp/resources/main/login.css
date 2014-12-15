@@ -1,0 +1,13 @@
+HTML,BODY{background: #27506C; overflow: auto;}
+.container.wd, .wd{width: 838px;}
+.container .brand{color: black; font-weight: bold; -webkit-transition: all .2s linear;text-shadow: 0 1px 0 rgba(255, 255, 255, .1), 0 0 30px rgba(255, 255, 255, .125); font-size: 20px;}
+.login-panel{ position: absolute; top: 100px; left: 0; right: 0; bottom: 0; height: 300px; margin: auto;}
+.login-panel .title1{color: #1C2A47; font-size: 17px; font-weight: bold; line-height: 30px; border-bottom: 1px solid #AAA;}
+.welcome-text{width: 470px;padding-top: 30px; text-shadow: black 0 1px 2px; color: #EEE; font-weight: 300; font-size: 20px; text-align: left;}
+.welcome-text h1{margin-bottom: 3px;font-size: 20px;font-weight: 700;color: white;}
+
+.submit-btn{text-shadow: 0 -1px 1px rgba(0, 0, 0, .25); box-shadow: 0 1px 0 white; border-radius: 4px; color: white; padding: 5px 10px; height: 30px; border: 1px solid #057ED0; background-image: -webkit-linear-gradient(#33BCEF,#019AD2);}
+.submit-btn:hover{background-image: -webkit-linear-gradient(#2baadb, rgb(4, 116, 192));}
+.well{ padding: 15px; padding-bottom: 5px;}
+.nav a{font-size: 9px;}
+.checkbox{font-size: 12px; color: #999; margin-left: 2px;}
