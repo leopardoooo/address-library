@@ -124,7 +124,6 @@
 				<div class="pull-right">
 					<button type="button" class="btn btn-default" title="收藏"> <i class="glyphicon glyphicon-star-empty"></i></button>
 					<button type="button" class="btn btn-default" title="删除"> <i class="glyphicon glyphicon-trash"></i></button>
-					<button type="button" class="btn btn-default" title="添加下级"> <i class="glyphicon glyphicon-plus-sign"></i></button>
 					<button type="button" class="btn btn-default" title="保存"> <i class="glyphicon glyphicon-ok"></i></button>
 				</div>
 			</div>
@@ -133,94 +132,89 @@
 					<label for="parentLevelAddr">上级地址</label>
 					<input type="text" class="form-control" id="parentLevelAddr" readonly="readonly" placeholder="南宁市/景秀区">
 				</div>
-				<div class="form-tabs">
-					<ul class="nav nav-pills" role="tablist">
-						<li role="presentation" class="active"><a href="#editMode" role="tab" data-toggle="tab">修改地址</a></li>
-						<li role="presentation"><a href="#addSubTree" role="tab" data-toggle="tab">添加下级地址</a></li>
-					</ul>
-					<div class="tab-content">
-						<div role="tabpanel" class="tab-pane active" id="editMode">
-							<ul class="nav nav-tabs" role="tablist">
-								<li role="presentation"><a href="#normalEdit" role="tab" data-toggle="tab">修改名称</a></li>
-								<li role="presentation"><a href="#mergeAddress" role="tab" data-toggle="tab">地址合并</a></li>
-								<li role="presentation"><a href="#adjustLevel" role="tab" data-toggle="tab">级别调整</a></li>
-							</ul>
-							<div class="tab-content">
-								<div role="tabpanel" class="tab-pane" id="normalEdit">
-									<div class="form-group">
-										<label for="currentLevelAddr">地址名称</label>
-										<input type="text" class="form-control" id="currentLevelAddr" placeholder="修改后会影响到所有下级地址的完整名称">
-									</div>
-								</div>
-								<div role="tabpanel" class="tab-pane" id="mergeAddress">
-									<div class="form-group">
-										<div class="input-group">
-											<input type="text" class="form-control" placeholder="搜索要合并到的地址">
-											<div class="input-group-btn">
-												<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
-											</div><!-- /btn-group -->
-										</div><!-- /input-group -->
-									</div>
-								</div>
-								<div role="tabpanel" class="tab-pane" id="adjustLevel">
-									<div class="form-group">
-										<div class="input-group">
-											<input type="text" class="form-control" placeholder="level">
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div role="tabpanel" class="tab-pane" id="addSubTree">
-							<ul class="nav nav-tabs" role="tablist">
-								<li role="presentation" class="active"><a href="#singleAdd" role="tab" data-toggle="tab">单一地址</a></li>
-								<li role="presentation"><a href="#batchAdd" role="tab" data-toggle="tab">多个地址</a></li>
-							</ul>
-							<div class="tab-content">
-								<div role="tabpanel" class="tab-pane active" id="singleAdd">
-									<div class="form-group">
-										<div class="input-group">
-											<input type="text" class="form-control" placeholder="路、街、巷、里、弄、大道">
-											<div class="input-group-btn">
-												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
-												<ul class="dropdown-menu dropdown-menu-right" role="menu">
-													<li><a href="#">Action</a></li>
-													<li><a href="#">Another action</a></li>
-													<li><a href="#">Something else here</a></li>
-													<li class="divider"></li>
-													<li><a href="#">Separated link</a></li>
-												</ul>
-											 </div><!-- /btn-group -->
-										</div><!-- /input-group -->
-									</div>
-								</div>
-								<div role="tabpanel" class="tab-pane" id="batchAdd">
-									<div class="form-group">
-										<div class="input-group">
-											<input type="text" class="form-control" placeholder="开始位置">
-											<div class="input-group-addon"> 至 </div>
-											<input type="text" class="form-control" placeholder="结束位置">
-											<div class="input-group-btn">
-												<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
-												<ul class="dropdown-menu dropdown-menu-right" role="menu">
-													<li><a href="#">Action</a></li>
-													<li><a href="#">Another action</a></li>
-													<li><a href="#">Something else here</a></li>
-													<li class="divider"></li>
-													<li><a href="#">Separated link</a></li>
-												</ul>
-											</div><!-- /btn-group -->
-										</div><!-- /input-group -->
-									</div>
-								</div>
-							</div>
-						</div>
-					</div><!-- /tab-content -->
-				</div><!-- /tabs -->
 				<div class="form-group">
 					<label for="currentLevelAddr">完整地址名称</label>
 					<input type="text" class="form-control" readonly="readonly" value="南宁市/青秀区/民族大道">
 				</div>
+				<div class="form-tabs"> 
+					<ul class="nav nav-tabs" role="tablist">
+						<li role="presentation" class="dropdown active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">修改地址 <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li class=""><a href="#normalEdit" role="tab" data-toggle="tab">修改名称</a></li>
+								<li><a href="#mergeAddress" role="tab" data-toggle="tab">地址合并</a></li>
+								<li><a href="#adjustLevel" role="tab" data-toggle="tab">级别调整</a></li>
+							</ul>
+						</li>
+						<li role="presentation" class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">添加下级地址 <span class="caret"></span></a>
+							<ul class="dropdown-menu" role="menu">
+								<li><a href="#singleAdd" role="tab" data-toggle="tab">单一地址</a></li>
+								<li><a href="#batchAdd" role="tab" data-toggle="tab">多个地址</a></li>
+							</ul>
+						</li>
+					</ul>
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane active" id="normalEdit">
+							<div class="form-group">
+								<input type="text" class="form-control" id="currentLevelAddr" placeholder="修改后会影响到所有下级地址的完整名称">
+							</div>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="mergeAddress">
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="搜索要合并到的地址">
+									<div class="input-group-btn">
+										<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+									</div><!-- /btn-group -->
+								</div><!-- /input-group -->
+							</div>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="adjustLevel">
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="level">
+								</div>
+							</div>
+						</div>
+						<div role="tabpanel" class="tab-pane active" id="singleAdd">
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="路、街、巷、里、弄、大道">
+									<div class="input-group-btn">
+										<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
+										<ul class="dropdown-menu dropdown-menu-right" role="menu">
+											<li><a href="#">Action</a></li>
+											<li><a href="#">Another action</a></li>
+											<li><a href="#">Something else here</a></li>
+											<li class="divider"></li>
+											<li><a href="#">Separated link</a></li>
+										</ul>
+									 </div><!-- /btn-group -->
+								</div><!-- /input-group -->
+							</div>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="batchAdd">
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="开始位置">
+									<div class="input-group-addon"> 至 </div>
+									<input type="text" class="form-control" placeholder="结束位置">
+									<div class="input-group-btn">
+										<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
+										<ul class="dropdown-menu dropdown-menu-right" role="menu">
+											<li><a href="#">Action</a></li>
+											<li><a href="#">Another action</a></li>
+											<li><a href="#">Something else here</a></li>
+											<li class="divider"></li>
+											<li><a href="#">Separated link</a></li>
+										</ul>
+									</div><!-- /btn-group -->
+								</div><!-- /input-group -->
+							</div>
+						</div><!-- /tab panel -->
+					</div><!-- /tab-content -->
+				</div><!-- /tabs -->
 			</div>
 		</div><!-- 编辑区结束 -->
 		<div id="resultList">
@@ -374,11 +368,7 @@
 		</div>
 	</div>
 </body>
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="<%=RES %>/support/jquery.min.js"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="<%=RES %>/bootstrap/js/bootstrap.min.js"></script>
-
+<%@ include file="/WEB-INF/common/foot.jsp" %>
 <script>
 	// 
 	Search = function(W){

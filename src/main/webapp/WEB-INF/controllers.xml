@@ -8,7 +8,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
         
 	<!-- Maps '/' requests to the 'home' view -->
-	<mvc:view-controller path="/" view-name="index"/>
+	<mvc:view-controller path="/" view-name="login"/>
 	<mvc:view-controller path="/login" view-name="login"/>
 	<mvc:view-controller path="/index" view-name="index"/>
 	<mvc:view-controller path="/index2" view-name="index2"/>

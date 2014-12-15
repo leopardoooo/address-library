@@ -20,4 +20,9 @@
   <script src="<%=RES %>/support/html5shiv.min.js"></script>
   <script src="<%=RES %>/support/respond.min.js"></script>
 <![endif]-->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="<%=RES %>/support/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="<%=RES %>/bootstrap/js/bootstrap.min.js"></script>
 	
