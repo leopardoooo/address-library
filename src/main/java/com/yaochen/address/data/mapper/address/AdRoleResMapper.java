@@ -3,6 +3,8 @@
  */
 package com.yaochen.address.data.mapper.address;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 import com.easyooo.framework.sharding.annotation.Table;
@@ -17,4 +19,6 @@ public interface AdRoleResMapper {
     int insert(AdRoleRes record);
 
     int insertSelective(AdRoleRes record);
+
+	List<AdRoleRes> selectByRoleId(@Param("roleId") Integer roleId);
 }

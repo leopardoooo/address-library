@@ -3,6 +3,8 @@
  */
 package com.yaochen.address.data.mapper.address;
 
+import java.util.List;
+
 import com.easyooo.framework.sharding.annotation.Table;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.support.Repository;
@@ -21,4 +23,6 @@ public interface AdLevelMapper {
     int updateByPrimaryKeySelective(AdLevel record);
 
     int updateByPrimaryKey(AdLevel record);
+
+	List<AdLevel> selectByMaxLevel(Integer levelNum);
 }
