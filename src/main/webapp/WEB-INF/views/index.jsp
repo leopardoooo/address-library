@@ -2,7 +2,9 @@
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head> <%@ include file="/WEB-INF/common/head.jsp" %> </head>
+<head> 
+	<%@ include file="/WEB-INF/common/head.jsp" %>
+</head>
 <body>
 	<nav id="topNav" class="navbar navbar-static-top" role="navigation">
 	  <div class="container-fluid">
@@ -128,20 +130,20 @@
 				</div>
 			</div>
 			<div class="panel-body" id="editForm">
+				<div class="form-group">
+					<label for="currentLevelAddr">完整名称（1/2/3）</label>
+					<input type="text" class="form-control" readonly="readonly" value="南宁市/青秀区/民族大道">
+				</div>
 				<div class="form-group"> 
 					<label for="parentLevelAddr">上级地址</label>
 					<input type="text" class="form-control" id="parentLevelAddr" readonly="readonly" placeholder="南宁市/景秀区">
-				</div>
-				<div class="form-group">
-					<label for="currentLevelAddr">完整地址名称</label>
-					<input type="text" class="form-control" readonly="readonly" value="南宁市/青秀区/民族大道">
 				</div>
 				<div class="form-tabs"> 
 					<ul class="nav nav-tabs" role="tablist">
 						<li role="presentation" class="dropdown active">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">修改地址 <span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">
-								<li class=""><a href="#normalEdit" role="tab" data-toggle="tab">修改名称</a></li>
+								<li class="active"><a href="#normalEdit" role="tab" data-toggle="tab">修改名称</a></li>
 								<li><a href="#mergeAddress" role="tab" data-toggle="tab">地址合并</a></li>
 								<li><a href="#adjustLevel" role="tab" data-toggle="tab">级别调整</a></li>
 							</ul>
@@ -177,7 +179,7 @@
 								</div>
 							</div>
 						</div>
-						<div role="tabpanel" class="tab-pane active" id="singleAdd">
+						<div role="tabpanel" class="tab-pane" id="singleAdd">
 							<div class="form-group">
 								<div class="input-group">
 									<input type="text" class="form-control" placeholder="路、街、巷、里、弄、大道">
@@ -192,6 +194,11 @@
 										</ul>
 									 </div><!-- /btn-group -->
 								</div><!-- /input-group -->
+							</div>
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="级别数">
+								</div>
 							</div>
 						</div>
 						<div role="tabpanel" class="tab-pane" id="batchAdd">
@@ -211,6 +218,11 @@
 										</ul>
 									</div><!-- /btn-group -->
 								</div><!-- /input-group -->
+							</div>
+							<div class="form-group">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="级别数">
+								</div>
 							</div>
 						</div><!-- /tab panel -->
 					</div><!-- /tab-content -->
@@ -369,85 +381,8 @@
 	</div>
 </body>
 <%@ include file="/WEB-INF/common/foot.jsp" %>
+<script src="<%=RES %>/main/scripts/index.js"></script>
 <script>
-	// 
-	Search = function(W){
-		
-		var $input = $("#searchInput"), $parent = $input.parent(),
-			$itemParent = $("#matchingResult"), desc = ">li>a";
-		
-		var hide = function(){ $parent.removeClass("open") ;}
-		var show = function(){ $parent.addClass("open") ;}
-		
-		return {
-			initialize: function(){
-				
-				$('#searchLevelList' + desc).click(function(){
-					$('#levelLabel').text($(this).text());
-				});
-			
-				$itemParent.keydown(function(e){
-					if (!/(37|38|39|40)/.test(e.which)) return;
-					var $items = $(this).find(desc);
-					if (!$items.length) return;
-
-					var index = $items.index(e.target);
-					
-					if (e.which == 38) index-- ;  								// up
-					if (e.which == 40 && index < $items.length - 1) index++ ;  // down
-					if(index == -1){ 
-						$input.trigger("focus");
-						hide();
-						return;
-					}
-					if (!~index)  index = 0 ;
-					$items.eq(index).trigger('focus');
-					
-					// 左键
-					if(e.keyCode === 37){
-						alert("上一页");
-					}
-					// 右键
-					if(e.keyCode === 39){
-						alert("下一页");
-					}
-				});
-				
-				// selected
-				$itemParent.click(function(e){
-					var $items = $(this).find(desc);
-					if (!$items.length) return;
-
-					var index = $items.index(e.target);
-					
-					e.preventDefault();
-					e.stopPropagation();
-					
-					if(index === -1) return;
-					
-					$input.val($(e.target).text());
-					hide();
-					$input.trigger("focus");
-				});
-			
-				$input.keydown(function(e){
-					if (!/(13|40)/.test(e.which)) return;
-					var $items = $itemParent.find(desc);
-					if ($items.length > 0)
-						$items.eq(0).trigger("focus");
-					show();
-				});
-				
-				//$input.focus(show);
-				$input.blur(function(e){
-					hide();
-				});
-			}
-		};
-		
-	}(window);
-	
-	
 	$(document).ready(function(){
 		$('#switchCityModal').modal("show");
 		
