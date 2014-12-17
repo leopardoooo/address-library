@@ -1,7 +1,5 @@
 package com.yaochen.test.service;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -84,7 +82,7 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		treeService.addTree(tree);
+		treeService.addTree(tree,ThreadUserHolder.getOptr());
 	}
 	
 	/**
@@ -106,7 +104,7 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		treeService.addTree(tree);
+		treeService.addTree(tree,ThreadUserHolder.getOptr());
 	}
 	
 	@Test
@@ -136,7 +134,7 @@ public class TreeServiceTest extends SpringRunTest{
 			tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
 			tree.setIsBlank("F");
 			tree.setStatus(BusiConstants.Status.ACTIVE.name());
-			treeService.addTree(tree);
+			treeService.addTree(tree,ThreadUserHolder.getOptr());
 		}
 		
 	}
@@ -147,14 +145,14 @@ public class TreeServiceTest extends SpringRunTest{
 		AdTree tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));
 		tree.setAddrName("treeNewBee");
-		treeService.modTree(tree, true);
+		treeService.modTree(tree, true,ThreadUserHolder.getOptr());
 		tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));
 	}
 	
 	@Test
 	public void testDelTree() throws Throwable {
-		treeService.delTree(15);
+		treeService.delTree(15,ThreadUserHolder.getOptr());
 		AdTree tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));
 	}
@@ -178,7 +176,7 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		treeService.addTrees(tree,1,10);
+		treeService.addTrees(tree,1,10,ThreadUserHolder.getOptr());
 	}
 	
 	
@@ -190,7 +188,7 @@ public class TreeServiceTest extends SpringRunTest{
 			Pagination pager2 = treeService.findChildrensAndPagingByPid(0, 0, 100);
 			logger.info(JSON.toJSONString(pager2, true));
 			
-			List<AdLevel> levels = treeService.findAuthLevelByCurrentUser();
+			List<AdLevel> levels = treeService.findAuthLevelByCurrentUser(ThreadUserHolder.getOptr());
 			logger.info(JSON.toJSONString(levels, true));
 			String keyword = "南宁";
 			Pagination doSearchAddress = treeService.doSearchAddress(3, keyword, 0, 100);
@@ -212,7 +210,7 @@ public class TreeServiceTest extends SpringRunTest{
 		Integer endPosi = 10 ;
 		AdTree param = new AdTree();
 		//TODO
-		treeService.addTrees(param, startPosi, endPosi);
+		treeService.addTrees(param, startPosi, endPosi,null);
 	}
 	
 	
@@ -223,18 +221,18 @@ public class TreeServiceTest extends SpringRunTest{
 	@Test
 	public void testSaveCollectoin() throws Throwable{
 		//TODO
-		treeService.saveCollectTree(1);
-		treeService.saveCollectTree(2);
-		treeService.saveCollectTree(3);
-		treeService.saveCollectTree(4);
-		List<AdLevel> list = treeService.findCollectTreeList(100);
+		treeService.saveCollectTree(1,ThreadUserHolder.getOptr());
+		treeService.saveCollectTree(2,ThreadUserHolder.getOptr());
+		treeService.saveCollectTree(3,ThreadUserHolder.getOptr());
+		treeService.saveCollectTree(4,ThreadUserHolder.getOptr());
+		List<AdLevel> list = treeService.findCollectTreeList(100,ThreadUserHolder.getOptr());
 		System.err.println(JSON.toJSONString(list, true));
 	}
 	
 	@Test
 	public void testCancelCollectoin() throws Throwable{
 		//TODO
-		treeService.saveCancelCollectTree(1);
+		treeService.saveCancelCollectTree(1,ThreadUserHolder.getOptr());
 	}
 	
 	

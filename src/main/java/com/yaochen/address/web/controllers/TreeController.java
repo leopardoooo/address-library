@@ -2,6 +2,8 @@ package com.yaochen.address.web.controllers;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,8 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.easyooo.framework.support.mybatis.Pagination;
+import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.MessageException;
+import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdTree;
+import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.service.TreeService;
 import com.yaochen.address.web.support.ReturnValueUtil;
 import com.yaochen.address.web.support.Root;
@@ -28,10 +34,11 @@ public class TreeController {
 	 */
 	@RequestMapping(value="/findTopTrees")
 	@ResponseBody
-	public Root<List<Object>> findTopTreesByCurrentUser() throws Throwable{
+	public Root<List<AdTree>> findTopTreesByCurrentUser() throws Throwable{
 		// TODO  2
 		Pagination pager = treeService.findChildrensAndPagingByPid(0, 0, 1000);
-		return ReturnValueUtil.getJsonRoot(pager.getRecords());
+		List<AdTree> records = pager.getRecords();
+		return ReturnValueUtil.getJsonRoot(records);
 	}
 	
 	/**
@@ -43,10 +50,10 @@ public class TreeController {
 	 */
 	@RequestMapping("/findChildrens")
 	@ResponseBody
-	public Root<List<Object>> findChildrensByPid(@RequestParam("pid") Integer parentAddrId) throws Throwable{
+	public Root<List<AdTree>> findChildrensByPid(@RequestParam("pid") Integer parentAddrId) throws Throwable{
 		Pagination pager = treeService.findChildrensAndPagingByPid(parentAddrId, 0, 1000);
-		// TODO 3
-		return ReturnValueUtil.getJsonRoot(pager.getRecords());
+		List<AdTree> records = pager.getRecords();
+		return ReturnValueUtil.getJsonRoot(records);
 	}
 	
 	/**
@@ -71,8 +78,8 @@ public class TreeController {
 	 */
 	@RequestMapping("/findAuthLevel")
 	@ResponseBody
-	public Root<List<AdLevel>> findAuthLevelByCurrentUser()throws Throwable {
-		return ReturnValueUtil.getJsonRoot(treeService.findAuthLevelByCurrentUser());
+	public Root<List<AdLevel>> findAuthLevelByCurrentUser(HttpSession session)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.findAuthLevelByCurrentUser(getUserInSession(session)));
 	}
 	
 	/**
@@ -105,9 +112,8 @@ public class TreeController {
 	 */
 	@RequestMapping("/addTree")
 	@ResponseBody
-	public Root<Integer> addTree(AdTree tree)throws Throwable {
-		// TODO 1
-		return ReturnValueUtil.getJsonRoot(treeService.addTree(tree));
+	public Root<Integer> addTree(AdTree tree,HttpSession session)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.addTree(tree, getUserInSession(session)));
 	}
 	
 	/**
@@ -119,9 +125,9 @@ public class TreeController {
 	 */
 	@RequestMapping("/addTrees")
 	@ResponseBody
-	public Root<List<Integer>> addTrees(AdTree tree,Integer startPosi,Integer endPosi)throws Throwable {
+	public Root<List<Integer>> addTrees(AdTree tree,Integer startPosi,Integer endPosi,HttpSession session)throws Throwable {
 		// TODO  1
-		return ReturnValueUtil.getJsonRoot(treeService.addTrees(tree, startPosi, endPosi));
+		return ReturnValueUtil.getJsonRoot(treeService.addTrees(tree, startPosi, endPosi, getUserInSession(session)));
 	}
 	
 	/**
@@ -132,9 +138,9 @@ public class TreeController {
 	 */
 	@RequestMapping("/modTree")
 	@ResponseBody
-	public Root<Void> modTree(AdTree tree,boolean ignoreEmpty)throws Throwable {
+	public Root<Void> modTree(AdTree tree,boolean ignoreEmpty,HttpSession session)throws Throwable {
 		// TODO
-		treeService.modTree(tree,ignoreEmpty);
+		treeService.modTree(tree,ignoreEmpty,getUserInSession(session));
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -147,9 +153,9 @@ public class TreeController {
 	 */
 	@RequestMapping("/delTree")
 	@ResponseBody
-	public Root<Void> delTree(@RequestParam("addrId") Integer addrId)throws Throwable {
+	public Root<Void> delTree(@RequestParam("addrId") Integer addrId,HttpSession session)throws Throwable {
 		// TODO
-		treeService.delTree(addrId);
+		treeService.delTree(addrId,getUserInSession(session));
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -158,9 +164,9 @@ public class TreeController {
 	 */
 	@RequestMapping("/collectTree")
 	@ResponseBody
-	public Root<Void> collectTree(@RequestParam("addrId") Integer addrId)throws Throwable {
+	public Root<Void> collectTree(@RequestParam("addrId") Integer addrId,HttpSession session)throws Throwable {
 		// TODO
-		treeService.saveCollectTree(addrId);
+		treeService.saveCollectTree(addrId, getUserInSession(session));
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -169,9 +175,9 @@ public class TreeController {
 	 */
 	@RequestMapping("/cancelCollectTree")
 	@ResponseBody
-	public Root<Void> cancelCollectTree(@RequestParam("addrId") Integer addrId)throws Throwable {
+	public Root<Void> cancelCollectTree(@RequestParam("addrId") Integer addrId,HttpSession session)throws Throwable {
 		// TODO
-		treeService.saveCancelCollectTree(addrId);
+		treeService.saveCancelCollectTree(addrId,getUserInSession(session));
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -183,9 +189,21 @@ public class TreeController {
 	 */
 	@RequestMapping("/findCollects")
 	@ResponseBody
-	public Root<List<AdLevel>> findCollectTreeList(@RequestParam("limit") Integer limit)throws Throwable {
+	public Root<List<AdLevel>> findCollectTreeList(@RequestParam("limit") Integer limit,HttpSession session)throws Throwable {
 		// TODO
-		return ReturnValueUtil.getJsonRoot(treeService.findCollectTreeList(limit));
+		return ReturnValueUtil.getJsonRoot(treeService.findCollectTreeList(limit,getUserInSession(session)));
 	}
 	
+	/**
+	 * 需要操作员的业务,获取当前登录的操作员,如果没有登录则抛出异常.
+	 * @return
+	 * @throws MessageException
+	 */
+	private UserInSession getUserInSession(HttpSession session) throws MessageException {
+		Object attribute = session.getAttribute(BusiConstants.USER_IN_SESSION);
+		if(attribute == null){
+			throw new MessageException(StatusCodeConstant.USER_NOT_LOGGED);
+		}
+		return (UserInSession)attribute;
+	}
 }
