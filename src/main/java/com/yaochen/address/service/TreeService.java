@@ -6,19 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
 import com.easyooo.framework.common.util.CglibUtil;
 import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.common.BusiCodeConstants;
+import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
-import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.data.domain.address.AdCollections;
 import com.yaochen.address.data.domain.address.AdDoneCode;
 import com.yaochen.address.data.domain.address.AdLevel;
@@ -57,7 +54,7 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public Integer addTree(AdTree tree) throws Throwable{
-		UserInSession optr = ThreadUserHolder.getOptr();
+		UserInSession optr = getUserInSession();
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
 		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
@@ -86,11 +83,12 @@ public class TreeService {
 	 * @param code
 	 * @return
 	 */
-	private int createDoneCode(Date createTime, BusiCodeConstants code) {
+	private int createDoneCode(Date createTime, BusiCodeConstants code) throws Throwable{
 		AdDoneCode doneCode = new AdDoneCode();
 		doneCode.setBusiCode(code.name());
 		doneCode.setCreateTime(createTime);
-		doneCode.setOptrId(ThreadUserHolder.getOptr().getUserOID());
+		UserInSession optr = getUserInSession();
+		doneCode.setOptrId(optr.getUserOID());
 		int createDoneCode = adDoneCodeMapper.insertSelective(doneCode);
 		return createDoneCode;
 	}
@@ -106,7 +104,7 @@ public class TreeService {
 		}
 		
 		List<Integer> result = new ArrayList<Integer>();
-		UserInSession optr = ThreadUserHolder.getOptr();
+		UserInSession optr = getUserInSession();
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
 		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
@@ -157,7 +155,7 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public List<AdLevel> findAuthLevelByCurrentUser() throws Throwable {
-		UserInSession optr = ThreadUserHolder.getOptr();
+		UserInSession optr = getUserInSession();
 		List<SystemFunction> systemFunction = optr.getSystemFunction();
 		Integer roleOID = null;
 		for (SystemFunction fun : systemFunction) {
@@ -191,7 +189,7 @@ public class TreeService {
 		Map<String, Object>	param = new HashMap<String, Object>();
 		param.put("addrParent", parentAddrId);
 		Pagination pager = new Pagination(param,start,limit);
-		List<AdTree> list = adTreeMapper.selectByPid(pager);
+		adTreeMapper.selectByPid(pager);
 		return pager;
 	}
 
@@ -230,6 +228,13 @@ public class TreeService {
 	public void delTree(Integer addrId) throws Throwable {
 		//TODO 要不要做权限检查？
 		AdTree tree = checkTreeExists(addrId);
+		//只要有一个子节点都不给删除
+		Pagination pager = findChildrensAndPagingByPid(addrId, 0, 1);
+		List<Object> children = pager.getRecords();
+		if(children != null && children.size() > 0){
+			throw new MessageException(StatusCodeConstant.ADDR_HAS_CHILDREN);
+		}
+		
 		tree.setStatus(BusiConstants.Status.INVALID.name());
 		createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR);
 		modTree(tree, true);
@@ -242,7 +247,8 @@ public class TreeService {
 	 */
 	public void saveCollectTree(Integer addrId) throws Throwable {
 		checkTreeExists(addrId);
-		String userId = ThreadUserHolder.getOptr().getUserOID();
+		UserInSession optr = getUserInSession();
+		String userId = optr.getUserOID();
 		AdCollections coll = checkCollExists(addrId, userId);
 		if(coll == null){
 			coll = new AdCollections();
@@ -264,8 +270,8 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public void saveCancelCollectTree(Integer addrId) throws Throwable {
-		//先检查收藏存在不
-		String userId = ThreadUserHolder.getOptr().getUserOID();
+		UserInSession optr = getUserInSession();
+		String userId = optr.getUserOID();
 		AdCollections coll = checkCollExists(addrId, userId);
 		if(coll == null){
 			throw new MessageException(StatusCodeConstant.ADDR_COLL_NOT_EXISTS);
@@ -283,7 +289,8 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public List<AdLevel> findCollectTreeList( Integer limit) throws Throwable {
-		String userId = ThreadUserHolder.getOptr().getUserOID();
+		UserInSession optr = getUserInSession();
+		String userId = optr.getUserOID();
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("userid", userId);
 		Pagination pager = new Pagination(param,0,limit);
@@ -329,5 +336,17 @@ public class TreeService {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * 需要操作员的业务,获取当前登录的操作员,如果没有登录则抛出异常.
+	 * @return
+	 * @throws MessageException
+	 */
+	private UserInSession getUserInSession() throws MessageException {
+		UserInSession optr = ThreadUserHolder.getOptr();
+		if(optr ==null){
+			throw new MessageException(StatusCodeConstant.USER_NOT_LOGGED);
+		}
+		return optr;
+	}
 }
