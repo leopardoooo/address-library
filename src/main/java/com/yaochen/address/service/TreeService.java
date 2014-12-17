@@ -29,7 +29,6 @@ import com.yaochen.address.data.mapper.address.AdTreeMapper;
 import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.support.AddrNameChecker;
-import com.yaochen.address.support.ThreadUserHolder;
 
 @Service
 public class TreeService {
@@ -53,8 +52,8 @@ public class TreeService {
 	 * @return
 	 * @throws Throwable
 	 */
-	public Integer addTree(AdTree tree) throws Throwable{
-		UserInSession optr = getUserInSession();
+	public Integer addTree(AdTree tree,UserInSession optr) throws Throwable{
+		//验证同一级下名称是否重复
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
 		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
@@ -69,31 +68,15 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
 		}
 		
-		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR);
+		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR,optr);
 		
 		tree.setCreateDoneCode(createDoneCode);
 		
 		return adTreeMapper.insertSelective(tree);
 	}
 
-	/**
-	 * 插入流水.
-	 * @param createTime
-	 * @param optrId
-	 * @param code
-	 * @return
-	 */
-	private int createDoneCode(Date createTime, BusiCodeConstants code) throws Throwable{
-		AdDoneCode doneCode = new AdDoneCode();
-		doneCode.setBusiCode(code.name());
-		doneCode.setCreateTime(createTime);
-		UserInSession optr = getUserInSession();
-		doneCode.setOptrId(optr.getUserOID());
-		int createDoneCode = adDoneCodeMapper.insertSelective(doneCode);
-		return createDoneCode;
-	}
 	
-	public List<Integer> addTrees(AdTree param,Integer startPosi,Integer endPosi) throws Throwable{
+	public List<Integer> addTrees(AdTree param,Integer startPosi,Integer endPosi,UserInSession optr) throws Throwable{
 		//验证参数
 		if(null == startPosi || null == endPosi){ //提示起始位置不能为空
 			logger.info("参数为空");
@@ -104,12 +87,13 @@ public class TreeService {
 		}
 		
 		List<Integer> result = new ArrayList<Integer>();
-		UserInSession optr = getUserInSession();
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
 		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
 		
-		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH);
+		//TODO 验证名称是否重复,重复则忽略
+		
+		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH,optr);
 		
 		for (Integer index = startPosi; index < endPosi; index++) {
 			AdTree tree = new AdTree();
@@ -145,6 +129,7 @@ public class TreeService {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("addrLevel", startLevel);
 		param.put("keyword", keyword);//全名
+		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByKeyWord(pager);
 		return pager;
@@ -154,8 +139,7 @@ public class TreeService {
 	 * 查询当前用户有权访问的Level
 	 * @throws Throwable
 	 */
-	public List<AdLevel> findAuthLevelByCurrentUser() throws Throwable {
-		UserInSession optr = getUserInSession();
+	public List<AdLevel> findAuthLevelByCurrentUser(UserInSession optr) throws Throwable {
 		List<SystemFunction> systemFunction = optr.getSystemFunction();
 		Integer roleOID = null;
 		for (SystemFunction fun : systemFunction) {
@@ -188,6 +172,7 @@ public class TreeService {
 			Integer limit) throws Throwable {
 		Map<String, Object>	param = new HashMap<String, Object>();
 		param.put("addrParent", parentAddrId);
+		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByPid(pager);
 		return pager;
@@ -199,13 +184,13 @@ public class TreeService {
 	 * @param ignoreEmpty 
 	 * @throws Throwable
 	 */
-	public void modTree(AdTree tree, boolean ignoreEmpty) throws Throwable {
+	public void modTree(AdTree tree, boolean ignoreEmpty,UserInSession optr) throws Throwable {
 		AdTree oldTree = adTreeMapper.selectByPrimaryKey(tree.getAddrId());
 		if(oldTree== null){
 			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR);
+		createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR,optr);
 		
 		if(ignoreEmpty){
 			adTreeMapper.updateByPrimaryKeySelective(tree);
@@ -225,7 +210,7 @@ public class TreeService {
 		return adTreeMapper.selectByPrimaryKey(addrId);
 	}
 
-	public void delTree(Integer addrId) throws Throwable {
+	public void delTree(Integer addrId,UserInSession optr) throws Throwable {
 		//TODO 要不要做权限检查？
 		AdTree tree = checkTreeExists(addrId);
 		//只要有一个子节点都不给删除
@@ -236,8 +221,8 @@ public class TreeService {
 		}
 		
 		tree.setStatus(BusiConstants.Status.INVALID.name());
-		createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR);
-		modTree(tree, true);
+		createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR,optr);
+		modTree(tree, true,optr);
 	}
 
 	/**
@@ -245,9 +230,8 @@ public class TreeService {
 	 * @param addrId
 	 * @throws Throwable
 	 */
-	public void saveCollectTree(Integer addrId) throws Throwable {
+	public void saveCollectTree(Integer addrId,UserInSession optr) throws Throwable {
 		checkTreeExists(addrId);
-		UserInSession optr = getUserInSession();
 		String userId = optr.getUserOID();
 		AdCollections coll = checkCollExists(addrId, userId);
 		if(coll == null){
@@ -256,7 +240,7 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.ADDR_COLL_ALREADY_EXISTS);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.COLLECT_ADDR);
+		createDoneCode(createTime, BusiCodeConstants.COLLECT_ADDR,optr);
 		coll.setAddrId(addrId);
 		coll.setCreateTime(createTime);
 		coll.setUserid(userId);
@@ -269,15 +253,14 @@ public class TreeService {
 	 * @param addrId
 	 * @throws Throwable
 	 */
-	public void saveCancelCollectTree(Integer addrId) throws Throwable {
-		UserInSession optr = getUserInSession();
+	public void saveCancelCollectTree(Integer addrId,UserInSession optr) throws Throwable {
 		String userId = optr.getUserOID();
 		AdCollections coll = checkCollExists(addrId, userId);
 		if(coll == null){
 			throw new MessageException(StatusCodeConstant.ADDR_COLL_NOT_EXISTS);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.DE_COLLECT_ADDR);
+		createDoneCode(createTime, BusiCodeConstants.DE_COLLECT_ADDR,optr);
 		adCollectionsMapper.deleteByAddrAndUser(coll);
 		
 	}
@@ -288,11 +271,11 @@ public class TreeService {
 	 * @return
 	 * @throws Throwable
 	 */
-	public List<AdLevel> findCollectTreeList( Integer limit) throws Throwable {
-		UserInSession optr = getUserInSession();
+	public List<AdLevel> findCollectTreeList( Integer limit,UserInSession optr) throws Throwable {
 		String userId = optr.getUserOID();
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("userid", userId);
+		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,0,limit);
 		List<AdLevel> list = adTreeMapper.selectUserCollection(pager);
 		return list;
@@ -337,16 +320,22 @@ public class TreeService {
 		return null;
 	}
 
+	
 	/**
-	 * 需要操作员的业务,获取当前登录的操作员,如果没有登录则抛出异常.
+	 * 插入流水.
+	 * @param createTime
+	 * @param optrId
+	 * @param code
 	 * @return
-	 * @throws MessageException
 	 */
-	private UserInSession getUserInSession() throws MessageException {
-		UserInSession optr = ThreadUserHolder.getOptr();
-		if(optr ==null){
-			throw new MessageException(StatusCodeConstant.USER_NOT_LOGGED);
-		}
-		return optr;
+	private int createDoneCode(Date createTime, BusiCodeConstants code,UserInSession optr ) throws Throwable{
+		AdDoneCode doneCode = new AdDoneCode();
+		doneCode.setBusiCode(code.name());
+		doneCode.setCreateTime(createTime);
+		doneCode.setOptrId(optr.getUserOID());
+		int createDoneCode = adDoneCodeMapper.insertSelective(doneCode);
+		return createDoneCode;
 	}
+
+	
 }

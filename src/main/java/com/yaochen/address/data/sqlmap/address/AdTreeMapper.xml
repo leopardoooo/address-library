@@ -40,14 +40,18 @@
     <include refid="Base_Column_List" />
     from ad_tree
     <if test="startLevel > -1">
-    	where addr_level >= #{addrLevel,jdbcType=INTEGER} and 1=1
+    	where addr_level >= #{addrLevel,jdbcType=INTEGER} 
     </if>
     <if test="startLevel &lt; 0 ">
-    	where addr_level >= #{addrLevel,jdbcType=INTEGER} and 2=2
+    	where addr_level > = #{addrLevel,jdbcType=INTEGER}
     </if>
      
      <if test="keyword != null">
      	and addr_full_name like '%${keyword}%'
+     </if>
+     
+     <if test="status != null">
+     	and status = #{status,jdbcType=VARCHAR}
      </if>
      order by addr_level 
   </select>
@@ -61,6 +65,9 @@
     from ad_tree t,ad_collections c
     where c.addr_id = t.addr_id
     and c.userid = #{userid,jdbcType=VARCHAR}
+    <if test="status != null">
+     	and status = #{status,jdbcType=VARCHAR}
+     </if>
      order by addr_level 
   </select>
   
@@ -72,6 +79,9 @@
      
      <if test="addrParent != null">
      	where addr_parent = #{addrParent,jdbcType=INTEGER}
+     </if>
+     <if test="status != null">
+     	and status = #{status,jdbcType=VARCHAR}
      </if>
      order by addr_level 
   </select>
