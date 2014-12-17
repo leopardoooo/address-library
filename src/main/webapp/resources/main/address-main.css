@@ -43,6 +43,7 @@ input:focus, textarea:focus {outline: 0;outline: thin dotted \9;}
 /** 选择城市列表 */
 .switch-city-body{}
 .switch-city-body>.item-list{ padding: 10px 0;}
+.switch-city-body>.item-list .empty{padding: 10px 2px; color: #666;}
 .switch-city-body>.item-list>p{ font-weight: 700;}
 .switch-city-body>.country{border-top: 1px dotted #d8dbe1;}
 .switch-city-body>.item-list>.buttons>.btn{margin-bottom: 10px; margin-right: 10px;}

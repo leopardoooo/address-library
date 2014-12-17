@@ -1,9 +1,15 @@
 package com.yaochen.address.web.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +29,7 @@ import com.yaochen.address.web.support.Root;
 
 @Controller
 @RequestMapping("/tree")
-public class TreeController {
+public class TreeController implements BeanFactoryAware{
 	@Autowired
 	private TreeService treeService;
 	
@@ -205,5 +211,34 @@ public class TreeController {
 			throw new MessageException(StatusCodeConstant.USER_NOT_LOGGED);
 		}
 		return (UserInSession)attribute;
+	}
+	
+	/**
+	 * 获取首页的初始化参数
+	 * @return
+	 * @throws Throwable
+	 */
+	public static Map<String, Object> getCurrentIndexParams(HttpSession session)throws Throwable {
+		Map<String, Object> params = new HashMap<>();
+		
+		TreeController tc = beanFactory.getBean(TreeController.class);
+		
+		// 城市列表
+		params.put("cityList", tc.findTopTreesByCurrentUser().getData());
+		
+		// 当前用户能访问的级别级别
+		params.put("levelList", tc.findAuthLevelByCurrentUser(session).getData());
+		
+		// 当前用户信息
+		//params.put("session", );
+		
+		return params;
+	}
+
+	private static BeanFactory beanFactory;
+	
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		TreeController.beanFactory = beanFactory;
 	}
 }
