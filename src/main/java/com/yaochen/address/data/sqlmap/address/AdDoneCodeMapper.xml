@@ -21,13 +21,13 @@
     delete from ad_done_code
     where done_code = #{doneCode,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" >
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" useGeneratedKeys="true" keyProperty="doneCode">
     insert into ad_done_code (done_code, busi_code, create_time, 
       optr_id, remark)
     values (#{doneCode,jdbcType=INTEGER}, #{busiCode,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{optrId,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" >
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdDoneCode" useGeneratedKeys="true" keyProperty="doneCode">
     insert into ad_done_code
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="doneCode != null" >

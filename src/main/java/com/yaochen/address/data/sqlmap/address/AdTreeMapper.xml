@@ -34,11 +34,53 @@
     from ad_tree
     where addr_id = #{addrId,jdbcType=INTEGER}
   </select>
+  <!-- selectByKeyWord -->
+  <select id="selectByKeyWord" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree
+    <if test="startLevel > -1">
+    	where addr_level >= #{addrLevel,jdbcType=INTEGER} and 1=1
+    </if>
+    <if test="startLevel &lt; 0 ">
+    	where addr_level >= #{addrLevel,jdbcType=INTEGER} and 2=2
+    </if>
+     
+     <if test="keyword != null">
+     	and addr_full_name like '%${keyword}%'
+     </if>
+     order by addr_level 
+  </select>
+  
+  <!-- selectUserCollection -->
+   <select id="selectUserCollection" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    t.addr_id,t.addr_name,t.addr_level,t.addr_type,t.addr_use,t.is_blank,t.addr_parent,t.addr_private_name,
+    t.addr_full_name,t.addr_code,t.county_id,t.create_time,t.create_optr_id,t.create_done_code,
+    t.status,t.str1,t.str2,t.str3,t.str4,t.str5
+    from ad_tree t,ad_collections c
+    where c.addr_id = t.addr_id
+    and c.userid = #{userid,jdbcType=VARCHAR}
+     order by addr_level 
+  </select>
+  
+  <!-- selectByPid -->
+  <select id="selectByPid" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree 
+     
+     <if test="addrParent != null">
+     	where addr_parent = #{addrParent,jdbcType=INTEGER}
+     </if>
+     order by addr_level 
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from ad_tree
     where addr_id = #{addrId,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdTree" >
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdTree" useGeneratedKeys="true" keyProperty="addrId" >
     insert into ad_tree (addr_id, addr_name, addr_level, 
       addr_type, addr_use, is_blank, 
       addr_parent, addr_private_name, addr_full_name, 
@@ -54,7 +96,7 @@
       #{str1,jdbcType=VARCHAR}, #{str2,jdbcType=VARCHAR}, #{str3,jdbcType=VARCHAR}, #{str4,jdbcType=VARCHAR}, 
       #{str5,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdTree" >
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdTree" useGeneratedKeys="true" keyProperty="addrId">
     insert into ad_tree
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="addrId != null" >

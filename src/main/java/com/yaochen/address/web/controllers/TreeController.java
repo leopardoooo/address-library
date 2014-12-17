@@ -24,12 +24,14 @@ public class TreeController {
 	
 	/**
 	 * 查找城市列表（第一级别的树节点）
+	 * @throws Throwable 
 	 */
 	@RequestMapping(value="/findTopTrees")
 	@ResponseBody
-	public Root<List<AdTree>> findTopTreesByCurrentUser(){
-		// TODO 
-		return null;
+	public Root<List<Object>> findTopTreesByCurrentUser() throws Throwable{
+		// TODO  2
+		Pagination pager = treeService.findChildrensAndPagingByPid(0, 0, 1000);
+		return ReturnValueUtil.getJsonRoot(pager.getRecords());
 	}
 	
 	/**
@@ -37,14 +39,14 @@ public class TreeController {
 	 * 
 	 * @param parentAddrId 父级地址编号
 	 * @return 
+	 * @throws Throwable 
 	 */
 	@RequestMapping("/findChildrens")
 	@ResponseBody
-	public Root<List<AdTree>> findChildrensByPid(@RequestParam("pid") Integer parentAddrId){
-		
-		// TODO 
-		
-		return null;
+	public Root<List<Object>> findChildrensByPid(@RequestParam("pid") Integer parentAddrId) throws Throwable{
+		Pagination pager = treeService.findChildrensAndPagingByPid(parentAddrId, 0, 1000);
+		// TODO 3
+		return ReturnValueUtil.getJsonRoot(pager.getRecords());
 	}
 	
 	/**
@@ -52,17 +54,16 @@ public class TreeController {
 	 * 
 	 * @param parentAddrId 父级地址编号
 	 * @return 并且分页
+	 * @throws Throwable 
 	 */
 	@RequestMapping("/findChildrensAndPaging")
 	@ResponseBody
 	public Root<Pagination> findChildrensAndPagingByPid(
 			@RequestParam("pid") Integer parentAddrId,
 			@RequestParam("start") Integer start,
-			@RequestParam("limit") Integer limit){
-		
+			@RequestParam("limit") Integer limit) throws Throwable{
 		// TODO 
-		
-		return null;
+		return ReturnValueUtil.getJsonRoot(treeService.findChildrensAndPagingByPid(parentAddrId, start, limit));
 	}
 	
 	/**
@@ -71,8 +72,7 @@ public class TreeController {
 	@RequestMapping("/findAuthLevel")
 	@ResponseBody
 	public Root<List<AdLevel>> findAuthLevelByCurrentUser()throws Throwable {
-		// TODO 
-		return null;
+		return ReturnValueUtil.getJsonRoot(treeService.findAuthLevelByCurrentUser());
 	}
 	
 	/**
@@ -92,8 +92,8 @@ public class TreeController {
 			@RequestParam("limit") Integer limit)throws Throwable {
 		
 		// TODO
-		
-		return null;
+		Pagination pager = treeService.doSearchAddress(startLevel, keyword, start, limit);
+		return ReturnValueUtil.getJsonRoot(pager);
 	}
 	
 	/**
@@ -105,9 +105,23 @@ public class TreeController {
 	 */
 	@RequestMapping("/addTree")
 	@ResponseBody
-	public Root<Void> addTree(AdTree tree)throws Throwable {
-		// TODO
-		return null;
+	public Root<Integer> addTree(AdTree tree)throws Throwable {
+		// TODO 1
+		return ReturnValueUtil.getJsonRoot(treeService.addTree(tree));
+	}
+	
+	/**
+	 * 添加地址
+	 * 
+	 * @param tree
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/addTrees")
+	@ResponseBody
+	public Root<List<Integer>> addTrees(AdTree tree,Integer startPosi,Integer endPosi)throws Throwable {
+		// TODO  1
+		return ReturnValueUtil.getJsonRoot(treeService.addTrees(tree, startPosi, endPosi));
 	}
 	
 	/**
@@ -118,9 +132,10 @@ public class TreeController {
 	 */
 	@RequestMapping("/modTree")
 	@ResponseBody
-	public Root<Void> modTree(AdTree tree)throws Throwable {
+	public Root<Void> modTree(AdTree tree,boolean ignoreEmpty)throws Throwable {
 		// TODO
-		return null;
+		treeService.modTree(tree,ignoreEmpty);
+		return ReturnValueUtil.getVoidRoot();
 	}
 	
 	/**
@@ -133,9 +148,8 @@ public class TreeController {
 	@RequestMapping("/delTree")
 	@ResponseBody
 	public Root<Void> delTree(@RequestParam("addrId") Integer addrId)throws Throwable {
-		
 		// TODO
-		
+		treeService.delTree(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -145,9 +159,8 @@ public class TreeController {
 	@RequestMapping("/collectTree")
 	@ResponseBody
 	public Root<Void> collectTree(@RequestParam("addrId") Integer addrId)throws Throwable {
-		
 		// TODO
-		
+		treeService.saveCollectTree(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -157,9 +170,8 @@ public class TreeController {
 	@RequestMapping("/cancelCollectTree")
 	@ResponseBody
 	public Root<Void> cancelCollectTree(@RequestParam("addrId") Integer addrId)throws Throwable {
-		
 		// TODO
-		
+		treeService.saveCancelCollectTree(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -172,10 +184,8 @@ public class TreeController {
 	@RequestMapping("/findCollects")
 	@ResponseBody
 	public Root<List<AdLevel>> findCollectTreeList(@RequestParam("limit") Integer limit)throws Throwable {
-		
 		// TODO
-		
-		return null;
+		return ReturnValueUtil.getJsonRoot(treeService.findCollectTreeList(limit));
 	}
 	
 }
