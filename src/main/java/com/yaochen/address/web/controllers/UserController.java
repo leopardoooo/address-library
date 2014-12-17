@@ -1,5 +1,7 @@
 package com.yaochen.address.web.controllers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,7 +25,10 @@ public class UserController {
 	private LoginWebServiceClient loginWebServiceClient;
 	
 	@RequestMapping("/login")
-	public String login(String email, String password )throws Throwable {
+	public String login(HttpServletRequest req )throws Throwable {
+		String email = req.getParameter("email");
+		String password = req.getParameter("password");
+		
 		UserInSession login = null;
 		try {
 			login = loginWebServiceClient.login(email, password);
@@ -35,6 +40,7 @@ public class UserController {
 		if(login == null){
 			return BusiConstants.LOGIN_FAILURE_VIEW;
 		}
+		req.getSession(true).setAttribute(BusiConstants.USER_IN_SESSION, login);
 		ThreadUserHolder.setUserInSession(login);
 		String success = BusiConstants.LOGIN_SUCCESS_VIEW;
 		return success;

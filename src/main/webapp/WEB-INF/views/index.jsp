@@ -1,6 +1,16 @@
+<%@page import="com.yaochen.address.data.domain.address.AdTree"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.Map"%>
+<%@page import="com.yaochen.address.web.controllers.TreeController"%>
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
+<%
+	TreeController tc = WebApplicationContextUtils.getWebApplicationContext(application).getBean(TreeController.class);
+	Map<String, Object> params = tc.getCurrentIndexParams().getData();
+	List<AdTree> cityList = (List<AdTree>)params.get("cityList");
+%>
 <html>
 <head> 
 	<%@ include file="/WEB-INF/common/head.jsp" %>
@@ -189,20 +199,9 @@
 						<div class="item-list city">
 							<p>可选城市列表，已选 “<label></label>”</p>
 							<div id="cityList" class="buttons">
-								<button class="btn btn-success">南宁市</button>
-								<button class="btn">柳州市</button>
-								<button class="btn">桂林市</button>
-								<button class="btn">梧州市</button>
-								<button class="btn">北海市</button>
-								<button class="btn">防城港市</button>
-								<button class="btn">钦州市</button>
-								<button class="btn">贵港市</button>
-								<button class="btn">玉林市</button>
-								<button class="btn">百色市</button>
-								<button class="btn">贺州市</button>
-								<button class="btn">河池市</button>
-								<button class="btn">来宾市</button>
-								<button class="btn">崇左市</button>
+								<%  for (AdTree tree : cityList){ %>
+								<button class="btn"><%=tree.getAddrName() %></button>
+								<% } %>
 							</div>
 						</div>
 						<div class="item-list country">
