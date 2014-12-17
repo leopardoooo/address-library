@@ -145,6 +145,7 @@ public class TreeService {
 		Map<String, Object> param = new HashMap<String, Object>();
 		param.put("addrLevel", startLevel);
 		param.put("keyword", keyword);//全名
+		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByKeyWord(pager);
 		return pager;
@@ -188,6 +189,7 @@ public class TreeService {
 			Integer limit) throws Throwable {
 		Map<String, Object>	param = new HashMap<String, Object>();
 		param.put("addrParent", parentAddrId);
+		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByPid(pager);
 		return pager;
@@ -293,6 +295,7 @@ public class TreeService {
 		String userId = optr.getUserOID();
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("userid", userId);
+		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,0,limit);
 		List<AdLevel> list = adTreeMapper.selectUserCollection(pager);
 		return list;
