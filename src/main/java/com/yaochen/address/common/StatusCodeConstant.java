@@ -17,6 +17,9 @@ public enum StatusCodeConstant {
 	//具体业务
 	ADDR_NAME_INVALID(306, "地址名称不符合要求"),
 	USER_NOT_AUTHORIZED(307, "用户未被授权本系统"),
+	ADDR_NOT_EXISTS(308, "要操作的地址不存在"),
+	ADDR_COLL_ALREADY_EXISTS(309, "已经收藏了该地址"),
+	ADDR_COLL_NOT_EXISTS(310, "尚未收藏该地址"),
 	
 	//系统
 	SYSTEM_UNKNOW_EXCEPTION(500, "系统未知异常，不可预料的异常，发生该类异常标志着一个BUG"),

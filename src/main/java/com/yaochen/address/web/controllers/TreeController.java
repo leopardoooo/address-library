@@ -119,9 +119,9 @@ public class TreeController {
 	 */
 	@RequestMapping("/addTrees")
 	@ResponseBody
-	public Root<Void> addTrees(AdTree tree,Integer startPosi,Integer endPosi)throws Throwable {
+	public Root<List<Integer>> addTrees(AdTree tree,Integer startPosi,Integer endPosi)throws Throwable {
 		// TODO  1
-		return null;
+		return ReturnValueUtil.getJsonRoot(treeService.addTrees(tree, startPosi, endPosi));
 	}
 	
 	/**
@@ -132,9 +132,10 @@ public class TreeController {
 	 */
 	@RequestMapping("/modTree")
 	@ResponseBody
-	public Root<Void> modTree(AdTree tree)throws Throwable {
+	public Root<Void> modTree(AdTree tree,boolean ignoreEmpty)throws Throwable {
 		// TODO
-		return null;
+		treeService.modTree(tree,ignoreEmpty);
+		return ReturnValueUtil.getVoidRoot();
 	}
 	
 	/**
@@ -147,9 +148,8 @@ public class TreeController {
 	@RequestMapping("/delTree")
 	@ResponseBody
 	public Root<Void> delTree(@RequestParam("addrId") Integer addrId)throws Throwable {
-		
 		// TODO
-		
+		treeService.delTree(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -159,9 +159,8 @@ public class TreeController {
 	@RequestMapping("/collectTree")
 	@ResponseBody
 	public Root<Void> collectTree(@RequestParam("addrId") Integer addrId)throws Throwable {
-		
 		// TODO
-		
+		treeService.saveCollectTree(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -171,9 +170,8 @@ public class TreeController {
 	@RequestMapping("/cancelCollectTree")
 	@ResponseBody
 	public Root<Void> cancelCollectTree(@RequestParam("addrId") Integer addrId)throws Throwable {
-		
 		// TODO
-		
+		treeService.saveCancelCollectTree(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -186,10 +184,8 @@ public class TreeController {
 	@RequestMapping("/findCollects")
 	@ResponseBody
 	public Root<List<AdLevel>> findCollectTreeList(@RequestParam("limit") Integer limit)throws Throwable {
-		
 		// TODO
-		
-		return null;
+		return ReturnValueUtil.getJsonRoot(treeService.findCollectTreeList(limit));
 	}
 	
 }

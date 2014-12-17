@@ -6,20 +6,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
 import com.easyooo.framework.common.util.CglibUtil;
 import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.common.BusiCodeConstants;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.data.domain.address.AdCollections;
 import com.yaochen.address.data.domain.address.AdDoneCode;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdRoleRes;
 import com.yaochen.address.data.domain.address.AdTree;
+import com.yaochen.address.data.mapper.address.AdCollectionsMapper;
 import com.yaochen.address.data.mapper.address.AdDoneCodeMapper;
 import com.yaochen.address.data.mapper.address.AdLevelMapper;
 import com.yaochen.address.data.mapper.address.AdRoleResMapper;
@@ -42,6 +47,8 @@ public class TreeService {
 	private AdLevelMapper adLevelMapper;
 	@Autowired
 	private AdRoleResMapper adRoleResMapper;
+	@Autowired
+	private AdCollectionsMapper adCollectionsMapper;
 	
 	/**
 	 * 新增地址.
@@ -60,7 +67,8 @@ public class TreeService {
 		
 		tree.setCountyId(countyId);
 		//验证
-		if(!addrNameChecker.check(tree )){
+		String check = addrNameChecker.check(tree );
+		if(null!=check){
 			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
 		}
 		
@@ -113,7 +121,9 @@ public class TreeService {
 			tree.setCountyId(countyId);
 			tree.setCreateOptrId(optrId);
 			tree.setAddrName(index.toString());
-			if(!addrNameChecker.check(tree)){
+			
+			String check = addrNameChecker.check(tree );
+			if(null!=check){
 				throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
 			}
 			int addrId = adTreeMapper.insertSelective(tree);
@@ -170,9 +180,6 @@ public class TreeService {
 		return adLevelMapper.selectByMaxLevel(maxLevel);
 	}
 
-	public void cancelCollectTree(Integer integer) throws Throwable {
-	}
-
 	/**
 	 * @see #findChildrensByPid(Integer)
 	 * 
@@ -188,16 +195,139 @@ public class TreeService {
 		return pager;
 	}
 
-
-	public void findCollectTreeList(Integer integer) throws Throwable {
+	/**
+	 * 编辑地址.
+	 * @param tree
+	 * @param ignoreEmpty 
+	 * @throws Throwable
+	 */
+	public void modTree(AdTree tree, boolean ignoreEmpty) throws Throwable {
+		AdTree oldTree = adTreeMapper.selectByPrimaryKey(tree.getAddrId());
+		if(oldTree== null){
+			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
+		}
+		Date createTime = new Date();
+		createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR);
+		
+		if(ignoreEmpty){
+			adTreeMapper.updateByPrimaryKeySelective(tree);
+		}else{
+			adTreeMapper.updateByPrimaryKey(tree);
+		}
+		
+	}
+	
+	/**
+	 * 根据主键查询.
+	 * @param addrId
+	 * @return
+	 * @throws Throwable
+	 */
+	public AdTree queryByKey(Integer addrId)throws Throwable{
+		return adTreeMapper.selectByPrimaryKey(addrId);
 	}
 
-	public void modTree(AdTree adtree) throws Throwable {
+	public void delTree(Integer addrId) throws Throwable {
+		//TODO 要不要做权限检查？
+		AdTree tree = checkTreeExists(addrId);
+		tree.setStatus(BusiConstants.Status.INVALID.name());
+		createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR);
+		modTree(tree, true);
 	}
 
-	public void delTree(Integer integer) throws Throwable {
+	/**
+	 * 收藏
+	 * @param addrId
+	 * @throws Throwable
+	 */
+	public void saveCollectTree(Integer addrId) throws Throwable {
+		checkTreeExists(addrId);
+		String userId = ThreadUserHolder.getOptr().getUserOID();
+		AdCollections coll = checkCollExists(addrId, userId);
+		if(coll == null){
+			coll = new AdCollections();
+		}else{
+			throw new MessageException(StatusCodeConstant.ADDR_COLL_ALREADY_EXISTS);
+		}
+		Date createTime = new Date();
+		createDoneCode(createTime, BusiCodeConstants.COLLECT_ADDR);
+		coll.setAddrId(addrId);
+		coll.setCreateTime(createTime);
+		coll.setUserid(userId);
+		adCollectionsMapper.insert(coll );
 	}
 
-	public void collectTree(Integer integer) throws Throwable {
+	
+	/**
+	 * 取消收藏.
+	 * @param addrId
+	 * @throws Throwable
+	 */
+	public void saveCancelCollectTree(Integer addrId) throws Throwable {
+		//先检查收藏存在不
+		String userId = ThreadUserHolder.getOptr().getUserOID();
+		AdCollections coll = checkCollExists(addrId, userId);
+		if(coll == null){
+			throw new MessageException(StatusCodeConstant.ADDR_COLL_NOT_EXISTS);
+		}
+		Date createTime = new Date();
+		createDoneCode(createTime, BusiCodeConstants.DE_COLLECT_ADDR);
+		adCollectionsMapper.deleteByAddrAndUser(coll);
+		
 	}
+	
+	/**
+	 * 查询收藏.
+	 * @param limit
+	 * @return
+	 * @throws Throwable
+	 */
+	public List<AdLevel> findCollectTreeList( Integer limit) throws Throwable {
+		String userId = ThreadUserHolder.getOptr().getUserOID();
+		Map<String, String> param = new HashMap<String, String>();
+		param.put("userid", userId);
+		Pagination pager = new Pagination(param,0,limit);
+		List<AdLevel> list = adTreeMapper.selectUserCollection(pager);
+		return list;
+	}
+	
+	/**
+	 * 要操作地址之前,先检查下是否存在.
+	 * @param addrId
+	 * @return
+	 * @throws Throwable
+	 * @throws MessageException
+	 */
+	private AdTree checkTreeExists(Integer addrId) throws Throwable,
+			MessageException {
+		AdTree tree = queryByKey(addrId);
+		if(tree== null){
+			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
+		}
+		return tree;
+	}
+	
+	/**
+	 * 检查地址是否已经被收藏.
+	 * @param addrId
+	 * @param userId
+	 * @return
+	 * @throws MessageException
+	 */
+	private AdCollections checkCollExists(Integer addrId, String userId)
+			throws MessageException {
+		AdCollections coll = new AdCollections();
+		coll.setUserid(userId);
+		coll.setAddrId(addrId);
+		List<AdCollections> colls = adCollectionsMapper.selectByExample(coll);
+		if(colls !=null && colls.size() > 0){
+			for (AdCollections col : colls) {
+				if(coll.getAddrId().equals(addrId) && coll.getUserid().equals(userId)){
+					return col;
+				}
+			}
+		}
+		return null;
+	}
+	
 }

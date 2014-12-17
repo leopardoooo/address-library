@@ -11,7 +11,6 @@ public class BusiConstants {
 	 */
 	public static String ADDR_SYS_FUN_CODE = "123";
 	
-	
 	public static enum AddrType{
 		//城镇
 		CITY,
