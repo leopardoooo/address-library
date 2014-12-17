@@ -10,6 +10,11 @@ public class BusiConstants {
 		public static String SLASH = "/";
 		public static String TOP_PID = "0";
 		public static String GOLBEL_QUERY_PRECND = "GOLBEL_QUERY_PRECND";
+		public static String BLANK_ADDR_NAME = "留空";
+	}
+	
+	public static enum Booleans{
+		T,F
 	}
 	
 	/**

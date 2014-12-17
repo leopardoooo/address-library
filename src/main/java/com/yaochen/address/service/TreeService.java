@@ -16,6 +16,7 @@ import com.yaochen.address.common.BusiCodeConstants;
 import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
+import com.yaochen.address.common.StringHelper;
 import com.yaochen.address.data.domain.address.AdCollections;
 import com.yaochen.address.data.domain.address.AdDoneCode;
 import com.yaochen.address.data.domain.address.AdLevel;
@@ -63,13 +64,15 @@ public class TreeService {
 		
 		tree.setCountyId(countyId);
 		//验证
-		String check = addrNameChecker.check(tree );
+		String addrName = tree.getAddrName();
+		addrName = literalCheckAddrName(tree, addrName);
+		
+		String check = addrNameChecker.checkBusiRule(tree );
 		if(null!=check){
 			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
 		}
 		
 		Integer addrParent = tree.getAddrParent();
-		String addrName = tree.getAddrName();
 		//检查同级别的有没有同名地址
 		boolean exists = checkSameLevelAddrName(addrParent, addrName);
 		if(exists){
@@ -79,8 +82,18 @@ public class TreeService {
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR,optr);
 		
 		tree.setCreateDoneCode(createDoneCode);
+		//新增的树的ID
+		adTreeMapper.insertSelective(tree);
+		Integer newAddedAddrId = tree.getAddrId();
+		AdTree parentNode = queryByKey(addrParent);
 		
-		return adTreeMapper.insertSelective(tree);
+		String addrPrivateName = BusiConstants.StringConstants.TOP_PID + BusiConstants.StringConstants.SLASH + newAddedAddrId ;
+		if(null != parentNode){
+			addrPrivateName = parentNode.getAddrPrivateName() +   BusiConstants.StringConstants.SLASH + newAddedAddrId ;
+		}
+		tree.setAddrPrivateName(addrPrivateName);
+		adTreeMapper.updateByPrimaryKeySelective(tree);
+		return newAddedAddrId;
 	}
 
 
@@ -114,16 +127,17 @@ public class TreeService {
 			tree.setCountyId(countyId);
 			tree.setCreateOptrId(optrId);
 			String addrName = index.toString();
+			addrName = literalCheckAddrName(tree, addrName);
+			String check = addrNameChecker.checkBusiRule(tree );
+			if(null!=check){
+				throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
+			}
 			boolean exists = checkSameLevelAddrName(addrName,children);
 			if(exists){
 				continue;
 			}
 			tree.setAddrName(addrName);
 			
-			String check = addrNameChecker.check(tree );
-			if(null!=check){
-				throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
-			}
 			int addrId = adTreeMapper.insertSelective(tree);
 			result.add(addrId);
 		}
@@ -366,5 +380,35 @@ public class TreeService {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * 检查地址的字面,并进行必要的修改.
+	 * 包括,
+	 * 非留空地址,地名不能为空.
+	 * 去掉地址里的所有空格,全角字符自动转为半角,如果有特殊字符,抛出异常.
+	 * @param tree
+	 * @param addrName
+	 * @return
+	 * @throws MessageException
+	 */
+	private String literalCheckAddrName(AdTree tree, String addrName)
+			throws MessageException {
+		if(tree.getIsBlank().equals(BusiConstants.Booleans.T.name())){
+			addrName = BusiConstants.StringConstants.BLANK_ADDR_NAME;
+		}
+		//地址不能为空 留空为 T 的例外
+		if(StringHelper.isEmpty(addrName)){
+			throw new MessageException(StatusCodeConstant.ADDR_NAME_IS_BLANK);
+		}
+		//地址去空格(包括里面的)  a 3
+		addrName = StringHelper.replaceAllEmpty(addrName);
+		//全角数字，标点  转半角
+		addrName = StringHelper.full2Half(addrName);
+		
+		if(StringHelper.containSpecialCharacter(addrName)){
+			throw new MessageException(StatusCodeConstant.ADDR_NAME_CONTAIN_INVALID_CHARS);
+		}
+		return addrName;
 	}
 }

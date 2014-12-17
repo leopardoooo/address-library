@@ -90,8 +90,8 @@ public class TreeServiceTest extends SpringRunTest{
 	 * @throws Throwable
 	 */
 	@Test
-	@Ignore
 	public void testAddTreeForOtherBusiTest() throws Throwable {
+		
 		AdTree tree = new AdTree();
 		tree.setAddrCode("1234");
 		tree.setAddrFullName("广西南宁市新民路");
@@ -104,11 +104,11 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		treeService.addTree(tree,ThreadUserHolder.getOptr());
+		Integer addTree = treeService.addTree(tree,ThreadUserHolder.getOptr());
+		System.err.println(addTree);
 	}
 	
 	@Test
-	@Ignore
 	public void testAddTreeAddAllCity() throws Throwable {
 		
 		String [] cities = new String []{"南宁","柳州","桂林","梧州","北海","防城港",

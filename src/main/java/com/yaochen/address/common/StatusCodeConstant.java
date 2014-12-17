@@ -23,6 +23,8 @@ public enum StatusCodeConstant {
 	USER_NOT_LOGGED(311, "没有已登录的操作员信息"),
 	ADDR_HAS_CHILDREN(312, "当前地址下仍有子节点地址"),
 	ADDR_ALREADY_EXISTS_THIS_LEVEL(313, "当前同级已有同名地址"),
+	ADDR_NAME_IS_BLANK(313, "地址不能为空"),
+	ADDR_NAME_CONTAIN_INVALID_CHARS(314, "地址不能有特殊字符"),
 	
 	//系统
 	SYSTEM_UNKNOW_EXCEPTION(500, "系统未知异常，不可预料的异常，发生该类异常标志着一个BUG"),
