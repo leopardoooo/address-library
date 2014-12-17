@@ -35,6 +35,9 @@
 	</bean>
 	<!-- 检验地址名称是否合法 -->
 	<bean name="addrNameChecker" class="com.yaochen.address.support.AddrNameChecker">
+		<property name="fileName">
+			<value>${addrName.validateFileName}</value>
+		</property>
 	</bean>
 	
 	<!-- Mybatis SqlSessionFactory -->

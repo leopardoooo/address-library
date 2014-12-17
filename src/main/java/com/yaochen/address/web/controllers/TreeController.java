@@ -200,7 +200,7 @@ public class TreeController {
 	 * @throws MessageException
 	 */
 	private UserInSession getUserInSession(HttpSession session) throws MessageException {
-		Object attribute = session.getAttribute(BusiConstants.USER_IN_SESSION);
+		Object attribute = session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 		if(attribute == null){
 			throw new MessageException(StatusCodeConstant.USER_NOT_LOGGED);
 		}

@@ -58,7 +58,7 @@ public class LoginWebServiceClient {
 		 * 只有一个元素,就是string,内容是json格式的字符串,错误的结果,比如用户不存在
 		 * ,密码不正确等等,不知道返回到结过是怎样,知道后再做处理
 		 **/
-		Node extractTarget = extractTarget(childNodes, BusiConstants.WSDL_TARGET_NODE_NAME);
+		Node extractTarget = extractTarget(childNodes, BusiConstants.StringConstants.WSDL_TARGET_NODE_NAME);
 		
 		if(extractTarget == null) {
 			throw new MessageException(StatusCodeConstant.LOGIN_FAILED);

@@ -22,6 +22,7 @@ public enum StatusCodeConstant {
 	ADDR_COLL_NOT_EXISTS(310, "尚未收藏该地址"),
 	USER_NOT_LOGGED(311, "没有已登录的操作员信息"),
 	ADDR_HAS_CHILDREN(312, "当前地址下仍有子节点地址"),
+	ADDR_ALREADY_EXISTS_THIS_LEVEL(313, "当前同级已有同名地址"),
 	
 	//系统
 	SYSTEM_UNKNOW_EXCEPTION(500, "系统未知异常，不可预料的异常，发生该类异常标志着一个BUG"),

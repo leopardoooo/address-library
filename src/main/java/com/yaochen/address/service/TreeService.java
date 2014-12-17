@@ -68,6 +68,14 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
 		}
 		
+		Integer addrParent = tree.getAddrParent();
+		String addrName = tree.getAddrName();
+		//检查同级别的有没有同名地址
+		boolean exists = checkSameLevelAddrName(addrParent, addrName);
+		if(exists){
+			throw new MessageException(StatusCodeConstant.ADDR_ALREADY_EXISTS_THIS_LEVEL);
+		}
+		
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR,optr);
 		
 		tree.setCreateDoneCode(createDoneCode);
@@ -75,7 +83,7 @@ public class TreeService {
 		return adTreeMapper.insertSelective(tree);
 	}
 
-	
+
 	public List<Integer> addTrees(AdTree param,Integer startPosi,Integer endPosi,UserInSession optr) throws Throwable{
 		//验证参数
 		if(null == startPosi || null == endPosi){ //提示起始位置不能为空
@@ -95,6 +103,9 @@ public class TreeService {
 		
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH,optr);
 		
+		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
+		List<AdTree> children = childrenPager.getRecords();
+		
 		for (Integer index = startPosi; index < endPosi; index++) {
 			AdTree tree = new AdTree();
 			CglibUtil.copy(param, tree);
@@ -102,7 +113,12 @@ public class TreeService {
 			tree.setCreateTime(createTime);
 			tree.setCountyId(countyId);
 			tree.setCreateOptrId(optrId);
-			tree.setAddrName(index.toString());
+			String addrName = index.toString();
+			boolean exists = checkSameLevelAddrName(addrName,children);
+			if(exists){
+				continue;
+			}
+			tree.setAddrName(addrName);
 			
 			String check = addrNameChecker.check(tree );
 			if(null!=check){
@@ -336,6 +352,19 @@ public class TreeService {
 		int createDoneCode = adDoneCodeMapper.insertSelective(doneCode);
 		return createDoneCode;
 	}
-
 	
+	private boolean checkSameLevelAddrName(Integer addrParent, String addrName) throws Throwable, MessageException {
+		Pagination childrenPager = findChildrensAndPagingByPid(addrParent, 0, Integer.MAX_VALUE);
+		List<AdTree> children = childrenPager.getRecords();
+		return checkSameLevelAddrName(addrName, children);
+	}
+
+	private boolean checkSameLevelAddrName(String addrName,List<AdTree> children) {
+		for (AdTree child : children) {
+			if(child.getAddrName().equals(addrName)){
+				return true;
+			}
+		}
+		return false;
+	}
 }

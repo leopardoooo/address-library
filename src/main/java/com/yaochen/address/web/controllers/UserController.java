@@ -1,6 +1,7 @@
 package com.yaochen.address.web.controllers;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.StringHelper;
 import com.yaochen.address.dto.UserInSession;
+import com.yaochen.address.support.AddrNameChecker;
 import com.yaochen.address.support.LoginWebServiceClient;
 import com.yaochen.address.support.ThreadUserHolder;
 import com.yaochen.address.web.support.ReturnValueUtil;
@@ -23,9 +26,11 @@ public class UserController {
 	
 	@Autowired
 	private LoginWebServiceClient loginWebServiceClient;
+	@Autowired
+	private AddrNameChecker addrNameChecker;
 	
 	@RequestMapping("/login")
-	public String login(HttpServletRequest req )throws Throwable {
+	public String login(HttpServletRequest req)throws Throwable {
 		String email = req.getParameter("email");
 		String password = req.getParameter("password");
 		
@@ -34,15 +39,14 @@ public class UserController {
 			login = loginWebServiceClient.login(email, password);
 		} catch (Throwable e) {
 			logger.info("登录错误");
-//			e.printStackTrace();
 		}
 		
 		if(login == null){
-			return BusiConstants.LOGIN_FAILURE_VIEW;
+			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
 		}
-		req.getSession(true).setAttribute(BusiConstants.USER_IN_SESSION, login);
+		req.getSession(true).setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
 		ThreadUserHolder.setUserInSession(login);
-		String success = BusiConstants.LOGIN_SUCCESS_VIEW;
+		String success ="redirect:/" +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
 		return success;
 	}
 	
@@ -54,10 +58,22 @@ public class UserController {
 	 */
 	@RequestMapping("/logout")
 	@ResponseBody
-	public Root<Void> logout()throws Throwable {
-
+	public Root<Void> logout(HttpSession session)throws Throwable {
 		// TODO
-		
+		session.removeAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
+		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
+		return ReturnValueUtil.getVoidRoot();
+	}
+	
+	/**
+	 * 重新加载验证规则的脚本.
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/reloadRuleScript")
+	@ResponseBody
+	public Root<Void> reloadRuleScript()throws Throwable {
+		AddrNameChecker.setFileLoaded(true);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
@@ -71,10 +87,13 @@ public class UserController {
 	 */
 	@RequestMapping("/setAddrScope")
 	@ResponseBody
-	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("levelPath") String levelPath)throws Throwable {
-		
-		// TODO 
-		
+	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("pid") String pid,@RequestParam("subId") String subId,HttpSession session)throws Throwable {
+		String slash = BusiConstants.StringConstants.SLASH;
+		String str = BusiConstants.StringConstants.TOP_PID + slash + pid;
+		if(!StringHelper.isEmpty(subId)){
+			str += slash + subId;
+		}
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, str);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	

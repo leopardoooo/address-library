@@ -1,10 +1,16 @@
 package com.yaochen.address.common;
 
 public class BusiConstants {
-	public static String WSDL_TARGET_NODE_NAME = "string";
-	public static String LOGIN_FAILURE_VIEW = "login";
-	public static String LOGIN_SUCCESS_VIEW = "index";
-	public static String USER_IN_SESSION = "loginUserInSession";
+	
+	public static interface StringConstants{
+		public static String WSDL_TARGET_NODE_NAME = "string";
+		public static String LOGIN_FAILURE_VIEW = "login";
+		public static String LOGIN_SUCCESS_VIEW = "index";
+		public static String USER_IN_SESSION = "loginUserInSession";
+		public static String SLASH = "/";
+		public static String TOP_PID = "0";
+		public static String GOLBEL_QUERY_PRECND = "GOLBEL_QUERY_PRECND";
+	}
 	
 	/**
 	 * 操作地址库的功能代码.这里做测试设置为  123....
