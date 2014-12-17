@@ -2,7 +2,9 @@
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-<head> <%@ include file="/WEB-INF/common/head.jsp" %> </head>
+<head> 
+	<%@ include file="/WEB-INF/common/head.jsp" %>
+</head>
 <body>
 	<nav id="topNav" class="navbar navbar-static-top" role="navigation">
 	  <div class="container-fluid">
@@ -108,7 +110,7 @@
 				 已定位至 “中国广西南宁市西乡塘区友爱南路8号”，下级地址共 “9,000” 个，含直接下级 “21” 个。
 			</p>
 			<ul class="nav navbar-nav navbar-right" id="tools">
-				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-plus"></i></a></li>
+				<li><a href="#" data-toggle="modal" data-target="#addModal"><i class="glyphicon glyphicon-plus"></i></a></li>
 				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-import"></i></a></li>
 				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-cog"></i></a></li>
 			</ul>
@@ -117,106 +119,7 @@
 	
 	<!--搜索内容 -->
 	<section id="main" class="absolute">
-		<!-- 编辑区 -->
-		<div id="edit" class="panel panel-default">
-			<div class="panel-heading clearfix">
-				<span class="text">地址编辑</span>
-				<div class="pull-right">
-					<button type="button" class="btn btn-default" title="收藏"> <i class="glyphicon glyphicon-star-empty"></i></button>
-					<button type="button" class="btn btn-default" title="删除"> <i class="glyphicon glyphicon-trash"></i></button>
-					<button type="button" class="btn btn-default" title="保存"> <i class="glyphicon glyphicon-ok"></i></button>
-				</div>
-			</div>
-			<div class="panel-body" id="editForm">
-				<div class="form-group"> 
-					<label for="parentLevelAddr">上级地址</label>
-					<input type="text" class="form-control" id="parentLevelAddr" readonly="readonly" placeholder="南宁市/景秀区">
-				</div>
-				<div class="form-group">
-					<label for="currentLevelAddr">完整地址名称</label>
-					<input type="text" class="form-control" readonly="readonly" value="南宁市/青秀区/民族大道">
-				</div>
-				<div class="form-tabs"> 
-					<ul class="nav nav-tabs" role="tablist">
-						<li role="presentation" class="dropdown active">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">修改地址 <span class="caret"></span></a>
-							<ul class="dropdown-menu" role="menu">
-								<li class=""><a href="#normalEdit" role="tab" data-toggle="tab">修改名称</a></li>
-								<li><a href="#mergeAddress" role="tab" data-toggle="tab">地址合并</a></li>
-								<li><a href="#adjustLevel" role="tab" data-toggle="tab">级别调整</a></li>
-							</ul>
-						</li>
-						<li role="presentation" class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">添加下级地址 <span class="caret"></span></a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a href="#singleAdd" role="tab" data-toggle="tab">单一地址</a></li>
-								<li><a href="#batchAdd" role="tab" data-toggle="tab">多个地址</a></li>
-							</ul>
-						</li>
-					</ul>
-					<div class="tab-content">
-						<div role="tabpanel" class="tab-pane active" id="normalEdit">
-							<div class="form-group">
-								<input type="text" class="form-control" id="currentLevelAddr" placeholder="修改后会影响到所有下级地址的完整名称">
-							</div>
-						</div>
-						<div role="tabpanel" class="tab-pane" id="mergeAddress">
-							<div class="form-group">
-								<div class="input-group">
-									<input type="text" class="form-control" placeholder="搜索要合并到的地址">
-									<div class="input-group-btn">
-										<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
-									</div><!-- /btn-group -->
-								</div><!-- /input-group -->
-							</div>
-						</div>
-						<div role="tabpanel" class="tab-pane" id="adjustLevel">
-							<div class="form-group">
-								<div class="input-group">
-									<input type="text" class="form-control" placeholder="level">
-								</div>
-							</div>
-						</div>
-						<div role="tabpanel" class="tab-pane active" id="singleAdd">
-							<div class="form-group">
-								<div class="input-group">
-									<input type="text" class="form-control" placeholder="路、街、巷、里、弄、大道">
-									<div class="input-group-btn">
-										<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
-										<ul class="dropdown-menu dropdown-menu-right" role="menu">
-											<li><a href="#">Action</a></li>
-											<li><a href="#">Another action</a></li>
-											<li><a href="#">Something else here</a></li>
-											<li class="divider"></li>
-											<li><a href="#">Separated link</a></li>
-										</ul>
-									 </div><!-- /btn-group -->
-								</div><!-- /input-group -->
-							</div>
-						</div>
-						<div role="tabpanel" class="tab-pane" id="batchAdd">
-							<div class="form-group">
-								<div class="input-group">
-									<input type="text" class="form-control" placeholder="开始位置">
-									<div class="input-group-addon"> 至 </div>
-									<input type="text" class="form-control" placeholder="结束位置">
-									<div class="input-group-btn">
-										<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">号 <span class="caret"></span></button>
-										<ul class="dropdown-menu dropdown-menu-right" role="menu">
-											<li><a href="#">Action</a></li>
-											<li><a href="#">Another action</a></li>
-											<li><a href="#">Something else here</a></li>
-											<li class="divider"></li>
-											<li><a href="#">Separated link</a></li>
-										</ul>
-									</div><!-- /btn-group -->
-								</div><!-- /input-group -->
-							</div>
-						</div><!-- /tab panel -->
-					</div><!-- /tab-content -->
-				</div><!-- /tabs -->
-			</div>
-		</div><!-- 编辑区结束 -->
+		<%@ include file="/WEB-INF/views/EditForm.jsp" %>
 		<div id="resultList">
 			<!-- 搜索结果集 -->
 			<div class="panel panel-default">
@@ -329,127 +232,36 @@
 		</div>
 	</div>
 	
-	<!-- 文件导入 -->
-	<div class="modal fade" id="fileImportModal" tabindex="-1" role="dialog" aria-labelledby="fileImportModalLabel" aria-hidden="true">
+	<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-					<h4 class="modal-title" id="fileImportModalLabel">文件导入</h4>
+					<h4 class="modal-title" id="addModalLabel">添加下级地址</h4>
 				</div>
 				<div class="modal-body">
-					<form role="form">
-  <div class="form-group">
-    <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputFile">File input</label>
-    <input type="file" id="exampleInputFile">
-    <p class="help-block">Example block-level help text here.</p>
-  </div>
-  <div class="checkbox">
-    <label>
-      <input type="checkbox"> Check me out
-    </label>
-  </div>
-  <button type="submit" class="btn btn-default">Submit</button>
-</form>
+					<%@ include file="/WEB-INF/views/AddForm.jsp" %>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary">确定</button>
+					<button type="button" class="btn btn-default" title="将保存的地址作为上级地址">保存（并添加下级）</button>
+					<button type="button" class="btn btn-default" title="将继续添加和当前同上级的地址">保存（并继续）</button>
+					<button type="button" class="btn btn-primary" title="保存当前地址并关闭窗口">保存关闭</button>
 				</div>
 			</div>
 		</div>
 	</div>
 </body>
 <%@ include file="/WEB-INF/common/foot.jsp" %>
+<script src="<%=RES %>/main/scripts/index.js"></script>
 <script>
-	// 
-	Search = function(W){
-		
-		var $input = $("#searchInput"), $parent = $input.parent(),
-			$itemParent = $("#matchingResult"), desc = ">li>a";
-		
-		var hide = function(){ $parent.removeClass("open") ;}
-		var show = function(){ $parent.addClass("open") ;}
-		
-		return {
-			initialize: function(){
-				
-				$('#searchLevelList' + desc).click(function(){
-					$('#levelLabel').text($(this).text());
-				});
-			
-				$itemParent.keydown(function(e){
-					if (!/(37|38|39|40)/.test(e.which)) return;
-					var $items = $(this).find(desc);
-					if (!$items.length) return;
-
-					var index = $items.index(e.target);
-					
-					if (e.which == 38) index-- ;  								// up
-					if (e.which == 40 && index < $items.length - 1) index++ ;  // down
-					if(index == -1){ 
-						$input.trigger("focus");
-						hide();
-						return;
-					}
-					if (!~index)  index = 0 ;
-					$items.eq(index).trigger('focus');
-					
-					// 左键
-					if(e.keyCode === 37){
-						alert("上一页");
-					}
-					// 右键
-					if(e.keyCode === 39){
-						alert("下一页");
-					}
-				});
-				
-				// selected
-				$itemParent.click(function(e){
-					var $items = $(this).find(desc);
-					if (!$items.length) return;
-
-					var index = $items.index(e.target);
-					
-					e.preventDefault();
-					e.stopPropagation();
-					
-					if(index === -1) return;
-					
-					$input.val($(e.target).text());
-					hide();
-					$input.trigger("focus");
-				});
-			
-				$input.keydown(function(e){
-					if (!/(13|40)/.test(e.which)) return;
-					var $items = $itemParent.find(desc);
-					if ($items.length > 0)
-						$items.eq(0).trigger("focus");
-					show();
-				});
-				
-				//$input.focus(show);
-				$input.blur(function(e){
-					hide();
-				});
-			}
-		};
-		
-	}(window);
-	
-	
 	$(document).ready(function(){
-		$('#switchCityModal').modal("show");
+		$('#switchCityModal').modal({
+			show: false
+		});
+		
+		$('#addAddressModal').modal({
+			show: true
+		});
 		
 		(function(){
 			var desc = 'btn-success';

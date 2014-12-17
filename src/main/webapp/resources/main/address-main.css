@@ -108,14 +108,19 @@ input:focus, textarea:focus {outline: 0;outline: thin dotted \9;}
 #editForm.panel-body{padding: 5px 0 0 12px;}
 #editForm  .form-group>.form-control{width: 373px;}
 #editForm  .form-group>.input-group{width: 373px;}
+#editForm .row, #editForm .row .col-xs-6{marin: 0; padding: 0;}
+#editForm .col-xs-6 .form-group>.form-control{width: 180px;}
+
 #editForm .form-tabs{width: 373px;}
 #editForm .form-tabs .tab-pane{padding-top: 15px;}
 
-
-
-
-
-
+/** 添加 */
+#addForm{padding: 0;} 
+#addForm .container-fluid, #addForm .row, #addForm .row .column{margin: 0; padding: 0;}
+#addForm .row .column{padding-right: 10px;}
+#addForm .row .end.column{padding: 0;}
+#addForm .form-tabs .tab-pane{padding-top: 15px;}
+#addForm  .form-group>.input-group.num-range>.input-group-addon{border-left:0; border-right: 0;}
 
 
 
