@@ -13,8 +13,8 @@
 	<div class="container">
 		<form role="form" action="<%=ROOT %>/user/login" method="POST" >
 			<div class="form-group">
-				<label for="exampleInputEmail1">Email address</label> <input
-					type="email" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+				<label for="exampleInputEmail1">User Name</label> <input
+					type="text" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter UserName">
 			</div>
 			<div class="form-group">
 				<label for="exampleInputPassword1">Password</label> <input

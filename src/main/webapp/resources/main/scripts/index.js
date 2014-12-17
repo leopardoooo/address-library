@@ -1,4 +1,94 @@
 
+/**
+ * 选择城市
+ * @param w
+ */
+SwitchCityModal = function(w){
+	var lastActiveAddrId = null, F = {};
+	var countryTpl = '<button class="btn" data-addr-id="#{addrId}" >#{addrName}</button>';
+	var addrIdDesc = "data-addr-id";
+	
+	F = {
+		initialize: function(){
+			$('#switchCityModal').modal({
+				show: true
+			});
+			
+			// 按钮切换样式
+			var desc = 'btn-success';
+			$('#switchCityModal .item-list').click(function(e){
+				if(!/button/i.test(e.target.tagName)) return;
+				var activeBtn = $(this).find('.' + desc);
+				
+				activeBtn.removeClass(desc);
+				$(e.target).addClass(desc);
+				// text
+				$(this).find("p>label").text($(e.target).text());
+			});
+			
+			//点击城市
+			$("#cityList").find("button").click(function(){
+				var addrId = $(this).attr("data-addr-id");
+				if(lastActiveAddrId === addrId){
+					return;
+				}
+				lastActiveAddrId = addrId;
+				F.doSubAddrList(lastActiveAddrId);
+			});
+			
+			//确定按钮
+			$('#switchCityModalOkBtn').click(function(){
+				var $cityItems = $("#cityList").find('.' + desc);
+				if($cityItems.length === 0){
+					alert("必须选择一个城市");
+					return ;
+				}
+				
+				if($cityItems.length > 1){
+					alert("只能选择一个城市");
+					return ;
+				}
+				
+				var $countryItems = $("#countyList").find('.' + desc);
+				if($countryItems.length > 1){
+					alert("只能选择一个城区或县");
+					return ;
+				}
+				F.doSubmit($cityItems.attr(addrIdDesc), $cityItems
+						.text(), $countryItems.attr(addrIdDesc), $countryItems.text());
+			});
+		},
+		doSubmit: function(pid, pidText, subId, subIdText){
+			common.post("user/setAddrScope", {
+				"pid": pid,
+				"subId": subId || null
+			}, function(data){
+				$('#switchCityModal').modal("hide");
+				alert(pidText + "/" + subIdText);
+			});
+		},
+		doSubAddrList: function(parentAddrId){
+			common.post("tree/findChildrens", {
+				"pid": parentAddrId
+			}, function(data){
+				$('#countyListLabel').text('');
+				
+				var links = "";
+				for(var i = 0 ;i < data.length; i++){
+					links += String.format(countryTpl, (data[i]));
+				}
+				if(!links){
+					links = '<p class="empty">（没有数据）</p>';
+				}
+				$("#countyList").html(links);
+			});
+		}
+	};
+	
+	return F;
+}(window);
+
+
 /***
  * 首页搜索封装，完全依赖页面的元素
  * @param W

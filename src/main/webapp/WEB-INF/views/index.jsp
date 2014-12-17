@@ -1,3 +1,4 @@
+<%@page import="com.yaochen.address.data.domain.address.AdLevel"%>
 <%@page import="com.yaochen.address.data.domain.address.AdTree"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
@@ -7,9 +8,9 @@
     pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
-	TreeController tc = WebApplicationContextUtils.getWebApplicationContext(application).getBean(TreeController.class);
-	Map<String, Object> params = tc.getCurrentIndexParams().getData();
+	Map<String, Object> params = TreeController.getCurrentIndexParams(session);
 	List<AdTree> cityList = (List<AdTree>)params.get("cityList");
+	List<AdLevel> levelList = (List<AdLevel>)params.get("levelList");
 %>
 <html>
 <head> 
@@ -68,14 +69,12 @@
 						<ul class="dropdown-menu" id="searchLevelList" role="menu">
 							<li><a href="#">所有</a></li>
 							<li class="divider"></li>
-							<li><a href="#">4 级</a></li>
-							<li><a href="#">5 级</a></li>
-							<li><a href="#">6 级</a></li>
-							<li><a href="#">7 级</a></li>
-							<li><a href="#">8 级</a></li>
-							<li><a href="#">9 级</a></li>
+							<% for(AdLevel level: levelList){ %>
+								<li><a href="#" data-level="<%=level.getLevelNum() %>">
+									<%=level.getLevelName() %> (<%=level.getLevelNum() %>)</a></li>
+							<%} %>
 							<li class="divider"></li>
-							<li class="dropdown-header">“选择一个级别进行”</li>
+							<li class="dropdown-header">“选择一个级别开始搜索”</li>
 						</ul>
 					</div><!-- /btn-group -->
 					<div class="input-container">
@@ -200,32 +199,20 @@
 							<p>可选城市列表，已选 “<label></label>”</p>
 							<div id="cityList" class="buttons">
 								<%  for (AdTree tree : cityList){ %>
-								<button class="btn"><%=tree.getAddrName() %></button>
+								<button class="btn" data-addr-id="<%=tree.getAddrId() %>" ><%=tree.getAddrName() %></button>
 								<% } %>
 							</div>
 						</div>
 						<div class="item-list country">
-							<p>可选城区、县，已选 “<label></label>”</p>
+							<p>可选城区、县，已选 “<label id="countyListLabel"></label>”</p>
 							<div id="countyList" class="buttons">
-								<button class="btn btn-success">青秀区</button>
-								<button class="btn">兴宁区</button>
-								<button class="btn">江南区</button>
-								<button class="btn">良庆区</button>
-								<button class="btn">邕宁区</button>
-								<button class="btn">西乡塘区</button>
-								<button class="btn">武鸣县</button>
-								<button class="btn">隆安县</button>
-								<button class="btn">马山县</button>
-								<button class="btn">上林县</button>
-								<button class="btn">宾阳县</button>
-								<button class="btn">横县</button>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary">确定</button>
+					<button type="button" class="btn btn-primary" id="switchCityModalOkBtn">确定</button>
 				</div>
 			</div>
 		</div>
@@ -251,30 +238,27 @@
 	</div>
 </body>
 <%@ include file="/WEB-INF/common/foot.jsp" %>
+<script src="<%=RES %>/main/scripts/common.js"></script>
 <script src="<%=RES %>/main/scripts/index.js"></script>
 <script>
+	/** 首页初始化函数 */
+	Main = function(){
+		
+		var __modules = [SwitchCityModal, Search];
+		
+		return {
+			initialize: function(){
+				for (var i = 0; i < __modules.length; i++) {
+					__modules[i].initialize();
+				}
+			}
+		};
+	}();
+
 	$(document).ready(function(){
-		$('#switchCityModal').modal({
-			show: false
-		});
+		common.settings.path = '<%=ROOT %>';
 		
-		$('#addAddressModal').modal({
-			show: true
-		});
-		
-		(function(){
-			var desc = 'btn-success';
-			$('#switchCityModal .item-list button').click(function(){
-				var activeBtn = $(this).parent().find('.' + desc);
-				activeBtn.removeClass(desc);
-				$(this).addClass(desc);
-				
-				// text
-				$(this).parent().parent().find(">p>label").text($(this).text());
-			});
-		})();
-	
-		Search.initialize();
+		Main.initialize();
 	});
 </script>
 </html>
