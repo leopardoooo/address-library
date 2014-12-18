@@ -15,7 +15,7 @@ import com.yaochen.address.common.StringHelper;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.support.AddrNameChecker;
 import com.yaochen.address.support.LoginWebServiceClient;
-import com.yaochen.address.support.ThreadUserHolder;
+import com.yaochen.address.support.ThreadUserParamHolder;
 import com.yaochen.address.web.support.ReturnValueUtil;
 import com.yaochen.address.web.support.Root;
 
@@ -45,7 +45,7 @@ public class UserController {
 			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
 		}
 		req.getSession(true).setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
-		ThreadUserHolder.setUserInSession(login);
+		ThreadUserParamHolder.setUserInSession(login);
 		String success ="redirect:/" +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
 		return success;
 	}

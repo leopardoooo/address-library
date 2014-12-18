@@ -30,6 +30,8 @@ import com.yaochen.address.data.mapper.address.AdTreeMapper;
 import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.support.AddrNameChecker;
+import com.yaochen.address.support.ThreadUserParamHolder;
+import com.yaochen.address.web.controllers.UserController;
 
 @Service
 public class TreeService {
@@ -53,7 +55,9 @@ public class TreeService {
 	 * @return
 	 * @throws Throwable
 	 */
-	public Integer addTree(AdTree tree,UserInSession optr) throws Throwable{
+	public Integer addTree(AdTree tree) throws Throwable{
+		UserInSession optr = getUserInSession();
+		
 		//验证同一级下名称是否重复
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
@@ -79,7 +83,7 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.ADDR_ALREADY_EXISTS_THIS_LEVEL);
 		}
 		
-		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR,optr);
+		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR);
 		
 		tree.setCreateDoneCode(createDoneCode);
 		//新增的树的ID
@@ -97,7 +101,8 @@ public class TreeService {
 	}
 
 
-	public List<Integer> addTrees(AdTree param,Integer startPosi,Integer endPosi,UserInSession optr) throws Throwable{
+	public List<Integer> addTrees(AdTree param,Integer startPosi,Integer endPosi) throws Throwable{
+		UserInSession optr = getUserInSession();
 		//验证参数
 		if(null == startPosi || null == endPosi){ //提示起始位置不能为空
 			logger.info("参数为空");
@@ -114,7 +119,7 @@ public class TreeService {
 		
 		//TODO 验证名称是否重复,重复则忽略
 		
-		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH,optr);
+		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH);
 		
 		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
 		List<AdTree> children = childrenPager.getRecords();
@@ -157,6 +162,8 @@ public class TreeService {
 	public Pagination doSearchAddress(Integer startLevel, String keyword,
 			Integer start, Integer limit) throws Throwable {
 		Map<String, Object> param = new HashMap<String, Object>();
+		String baseScope = getBaseScope();
+		param.put("baseScope", baseScope);
 		param.put("addrLevel", startLevel);
 		param.put("keyword", keyword);//全名
 		param.put("status", BusiConstants.Status.ACTIVE.name());
@@ -169,7 +176,8 @@ public class TreeService {
 	 * 查询当前用户有权访问的Level
 	 * @throws Throwable
 	 */
-	public List<AdLevel> findAuthLevelByCurrentUser(UserInSession optr) throws Throwable {
+	public List<AdLevel> findAuthLevelByCurrentUser() throws Throwable {
+		UserInSession optr = getUserInSession();
 		List<SystemFunction> systemFunction = optr.getSystemFunction();
 		Integer roleOID = null;
 		for (SystemFunction fun : systemFunction) {
@@ -201,7 +209,11 @@ public class TreeService {
 	public Pagination findChildrensAndPagingByPid(Integer parentAddrId, Integer start,
 			Integer limit) throws Throwable {
 		Map<String, Object>	param = new HashMap<String, Object>();
+//		String baseScope = getBaseScope();
+//		System.err.println(baseScope);
 		param.put("addrParent", parentAddrId);
+		String baseScope = getBaseScope();
+		param.put("baseScope", baseScope);
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByPid(pager);
@@ -214,13 +226,13 @@ public class TreeService {
 	 * @param ignoreEmpty 
 	 * @throws Throwable
 	 */
-	public void modTree(AdTree tree, boolean ignoreEmpty,UserInSession optr) throws Throwable {
+	public void modTree(AdTree tree, boolean ignoreEmpty) throws Throwable {
 		AdTree oldTree = adTreeMapper.selectByPrimaryKey(tree.getAddrId());
 		if(oldTree== null){
 			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR,optr);
+		createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR);
 		
 		if(ignoreEmpty){
 			adTreeMapper.updateByPrimaryKeySelective(tree);
@@ -240,7 +252,7 @@ public class TreeService {
 		return adTreeMapper.selectByPrimaryKey(addrId);
 	}
 
-	public void delTree(Integer addrId,UserInSession optr) throws Throwable {
+	public void delTree(Integer addrId) throws Throwable {
 		//TODO 要不要做权限检查？
 		AdTree tree = checkTreeExists(addrId);
 		//只要有一个子节点都不给删除
@@ -251,8 +263,8 @@ public class TreeService {
 		}
 		
 		tree.setStatus(BusiConstants.Status.INVALID.name());
-		createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR,optr);
-		modTree(tree, true,optr);
+		createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR);
+		modTree(tree, true);
 	}
 
 	/**
@@ -260,7 +272,8 @@ public class TreeService {
 	 * @param addrId
 	 * @throws Throwable
 	 */
-	public void saveCollectTree(Integer addrId,UserInSession optr) throws Throwable {
+	public void saveCollectTree(Integer addrId) throws Throwable {
+		UserInSession optr = getUserInSession();
 		checkTreeExists(addrId);
 		String userId = optr.getUserOID();
 		AdCollections coll = checkCollExists(addrId, userId);
@@ -270,7 +283,7 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.ADDR_COLL_ALREADY_EXISTS);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.COLLECT_ADDR,optr);
+		createDoneCode(createTime, BusiCodeConstants.COLLECT_ADDR);
 		coll.setAddrId(addrId);
 		coll.setCreateTime(createTime);
 		coll.setUserid(userId);
@@ -283,14 +296,15 @@ public class TreeService {
 	 * @param addrId
 	 * @throws Throwable
 	 */
-	public void saveCancelCollectTree(Integer addrId,UserInSession optr) throws Throwable {
+	public void saveCancelCollectTree(Integer addrId) throws Throwable {
+		UserInSession optr = getUserInSession();
 		String userId = optr.getUserOID();
 		AdCollections coll = checkCollExists(addrId, userId);
 		if(coll == null){
 			throw new MessageException(StatusCodeConstant.ADDR_COLL_NOT_EXISTS);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.DE_COLLECT_ADDR,optr);
+		createDoneCode(createTime, BusiCodeConstants.DE_COLLECT_ADDR);
 		adCollectionsMapper.deleteByAddrAndUser(coll);
 		
 	}
@@ -301,7 +315,8 @@ public class TreeService {
 	 * @return
 	 * @throws Throwable
 	 */
-	public List<AdLevel> findCollectTreeList( Integer limit,UserInSession optr) throws Throwable {
+	public List<AdLevel> findCollectTreeList( Integer limit) throws Throwable {
+		UserInSession optr = ThreadUserParamHolder.getOptr();
 		String userId = optr.getUserOID();
 		Map<String, String> param = new HashMap<String, String>();
 		param.put("userid", userId);
@@ -358,7 +373,8 @@ public class TreeService {
 	 * @param code
 	 * @return
 	 */
-	private int createDoneCode(Date createTime, BusiCodeConstants code,UserInSession optr ) throws Throwable{
+	private int createDoneCode(Date createTime, BusiCodeConstants code ) throws Throwable{
+		UserInSession optr = getUserInSession();
 		AdDoneCode doneCode = new AdDoneCode();
 		doneCode.setBusiCode(code.name());
 		doneCode.setCreateTime(createTime);
@@ -411,4 +427,29 @@ public class TreeService {
 		}
 		return addrName;
 	}
+	
+	/**
+	 * 实际是获取session里的用户对象.在每次请求的时候,Timexxx拦截器负责把session里的用户对象放到线程变量里.
+	 * @return
+	 * @throws MessageException
+	 */
+	private UserInSession getUserInSession() throws MessageException{
+		UserInSession optr = ThreadUserParamHolder.getOptr();
+		if(optr == null){
+			throw new MessageException(StatusCodeConstant.USER_NOT_LOGGED);
+		}
+		return optr;
+	}
+	
+	/**
+	 * 获取当前操作员的地址级别.
+	 * @see UserController#setAddrScopeForCurrentUser(String, String, javax.servlet.http.HttpSession)
+	 * @return
+	 * @throws MessageException
+	 */
+	private String getBaseScope() throws MessageException{
+		String baseQueryScope = ThreadUserParamHolder.getBaseQueryScope();
+		return baseQueryScope;
+	}
+	
 }

@@ -25,6 +25,8 @@ public enum StatusCodeConstant {
 	ADDR_ALREADY_EXISTS_THIS_LEVEL(313, "当前同级已有同名地址"),
 	ADDR_NAME_IS_BLANK(313, "地址不能为空"),
 	ADDR_NAME_CONTAIN_INVALID_CHARS(314, "地址不能有特殊字符"),
+	ADDR_BASE_LEVEL_NOT_FOUND(315, "尚未设置当前操作员的地址级别"),
+	
 	
 	//系统
 	SYSTEM_UNKNOW_EXCEPTION(500, "系统未知异常，不可预料的异常，发生该类异常标志着一个BUG"),
