@@ -14,6 +14,7 @@ import com.easyooo.framework.common.util.CglibUtil;
 import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.common.BusiCodeConstants;
 import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.BusiConstants.AddrChangeType;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.common.StringHelper;
@@ -22,10 +23,12 @@ import com.yaochen.address.data.domain.address.AdDoneCode;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdRoleRes;
 import com.yaochen.address.data.domain.address.AdTree;
+import com.yaochen.address.data.domain.address.AdTreeChange;
 import com.yaochen.address.data.mapper.address.AdCollectionsMapper;
 import com.yaochen.address.data.mapper.address.AdDoneCodeMapper;
 import com.yaochen.address.data.mapper.address.AdLevelMapper;
 import com.yaochen.address.data.mapper.address.AdRoleResMapper;
+import com.yaochen.address.data.mapper.address.AdTreeChangeMapper;
 import com.yaochen.address.data.mapper.address.AdTreeMapper;
 import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
@@ -48,6 +51,8 @@ public class TreeService {
 	private AdRoleResMapper adRoleResMapper;
 	@Autowired
 	private AdCollectionsMapper adCollectionsMapper;
+	@Autowired
+	private AdTreeChangeMapper adTreeChangeMapper;
 	
 	/**
 	 * 新增地址.
@@ -232,7 +237,6 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR);
 		String oldAddrName = oldTree.getAddrName();
 		String addrName = tree.getAddrName();
 		if(ignoreEmpty){
@@ -248,6 +252,15 @@ public class TreeService {
 			adTreeMapper.updateFullNameAndChildren(tree);
 		}
 		
+		AdTreeChange change = new AdTreeChange();
+		CglibUtil.copy(oldTree, change);
+		change.setChangeTime(createTime);
+		change.setChangeCause("修改");
+		change.setChangeDoneCode(createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR));
+		change.setChangeType(AddrChangeType.EDIT.name());
+		change.setChangeOptrId(ThreadUserParamHolder.getOptr().getUserOID());
+		adTreeChangeMapper.insert(change);
+		
 	}
 	
 	/**
@@ -261,7 +274,9 @@ public class TreeService {
 	}
 
 	public void delTree(Integer addrId) throws Throwable {
-		//TODO 要不要做权限检查？
+		//TODO 判断有没有被BOSS系统引用
+		//TODO 判断有没有被光站系统引用   
+		//以上留 空的接口
 		AdTree tree = checkTreeExists(addrId);
 		//只要有一个子节点都不给删除
 		Pagination pager = findChildrensAndPagingByPid(addrId, 0, 1);
@@ -269,10 +284,17 @@ public class TreeService {
 		if(children != null && children.size() > 0){
 			throw new MessageException(StatusCodeConstant.ADDR_HAS_CHILDREN);
 		}
-		
 		tree.setStatus(BusiConstants.Status.INVALID.name());
-		createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR);
-		modTree(tree, true);
+		Date createTime = new Date();
+		adTreeMapper.deleteByPrimaryKey(tree.getAddrId());
+		AdTreeChange change = new AdTreeChange();
+		CglibUtil.copy(tree, change);
+		change.setChangeTime(createTime);
+		change.setChangeCause("删除");
+		change.setChangeDoneCode(createDoneCode(createTime, BusiCodeConstants.DEL_ADDR));
+		change.setChangeType(AddrChangeType.MERGE_DEL.name());
+		change.setChangeOptrId(ThreadUserParamHolder.getOptr().getUserOID());
+		adTreeChangeMapper.insert(change);
 	}
 
 	/**

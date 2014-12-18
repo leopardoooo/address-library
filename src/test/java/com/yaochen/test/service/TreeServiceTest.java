@@ -169,7 +169,7 @@ public class TreeServiceTest extends SpringRunTest{
 		logger.info(JSON.toJSONString(tree, true));
 		tree = new AdTree();
 		tree.setAddrId(1);
-		tree.setAddrName("南宁市区_!__");
+		tree.setAddrName("南宁市");
 		treeService.modTree(tree, true);
 		tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));
