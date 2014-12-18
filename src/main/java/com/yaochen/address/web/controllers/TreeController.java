@@ -128,7 +128,7 @@ public class TreeController implements BeanFactoryAware{
 	 */
 	@RequestMapping("/addTree")
 	@ResponseBody
-	public Root<Integer> addTree(AdTree tree)throws Throwable {
+	public Root<AdTree> addTree(AdTree tree)throws Throwable {
 		return ReturnValueUtil.getJsonRoot(treeService.addTree(tree));
 	}
 	

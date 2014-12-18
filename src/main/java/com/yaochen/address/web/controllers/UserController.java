@@ -57,12 +57,11 @@ public class UserController {
 	 * @throws Throwable
 	 */
 	@RequestMapping("/logout")
-	@ResponseBody
-	public Root<Void> logout(HttpSession session)throws Throwable {
+	public String logout(HttpSession session)throws Throwable {
 		// TODO
 		session.removeAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
-		return ReturnValueUtil.getVoidRoot();
+		return "redirect:/";
 	}
 	
 	/**

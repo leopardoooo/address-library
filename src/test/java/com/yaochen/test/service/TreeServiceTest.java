@@ -104,8 +104,8 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		Integer addTree = treeService.addTree(tree);
-		System.err.println(addTree);
+		AdTree addTree = treeService.addTree(tree);
+		System.err.println(JSON.toJSONString(addTree, true));
 	}
 	
 	/**
@@ -127,7 +127,7 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		Integer addTree = treeService.addTree(tree);
+		AdTree addTree = treeService.addTree(tree);
 		System.err.println(addTree);
 	}
 	

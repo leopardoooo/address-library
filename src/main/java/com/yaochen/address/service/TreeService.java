@@ -61,7 +61,7 @@ public class TreeService {
 	 * @return
 	 * @throws Throwable
 	 */
-	public Integer addTree(AdTree tree) throws Throwable{
+	public AdTree addTree(AdTree tree) throws Throwable{
 		UserInSession optr = getUserInSession();
 		
 		//验证同一级下名称是否重复
@@ -91,7 +91,7 @@ public class TreeService {
 		}
 		tree.setAddrPrivateName(addrPrivateName);
 		adTreeMapper.updateByPrimaryKeySelective(tree);
-		return newAddedAddrId;
+		return adTreeMapper.selectByPrimaryKey(newAddedAddrId);
 	}
 
 	/**
