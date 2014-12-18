@@ -94,6 +94,15 @@ public class TreeService {
 		return newAddedAddrId;
 	}
 
+	/**
+	 * 检查地址名是否合法,
+	 * @param tree 	地址的对象,至少包含四个属性  addrName ,addrLevel ,IsBlank 和  AddrParent .
+	 * @param children	同父级的所有地址集合(数组),可不输入,不输入单个验证的时候会重新查询.
+	 * @return
+	 * @throws MessageException
+	 * @throws Exception
+	 * @throws Throwable
+	 */
 	public String checkAddrName(AdTree tree,AdTree ... children) throws MessageException,
 			Exception, Throwable {
 		String addrName = tree.getAddrName();
