@@ -165,10 +165,10 @@ public class TreeServiceTest extends SpringRunTest{
 	@Test
 	public void testModTree() throws Throwable {
 		//TODO 这里发现一个问题,修改地址名的时候，全名也要修改,前台输入还是后台计算？？？？
-		AdTree tree = treeService.queryByKey(1);
+		AdTree tree = treeService.queryByKey(32);
 		logger.info(JSON.toJSONString(tree, true));
 		tree = new AdTree();
-		tree.setAddrId(1);
+		tree.setAddrId(32);
 		tree.setAddrName("南宁市");
 		treeService.modTree(tree, true);
 		tree = treeService.queryByKey(15);

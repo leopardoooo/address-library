@@ -1,6 +1,7 @@
 package com.yaochen.address.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +74,28 @@ public class TreeService {
 		
 		tree.setCountyId(countyId);
 		//验证
+		String addrName = checkAddrName(tree);
+		
+		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR);
+		
+		tree.setAddrName(addrName);
+		tree.setCreateDoneCode(createDoneCode);
+		//新增的树的ID
+		adTreeMapper.insertSelective(tree);
+		Integer newAddedAddrId = tree.getAddrId();
+		AdTree parentNode = queryByKey(tree.getAddrParent());
+		
+		String addrPrivateName = BusiConstants.StringConstants.TOP_PID + BusiConstants.StringConstants.SLASH + newAddedAddrId ;
+		if(null != parentNode){
+			addrPrivateName = parentNode.getAddrPrivateName() +   BusiConstants.StringConstants.SLASH + newAddedAddrId ;
+		}
+		tree.setAddrPrivateName(addrPrivateName);
+		adTreeMapper.updateByPrimaryKeySelective(tree);
+		return newAddedAddrId;
+	}
+
+	public String checkAddrName(AdTree tree,AdTree ... children) throws MessageException,
+			Exception, Throwable {
 		String addrName = tree.getAddrName();
 		addrName = literalCheckAddrName(tree, addrName);
 		
@@ -83,26 +106,17 @@ public class TreeService {
 		
 		Integer addrParent = tree.getAddrParent();
 		//检查同级别的有没有同名地址
-		boolean exists = checkSameLevelAddrName(addrParent, addrName);
+		boolean exists = false;
+		if(null != children && children.length > 0 ){
+			List<AdTree> list = Arrays.asList(children);
+			exists = checkSameLevelAddrName(addrName,list);
+		}else{
+			exists = checkSameLevelAddrName(addrParent, addrName);
+		}
 		if(exists){
 			throw new MessageException(StatusCodeConstant.ADDR_ALREADY_EXISTS_THIS_LEVEL);
 		}
-		
-		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR);
-		
-		tree.setCreateDoneCode(createDoneCode);
-		//新增的树的ID
-		adTreeMapper.insertSelective(tree);
-		Integer newAddedAddrId = tree.getAddrId();
-		AdTree parentNode = queryByKey(addrParent);
-		
-		String addrPrivateName = BusiConstants.StringConstants.TOP_PID + BusiConstants.StringConstants.SLASH + newAddedAddrId ;
-		if(null != parentNode){
-			addrPrivateName = parentNode.getAddrPrivateName() +   BusiConstants.StringConstants.SLASH + newAddedAddrId ;
-		}
-		tree.setAddrPrivateName(addrPrivateName);
-		adTreeMapper.updateByPrimaryKeySelective(tree);
-		return newAddedAddrId;
+		return addrName;
 	}
 
 
@@ -122,10 +136,7 @@ public class TreeService {
 		String optrId = optr.getUserOID();
 		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
 		
-		//TODO 验证名称是否重复,重复则忽略
-		
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH);
-		
 		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
 		List<AdTree> children = childrenPager.getRecords();
 		
@@ -136,20 +147,17 @@ public class TreeService {
 			tree.setCreateTime(createTime);
 			tree.setCountyId(countyId);
 			tree.setCreateOptrId(optrId);
-			String addrName = index.toString();
-			addrName = literalCheckAddrName(tree, addrName);
-			String check = addrNameChecker.checkBusiRule(tree );
-			if(null!=check){
-				throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
-			}
-			boolean exists = checkSameLevelAddrName(addrName,children);
-			if(exists){
+
+			String addrName = tree.getAddrName();
+			try {
+				addrName = checkAddrName(tree,children.toArray(new AdTree[children.size()]));
+			} catch (Throwable e) {
+				//批量添加的时候,地址名检验不通过,直接忽略.
 				continue;
 			}
 			tree.setAddrName(addrName);
-			
-			int addrId = adTreeMapper.insertSelective(tree);
-			result.add(addrId);
+			adTreeMapper.insertSelective(tree);
+			result.add(tree.getAddrId());
 		}
 		
 		return result;
@@ -239,12 +247,17 @@ public class TreeService {
 		Date createTime = new Date();
 		String oldAddrName = oldTree.getAddrName();
 		String addrName = tree.getAddrName();
+		if(StringHelper.isNotEmpty(addrName) && !StringHelper.bothEmptyOrEquals(oldAddrName,addrName)){
+			addrName = checkAddrName(oldTree);
+			tree.setAddrName(addrName);
+		}
 		if(ignoreEmpty){
 			adTreeMapper.updateByPrimaryKeySelective(tree);
 		}else{
 			adTreeMapper.updateByPrimaryKey(tree);
 		}
 		
+		//需要修改地址名
 		if(StringHelper.isNotEmpty(addrName) && !StringHelper.bothEmptyOrEquals(oldAddrName,addrName)){
 			//这里只是为了方便传参数
 			tree.setStr1(oldAddrName);

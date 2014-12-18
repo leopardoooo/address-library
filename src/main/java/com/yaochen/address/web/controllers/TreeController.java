@@ -42,6 +42,24 @@ public class TreeController implements BeanFactoryAware{
 	}
 	
 	/**
+	 * 检查地址名.
+	 * 如果不通过,填写错误的信息,如果通过,则为空.
+	 * 参数至少要有  addrName ,addrLevel ,IsBlank 和  AddrParent 这四个属性
+	 * @throws Throwable 
+	 */
+	@RequestMapping(value="/checkAddrName")
+	@ResponseBody
+	public Root<String> checkAddrName(AdTree addr) throws Throwable{
+		String message = null;
+		try {
+			treeService.checkAddrName(addr);
+		} catch (Throwable e) {
+			message = e.getMessage();
+		}
+		return ReturnValueUtil.getJsonRoot(message);
+	}
+	
+	/**
 	 * 查找子节点根据当前节点编号
 	 * 
 	 * @param parentAddrId 父级地址编号
