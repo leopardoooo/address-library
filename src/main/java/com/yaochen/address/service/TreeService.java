@@ -80,10 +80,17 @@ public class TreeService {
 		
 		tree.setAddrName(addrName);
 		tree.setCreateDoneCode(createDoneCode);
+		AdTree parentNode = queryByKey(tree.getAddrParent());
+		String str1 = null;
+		if(null != parentNode){
+			str1 = parentNode.getStr1() +BusiConstants.StringConstants.SLASH + addrName;
+		}else{//如果没有上级,这里一定是一级地址
+			str1 = addrName;
+		}
+		tree.setStr1(str1);
 		//新增的树的ID
 		adTreeMapper.insertSelective(tree);
 		Integer newAddedAddrId = tree.getAddrId();
-		AdTree parentNode = queryByKey(tree.getAddrParent());
 		
 		String addrPrivateName = BusiConstants.StringConstants.TOP_PID + BusiConstants.StringConstants.SLASH + newAddedAddrId ;
 		if(null != parentNode){
@@ -148,7 +155,7 @@ public class TreeService {
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH);
 		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
 		List<AdTree> children = childrenPager.getRecords();
-		
+		AdTree parentNode = queryByKey(param.getAddrParent());
 		for (Integer index = startPosi; index < endPosi; index++) {
 			AdTree tree = new AdTree();
 			CglibUtil.copy(param, tree);
@@ -165,8 +172,25 @@ public class TreeService {
 				continue;
 			}
 			tree.setAddrName(addrName);
+			
+			String str1 = null;
+			if(null != parentNode){
+				str1 = parentNode.getStr1() +BusiConstants.StringConstants.SLASH + addrName;
+			}else{//如果没有上级,这里一定是一级地址
+				str1 = addrName;
+			}
+			tree.setStr1(str1);
 			adTreeMapper.insertSelective(tree);
-			result.add(tree.getAddrId());
+			Integer addrId = tree.getAddrId();
+			
+			String addrPrivateName = BusiConstants.StringConstants.TOP_PID + BusiConstants.StringConstants.SLASH + addrId ;
+			if(null != parentNode){
+				addrPrivateName = parentNode.getAddrPrivateName() +   BusiConstants.StringConstants.SLASH + addrId ;
+			}
+			tree.setAddrPrivateName(addrPrivateName);
+			adTreeMapper.updateByPrimaryKeySelective(tree);
+			
+			result.add(addrId);
 		}
 		
 		return result;
@@ -257,7 +281,10 @@ public class TreeService {
 		String oldAddrName = oldTree.getAddrName();
 		String addrName = tree.getAddrName();
 		if(StringHelper.isNotEmpty(addrName) && !StringHelper.bothEmptyOrEquals(oldAddrName,addrName)){
-			addrName = checkAddrName(oldTree);
+			AdTree checker = new AdTree();
+			CglibUtil.copy(oldTree, checker);
+			checker.setAddrName(addrName);
+			addrName = checkAddrName(checker);
 			tree.setAddrName(addrName);
 		}
 		if(ignoreEmpty){

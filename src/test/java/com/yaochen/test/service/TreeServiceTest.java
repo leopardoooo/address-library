@@ -93,12 +93,10 @@ public class TreeServiceTest extends SpringRunTest{
 	public void testAddTreeForOtherBusiTest() throws Throwable {
 		
 		AdTree tree = new AdTree();
-		tree.setAddrCode("1234");
-		tree.setAddrFullName("广西南宁市新民路");
-		tree.setAddrLevel(2);
-		tree.setAddrName("新民路");
-		tree.setAddrParent(1);
-		tree.setAddrPrivateName("新民路");
+		tree.setAddrCode("12346");
+		tree.setAddrLevel(3);
+		tree.setAddrName("29号");
+		tree.setAddrParent(32);
 		tree.setAddrType(BusiConstants.AddrType.CITY.name());
 		tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
 		tree.setIsBlank("F");
@@ -165,11 +163,14 @@ public class TreeServiceTest extends SpringRunTest{
 	@Test
 	public void testModTree() throws Throwable {
 		//TODO 这里发现一个问题,修改地址名的时候，全名也要修改,前台输入还是后台计算？？？？
-		AdTree tree = treeService.queryByKey(32);
+		AdTree tree = null ; //treeService.queryByKey(32);
 		logger.info(JSON.toJSONString(tree, true));
 		tree = new AdTree();
-		tree.setAddrId(32);
+		tree.setAddrId(1);
+		//换着来测试
+//		tree.setAddrName("南宁是");
 		tree.setAddrName("南宁市");
+//		tree.setAddrName("南宁");
 		treeService.modTree(tree, true);
 		tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));

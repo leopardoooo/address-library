@@ -328,7 +328,8 @@
   <!-- updateFullNameAndChildren -->
   <update id="updateFullNameAndChildren" parameterType="com.yaochen.address.data.domain.address.AdTree" >
     update ad_tree
-    set addr_full_name = replace(addr_full_name,'${str1}', '${addrName}')
+    set addr_full_name = replace(addr_full_name,'${str1}', '${addrName}'),
+    str1 = replace(str1,'${str1}', '${addrName}')
     where addr_private_name like '${addrPrivateName}%'
   </update>
   
