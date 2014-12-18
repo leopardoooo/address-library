@@ -146,5 +146,32 @@ public class StringHelper {
 		System.out.println(str);
 		System.out.println(containSpecialCharacter(str));
 		
+	}
+
+	/**
+     * 比较两个字符串是否都为空或者equals
+     * @param str1
+     * @param str2
+     */
+	public static boolean bothEmptyOrEquals(String str1, String str2) {
+		if(isEmpty(str1) && isEmpty(str2)){
+			return true;
+		}
+		return (isEmpty(str1)?"":str1).equals(isEmpty(str2)?"":str2);
 	}	
+	
+	/**
+	 * 是否數字
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNumeric(String str) {
+		for (int i = str.length(); --i >= 0;) {
+			if (!Character.isDigit(str.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 }

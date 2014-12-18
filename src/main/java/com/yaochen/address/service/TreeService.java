@@ -233,11 +233,19 @@ public class TreeService {
 		}
 		Date createTime = new Date();
 		createDoneCode(createTime, BusiCodeConstants.EDIT_ADDR);
-		
+		String oldAddrName = oldTree.getAddrName();
+		String addrName = tree.getAddrName();
 		if(ignoreEmpty){
 			adTreeMapper.updateByPrimaryKeySelective(tree);
 		}else{
 			adTreeMapper.updateByPrimaryKey(tree);
+		}
+		
+		if(StringHelper.isNotEmpty(addrName) && !StringHelper.bothEmptyOrEquals(oldAddrName,addrName)){
+			//这里只是为了方便传参数
+			tree.setStr1(oldAddrName);
+			tree.setAddrPrivateName(oldTree.getAddrPrivateName());
+			adTreeMapper.updateFullNameAndChildren(tree);
 		}
 		
 	}

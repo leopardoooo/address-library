@@ -41,4 +41,10 @@ public interface AdTreeMapper {
 	 * @return
 	 */
 	List<AdLevel> selectUserCollection(Pagination pager);
+
+	/**
+	 * 更新地址全名,同时更新所有的下级.
+	 * @param tree
+	 */
+	void updateFullNameAndChildren(AdTree tree);
 }

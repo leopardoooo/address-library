@@ -108,6 +108,29 @@ public class TreeServiceTest extends SpringRunTest{
 		System.err.println(addTree);
 	}
 	
+	/**
+	 * 增加一个用来测试其他业务的地址
+	 * @throws Throwable
+	 */
+	@Test
+	public void testAddTreeForOtherBusiTest2() throws Throwable {
+		
+		AdTree tree = new AdTree();
+		tree.setAddrCode("4321");
+		tree.setAddrFullName("广西南宁市新民路15号");
+		tree.setAddrLevel(3);
+		tree.setAddrName("15号");
+		tree.setAddrParent(32);
+		tree.setAddrPrivateName("15号");
+		tree.setAddrType(BusiConstants.AddrType.CITY.name());
+		tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
+		tree.setIsBlank("F");
+		tree.setStatus(BusiConstants.Status.ACTIVE.name());
+		//TODO 
+		Integer addTree = treeService.addTree(tree);
+		System.err.println(addTree);
+	}
+	
 	@Test
 	public void testAddTreeAddAllCity() throws Throwable {
 		
@@ -142,9 +165,11 @@ public class TreeServiceTest extends SpringRunTest{
 	@Test
 	public void testModTree() throws Throwable {
 		//TODO 这里发现一个问题,修改地址名的时候，全名也要修改,前台输入还是后台计算？？？？
-		AdTree tree = treeService.queryByKey(15);
+		AdTree tree = treeService.queryByKey(1);
 		logger.info(JSON.toJSONString(tree, true));
-		tree.setAddrName("treeNewBee");
+		tree = new AdTree();
+		tree.setAddrId(1);
+		tree.setAddrName("南宁市区_!__");
 		treeService.modTree(tree, true);
 		tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));
