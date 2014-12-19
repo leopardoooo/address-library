@@ -10,6 +10,7 @@ public class BusiConstants {
 		public static String SLASH = "/";
 		public static String TOP_PID = "0";
 		public static String GOLBEL_QUERY_PRECND = "GOLBEL_QUERY_PRECND";
+		public static String GOLBEL_QUERY_SCOPE_TEXT = "GOLBEL_QUERY_SCOPE_TEXT";
 	}
 	
 	/**
@@ -32,7 +33,9 @@ public class BusiConstants {
 		//城市酒店
 		CITY_HOTEL,
 		//小区商铺
-		SHOPS
+		SHOPS,
+		// 其它
+		OTHERS
 	}
 	
 	public static enum Status{

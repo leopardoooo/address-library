@@ -9,9 +9,9 @@ SwitchCityModal = function(w){
 	var addrIdDesc = "data-addr-id";
 	
 	F = {
-		initialize: function(){
+		initialize: function(showBool){
 			$('#switchCityModal').modal({
-				show: true
+				show: showBool
 			});
 			
 			// 按钮切换样式
@@ -59,12 +59,14 @@ SwitchCityModal = function(w){
 			});
 		},
 		doSubmit: function(pid, pidText, subId, subIdText){
+			var scopeText = pidText + "/" + subIdText;
 			common.post("user/setAddrScope", {
 				"pid": pid,
-				"subId": subId || null
+				"subId": subId || null,
+				"scopeText": scopeText
 			}, function(data){
 				$('#switchCityModal').modal("hide");
-				alert(pidText + "/" + subIdText);
+				$("#switchCityModalTargetlabel").text(scopeText);
 			});
 		},
 		doSubAddrList: function(parentAddrId){
@@ -101,12 +103,18 @@ Search = function(W){
 	
 	var hide = function(){ $parent.removeClass("open"); },
 		show = function(){ $parent.addClass("open"); };
+		
+	var limit = 10;
+	var linkTpl = '<li><a href="#" data-addr-index="#{index}">#{addrFullName}</a></li>';
+	var pagingHeader = '<li class="dropdown-header">共#{offset}/#{totalCount}条相关的地址，按“←”或“→”方向键显示上下页内容</li>';
+	var nopagingHeader = '<li class="dropdown-header">共#{totalCount}条相关的地址。</li>';
 	
 	return {
 		initialize: function(){
 			
 			$('#searchLevelList' + desc).click(function(){
-				$('#levelLabel').text($(this).text());
+				$('#levelLabel').text($(this).text())
+					.attr("data-level", $(this).attr("data-level"));
 			});
 		
 			$itemParent.keydown(function(e){
@@ -126,16 +134,9 @@ Search = function(W){
 				if (!~index)  index = 0 ;
 				$items.eq(index).trigger('focus');
 				
-				// 左键
-				if(e.keyCode === 37){
-					alert("上一页");
-				}
-				// 右键
-				if(e.keyCode === 39){
-					alert("下一页");
-				}
+				if(e.which === 37) Search.doPage(-1); // <- 'prev'
+				if(e.which === 39) Search.doPage(1); // -> 'next'
 			});
-			
 			// selected
 			$itemParent.click(function(e){
 				var $items = $(this).find(desc);
@@ -147,24 +148,79 @@ Search = function(W){
 				e.stopPropagation();
 				
 				if(index === -1) return;
-				
-				$input.val($(e.target).text());
 				hide();
 				$input.trigger("focus");
+				// 
+				Search.determineSearch($(e.target).attr("data-addr-index"));
 			});
 		
 			$input.keydown(function(e){
 				if (!/(13|40)/.test(e.which)) return;
-				var $items = $itemParent.find(desc);
-				if ($items.length > 0)
-					$items.eq(0).trigger("focus");
-				show();
+				if(e.which === 13) Search.doSearch(0);
+				if(e.which === 40) {
+					show();
+					Search.doSelectEqFirst();
+				}
 			});
 			
-			//$input.focus(show);
-			$input.blur(function(e){
-				hide();
+			$("#indexSearchBtn").click(function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				Search.doSearch(0);
 			});
+			$(document).click(hide);
+		},
+		// 
+		doPage: function(d){
+			if(!Search.data ) return;
+			var start = Search.data.offset, total = Search.data.totalCount;
+			if(total <= limit) return;
+			if(d < 0 && start - limit < 0) return; // pre
+			if(d > 0 && start + limit > total) return;  // next
+			start += d > 0 ? limit : -limit;
+			
+			Search.doSearch(start);
+		},
+		doSearch: function(start){
+			Search.empty();
+			show();
+			var startLevel = $("#levelLabel").attr("data-level") || -1;
+			var q = $("#searchInput").val();
+			common.post("tree/search", {
+				"sl": startLevel,
+				"q": q,
+				"start": start,
+				"limit": limit
+			}, function(data){
+				Search.data = data;
+				if(data.records.length === 0){
+					Search.empty("没有匹配的相关地址!");
+				}else{
+					var links = "";
+					for(var i= 0;i < data.records.length; i++){
+						data.records[i]["index"] = i;
+						links += String.format(linkTpl, data.records[i]);
+					}
+					links += '<li class="divider"></li>';
+					links += String.format(data.totalCount > limit ? pagingHeader : nopagingHeader, data);
+					$("#matchingResult").html(links);
+					Search.doSelectEqFirst();
+				}
+			});
+		},
+		empty:function(str){
+			$("#matchingResult").html('<li class="empty">' + (str || "加载中...") + '</li>');
+		},
+		doSelectEqFirst: function(){
+			var $items = $itemParent.find(desc);
+			if ($items.length > 0)
+				$items.eq(0).trigger("focus");
+		},
+		// 选择一个结果集
+		determineSearch: function(index){
+			if(Search.data && Search.data.records.length > index){
+				Address.doShowAddress(Search.data.records[index]);
+			}
 		}
 	};
 	
