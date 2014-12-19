@@ -17,7 +17,7 @@ import com.yaochen.address.data.domain.address.AdTree;
 import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.service.TreeService;
-import com.yaochen.address.support.ThreadUserHolder;
+import com.yaochen.address.support.ThreadUserParamHolder;
 import com.yaochen.test.commons.SpringRunTest;
 
 
@@ -60,7 +60,7 @@ public class TreeServiceTest extends SpringRunTest{
 		 List<SystemFunction> list = new ArrayList<SystemFunction>();
 		 list.add(fun);
 		user.setSystemFunction(list );
-		ThreadUserHolder.setUserInSession(user );
+		ThreadUserParamHolder.setUserInSession(user );
 	}
 	
 	/**
@@ -82,7 +82,7 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		treeService.addTree(tree,ThreadUserHolder.getOptr());
+		treeService.addTree(tree);
 	}
 	
 	/**
@@ -90,25 +90,46 @@ public class TreeServiceTest extends SpringRunTest{
 	 * @throws Throwable
 	 */
 	@Test
-	@Ignore
 	public void testAddTreeForOtherBusiTest() throws Throwable {
+		
 		AdTree tree = new AdTree();
-		tree.setAddrCode("1234");
-		tree.setAddrFullName("广西南宁市新民路");
-		tree.setAddrLevel(2);
-		tree.setAddrName("新民路");
-		tree.setAddrParent(1);
-		tree.setAddrPrivateName("新民路");
+		tree.setAddrCode("12346");
+		tree.setAddrLevel(3);
+		tree.setAddrName("29号");
+		tree.setAddrParent(32);
 		tree.setAddrType(BusiConstants.AddrType.CITY.name());
 		tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		treeService.addTree(tree,ThreadUserHolder.getOptr());
+		AdTree addTree = treeService.addTree(tree);
+		System.err.println(JSON.toJSONString(addTree, true));
+	}
+	
+	/**
+	 * 增加一个用来测试其他业务的地址
+	 * @throws Throwable
+	 */
+	@Test
+	public void testAddTreeForOtherBusiTest2() throws Throwable {
+		
+		AdTree tree = new AdTree();
+		tree.setAddrCode("4321");
+		tree.setAddrFullName("广西南宁市新民路15号");
+		tree.setAddrLevel(3);
+		tree.setAddrName("15号");
+		tree.setAddrParent(32);
+		tree.setAddrPrivateName("15号");
+		tree.setAddrType(BusiConstants.AddrType.CITY.name());
+		tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
+		tree.setIsBlank("F");
+		tree.setStatus(BusiConstants.Status.ACTIVE.name());
+		//TODO 
+		AdTree addTree = treeService.addTree(tree);
+		System.err.println(addTree);
 	}
 	
 	@Test
-	@Ignore
 	public void testAddTreeAddAllCity() throws Throwable {
 		
 		String [] cities = new String []{"南宁","柳州","桂林","梧州","北海","防城港",
@@ -134,7 +155,7 @@ public class TreeServiceTest extends SpringRunTest{
 			tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
 			tree.setIsBlank("F");
 			tree.setStatus(BusiConstants.Status.ACTIVE.name());
-			treeService.addTree(tree,ThreadUserHolder.getOptr());
+			treeService.addTree(tree);
 		}
 		
 	}
@@ -142,17 +163,22 @@ public class TreeServiceTest extends SpringRunTest{
 	@Test
 	public void testModTree() throws Throwable {
 		//TODO 这里发现一个问题,修改地址名的时候，全名也要修改,前台输入还是后台计算？？？？
-		AdTree tree = treeService.queryByKey(15);
+		AdTree tree = null ; //treeService.queryByKey(32);
 		logger.info(JSON.toJSONString(tree, true));
-		tree.setAddrName("treeNewBee");
-		treeService.modTree(tree, true,ThreadUserHolder.getOptr());
+		tree = new AdTree();
+		tree.setAddrId(1);
+		//换着来测试
+//		tree.setAddrName("南宁是");
+		tree.setAddrName("南宁市");
+//		tree.setAddrName("南宁");
+		treeService.modTree(tree, true);
 		tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));
 	}
 	
 	@Test
 	public void testDelTree() throws Throwable {
-		treeService.delTree(15,ThreadUserHolder.getOptr());
+		treeService.delTree(15);
 		AdTree tree = treeService.queryByKey(15);
 		logger.info(JSON.toJSONString(tree, true));
 	}
@@ -176,7 +202,7 @@ public class TreeServiceTest extends SpringRunTest{
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
-		treeService.addTrees(tree,1,10,ThreadUserHolder.getOptr());
+		treeService.addTrees(tree,1,10);
 	}
 	
 	
@@ -188,7 +214,7 @@ public class TreeServiceTest extends SpringRunTest{
 			Pagination pager2 = treeService.findChildrensAndPagingByPid(0, 0, 100);
 			logger.info(JSON.toJSONString(pager2, true));
 			
-			List<AdLevel> levels = treeService.findAuthLevelByCurrentUser(ThreadUserHolder.getOptr());
+			List<AdLevel> levels = treeService.findAuthLevelByCurrentUser();
 			logger.info(JSON.toJSONString(levels, true));
 			String keyword = "南宁";
 			Pagination doSearchAddress = treeService.doSearchAddress(3, keyword, 0, 100);
@@ -210,7 +236,7 @@ public class TreeServiceTest extends SpringRunTest{
 		Integer endPosi = 10 ;
 		AdTree param = new AdTree();
 		//TODO
-		treeService.addTrees(param, startPosi, endPosi,null);
+		treeService.addTrees(param, startPosi, endPosi);
 	}
 	
 	
@@ -221,18 +247,18 @@ public class TreeServiceTest extends SpringRunTest{
 	@Test
 	public void testSaveCollectoin() throws Throwable{
 		//TODO
-		treeService.saveCollectTree(1,ThreadUserHolder.getOptr());
-		treeService.saveCollectTree(2,ThreadUserHolder.getOptr());
-		treeService.saveCollectTree(3,ThreadUserHolder.getOptr());
-		treeService.saveCollectTree(4,ThreadUserHolder.getOptr());
-		List<AdLevel> list = treeService.findCollectTreeList(100,ThreadUserHolder.getOptr());
+		treeService.saveCollectTree(1);
+		treeService.saveCollectTree(2);
+		treeService.saveCollectTree(3);
+		treeService.saveCollectTree(4);
+		List<AdLevel> list = treeService.findCollectTreeList(100);
 		System.err.println(JSON.toJSONString(list, true));
 	}
 	
 	@Test
 	public void testCancelCollectoin() throws Throwable{
 		//TODO
-		treeService.saveCancelCollectTree(1,ThreadUserHolder.getOptr());
+		treeService.saveCancelCollectTree(1);
 	}
 	
 	

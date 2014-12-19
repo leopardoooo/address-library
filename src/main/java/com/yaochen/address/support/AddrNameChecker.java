@@ -32,7 +32,7 @@ public class AddrNameChecker {
 	 * @param otherArgs
 	 * @return
 	 */
-	public String check(AdTree tree,Object... otherArgs)throws Exception{
+	public String checkBusiRule(AdTree tree,Object... otherArgs)throws Exception{
 		ScriptEngineManager factory = new ScriptEngineManager();//初始化引擎工厂
 		ScriptEngine engine = factory.getEngineByName("JavaScript");//取得JS引擎
 		if(!fileLoaded){
@@ -40,7 +40,6 @@ public class AddrNameChecker {
 			setFileLoaded(true);
 		}
 		engine.eval(script);
-		tree.setAddrName("addrName_提供给JS调用");
 		engine.put("addr", tree);
 		Invocable inv = (Invocable) engine;
 		String res = (String)inv.invokeFunction("validate", otherArgs );

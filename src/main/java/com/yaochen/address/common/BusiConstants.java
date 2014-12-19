@@ -11,6 +11,11 @@ public class BusiConstants {
 		public static String TOP_PID = "0";
 		public static String GOLBEL_QUERY_PRECND = "GOLBEL_QUERY_PRECND";
 		public static String GOLBEL_QUERY_SCOPE_TEXT = "GOLBEL_QUERY_SCOPE_TEXT";
+		public static String BLANK_ADDR_NAME = "留空";
+	}
+	
+	public static enum Booleans{
+		T,F
 	}
 	
 	/**
@@ -39,8 +44,24 @@ public class BusiConstants {
 	}
 	
 	public static enum Status{
+		NOT_AUDITED,
 		ACTIVE,
 		INVALID
 	}
+	
+	/**
+	 * 异动类型.
+	 */
+	public static enum AddrChangeType{
+		/**编辑 */
+		EDIT, 
+		/** 合并删除 */
+		MERGE_DEL, 
+		/** 审核失败 */
+		AUDIT_FAILED,
+		/** 审核成功 */
+		AUDIT_SUCCESS
+	}
+	
 	
 }

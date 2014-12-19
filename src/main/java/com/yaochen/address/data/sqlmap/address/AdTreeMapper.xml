@@ -45,7 +45,9 @@
     <if test="startLevel &lt; 0 ">
     	where addr_level > = #{addrLevel,jdbcType=INTEGER}
     </if>
-     
+     <if test="baseScope !=null">
+     	and addr_private_name like '${baseScope}%' 
+     </if>
      <if test="keyword != null">
      	and addr_full_name like '%${keyword}%'
      </if>
@@ -82,6 +84,9 @@
      </if>
      <if test="status != null">
      	and status = #{status,jdbcType=VARCHAR}
+     </if>
+     <if test="baseScope !=null">
+     	and addr_private_name like '${baseScope}%' 
      </if>
      order by addr_level 
   </select>
@@ -319,4 +324,13 @@
       str5 = #{str5,jdbcType=VARCHAR}
     where addr_id = #{addrId,jdbcType=INTEGER}
   </update>
+  
+  <!-- updateFullNameAndChildren -->
+  <update id="updateFullNameAndChildren" parameterType="com.yaochen.address.data.domain.address.AdTree" >
+    update ad_tree
+    set addr_full_name = replace(addr_full_name,'${str1}', '${addrName}'),
+    str1 = replace(str1,'${str1}', '${addrName}')
+    where addr_private_name like '${addrPrivateName}%'
+  </update>
+  
 </mapper>

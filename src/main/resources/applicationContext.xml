@@ -28,6 +28,7 @@
 	<bean name="loginWebServiceClient" class="com.yaochen.address.support.LoginWebServiceClient" >
 		<property name="wsdlUrl">
 			<value>http://192.168.1.206:8088/login/services/LoginAction?wsdl</value>
+			<!-- <value>http://127.0.0.1/login/services/LoginAction?wsdl</value> -->
 		</property>
 		<property name="loginMethod">
 			<value>login</value>

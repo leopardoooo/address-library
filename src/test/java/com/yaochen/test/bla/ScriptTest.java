@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.yaochen.address.data.domain.address.AdTree;
 import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
-import com.yaochen.address.support.ThreadUserHolder;
+import com.yaochen.address.support.ThreadUserParamHolder;
 
 public class ScriptTest {
 	@Before
@@ -54,7 +54,7 @@ public class ScriptTest {
 		 List<SystemFunction> list = new ArrayList<SystemFunction>();
 		 list.add(fun);
 		user.setSystemFunction(list );
-		ThreadUserHolder.setUserInSession(user );
+		ThreadUserParamHolder.setUserInSession(user );
 	}
 	
 	@Test

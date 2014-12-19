@@ -2,11 +2,17 @@ package com.yaochen.address.web.support;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.StringHelper;
+import com.yaochen.address.dto.UserInSession;
+import com.yaochen.address.support.ThreadUserParamHolder;
 
 /**
  * 时间统计拦截器
@@ -23,6 +29,15 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 			HttpServletResponse response, Object handler) throws Exception {
 		if(logger.isDebugEnabled()){
 			logger.debug(String.format("A new request for %s", request.getRequestURI()));
+		}
+		HttpSession session = request.getSession();
+		Object userInsession = session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
+		if(null !=userInsession && userInsession.getClass().equals(UserInSession.class)){
+			ThreadUserParamHolder.setUserInSession((UserInSession)userInsession);
+		}
+		Object baseScope = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
+		if(baseScope!=null && StringHelper.isNotEmpty(baseScope.toString().trim())){
+			ThreadUserParamHolder.setBaseQueryScope(baseScope.toString());
 		}
 		request.setAttribute(TIMER_HANDLER_START_KEY, System.currentTimeMillis());
 		return true;
