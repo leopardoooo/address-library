@@ -95,6 +95,9 @@ public class UserController {
 		}
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, str);
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT, scopeText);
+		
+		//设置了这个属性之后,  把 操作员的 权限级别  放入到session
+		
 		return ReturnValueUtil.getVoidRoot();
 	}
 	

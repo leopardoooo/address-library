@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.easyooo.framework.support.mybatis.Pagination;
+import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.MessageException;
+import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdTree;
 import com.yaochen.address.service.TreeService;
@@ -128,7 +131,11 @@ public class TreeController implements BeanFactoryAware{
 	@RequestMapping("/queryById")
 	@ResponseBody
 	public Root<AdTree> queryById(Integer addrId)throws Throwable {
-		return ReturnValueUtil.getJsonRoot(treeService.queryByKey(addrId));
+		if(null == addrId || BusiConstants.StringConstants.TOP_PID.equals(addrId.toString())){
+			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
+		}
+		AdTree queryByKey = treeService.queryByKey(addrId);
+		return ReturnValueUtil.getJsonRoot(queryByKey);
 	}
 	
 	/**

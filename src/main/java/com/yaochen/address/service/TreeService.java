@@ -88,6 +88,7 @@ public class TreeService {
 			str1 = addrName;
 		}
 		tree.setStr1(str1);
+		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//新增的树的ID
 		adTreeMapper.insertSelective(tree);
 		Integer newAddedAddrId = tree.getAddrId();
@@ -180,6 +181,7 @@ public class TreeService {
 				str1 = addrName;
 			}
 			tree.setStr1(str1);
+			tree.setStatus(BusiConstants.Status.ACTIVE.name());
 			adTreeMapper.insertSelective(tree);
 			Integer addrId = tree.getAddrId();
 			
