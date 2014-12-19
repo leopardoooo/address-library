@@ -6,12 +6,21 @@
 SwitchCityModal = function(w){
 	var lastActiveAddrId = null, F = {};
 	var countryTpl = '<button class="btn" data-addr-id="#{addrId}" >#{addrName}</button>';
-	var addrIdDesc = "data-addr-id";
+	var addrIdDesc = "data-addr-id",
+		scopeText = null;
 	
 	F = {
-		initialize: function(showBool){
+		initialize: function(text){
+			scopeText = text;
 			$('#switchCityModal').modal({
-				show: showBool
+				show: !scopeText
+			}).on("hide.bs.modal", function(){
+				if(!scopeText){
+					Alert("必须选择一个城市!");
+					e.preventDefault();
+					e.stopPropagation();
+					return false;
+				}
 			});
 			
 			// 按钮切换样式
