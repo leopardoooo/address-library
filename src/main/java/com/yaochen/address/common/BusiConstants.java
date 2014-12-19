@@ -4,10 +4,15 @@ public class BusiConstants {
 	
 	public static interface StringConstants{
 		public static String WSDL_TARGET_NODE_NAME = "string";
+		
+		public static String REDIRECT_ACTION = "redirect:";
+		
 		public static String LOGIN_FAILURE_VIEW = "login";
+		
 		public static String LOGIN_SUCCESS_VIEW = "index";
 		public static String USER_IN_SESSION = "loginUserInSession";
 		public static String SLASH = "/";
+		/**顶级树的id**/
 		public static String TOP_PID = "0";
 		public static String GOLBEL_QUERY_PRECND = "GOLBEL_QUERY_PRECND";
 		public static String GOLBEL_QUERY_SCOPE_TEXT = "GOLBEL_QUERY_SCOPE_TEXT";

@@ -30,10 +30,20 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 		if(logger.isDebugEnabled()){
 			logger.debug(String.format("A new request for %s", request.getRequestURI()));
 		}
+		String servletPath = request.getServletPath();
+		String contextPath = request.getContextPath();
+		String login = BusiConstants.StringConstants.SLASH + BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
 		HttpSession session = request.getSession();
 		Object userInsession = session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 		if(null !=userInsession && userInsession.getClass().equals(UserInSession.class)){
 			ThreadUserParamHolder.setUserInSession((UserInSession)userInsession);
+		}else{
+			//这里多做了点事情,不用重新搞个filter
+			if(!"/user/login".equals(servletPath) && ! login.equals(servletPath)){
+				response.sendRedirect(contextPath );
+				return false;
+			}
+			
 		}
 		Object baseScope = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
 		if(baseScope!=null && StringHelper.isNotEmpty(baseScope.toString().trim())){

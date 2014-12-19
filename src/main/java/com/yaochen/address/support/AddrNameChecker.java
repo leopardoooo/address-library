@@ -73,5 +73,17 @@ public class AddrNameChecker {
 	public static void setFileLoaded(boolean fileLoaded) {
 		AddrNameChecker.fileLoaded = fileLoaded;
 	}
+
+
+	/**
+	 * 如果被别的的系统引用,则直接抛出异常.
+	 * 目前该方法留空,有需要的时候再实现.
+	 * @param tree
+	 * @return
+	 * @throws Throwable
+	 */
+	public void usedByOtherSystem(AdTree tree) throws Throwable{
+		//TODO 判断当前地址是否被别的系统引用....
+	}
 	
 }
