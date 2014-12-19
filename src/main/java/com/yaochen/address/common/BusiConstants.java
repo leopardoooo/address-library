@@ -21,6 +21,9 @@ public class BusiConstants {
 		
 		public static String GOLBEL_QUERY_SCOPE_TEXT = "GOLBEL_QUERY_SCOPE_TEXT";
 		public static String BLANK_ADDR_NAME = "留空";
+		/**新增的地址的初始状态,如果以后需要审核,修改这里**/
+		public static String ADDR_INIT_STATUS = Status.ACTIVE.name();
+		
 	}
 	
 	public static enum Booleans{
@@ -34,22 +37,48 @@ public class BusiConstants {
 	
 	public static enum AddrType{
 		//城镇
-		CITY,
+		CITY("城镇"),
 		//农村
-		RURAL 
+		RURAL("农村"); 
+		private String desc;
+
+		public String getDesc() {
+			return desc;
+		}
+
+		public void setDesc(String desc) {
+			this.desc = desc;
+		}
+
+		private AddrType(String desc) {
+			this.desc = desc;
+		}
 	}
 	
 	public static enum AddrUsage{
 //		城市小区
-		CITY,
+		CITY("城市小区"),
 		//工业园厂房
-		INDUSTRIAL_PARK ,
+		INDUSTRIAL_PARK("工业园厂房") ,
 		//城市酒店
-		CITY_HOTEL,
+		CITY_HOTEL("城市酒店"),
 		//小区商铺
-		SHOPS,
+		SHOPS("小区商铺"),
 		// 其它
-		OTHERS
+		OTHERS("其它");
+		private String desc;
+
+		public String getDesc() {
+			return desc;
+		}
+
+		public void setDesc(String desc) {
+			this.desc = desc;
+		}
+
+		private AddrUsage(String desc) {
+			this.desc = desc;
+		}
 	}
 	
 	public static enum Status{

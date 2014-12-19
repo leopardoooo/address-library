@@ -26,6 +26,13 @@ public enum StatusCodeConstant {
 	ADDR_NAME_IS_BLANK(313, "地址不能为空"),
 	ADDR_NAME_CONTAIN_INVALID_CHARS(314, "地址不能有特殊字符"),
 	ADDR_BASE_LEVEL_NOT_FOUND(315, "尚未设置当前操作员的地址级别"),
+	BATCH_ADD_WRONG_RANGE_LENGTH_TOO_LONG(316, "名字的范围不正确,应为两个英文字符或两个数字"),
+	BATCH_ADD_WRONG_RANGE_ORDER_WRONG(317, "名字范围不正确,起始位不应小于结束位"),
+	BATCH_ADD_WRONG_RANGE_TYPE_MISTACH(318, "名字范围不正确,应都为数字,或者都为英文字母"),
+	BATCH_ADD_RANGE_EMPTY(319, "名字范围必须都不能为空"),
+	TOO_MANY_BLANK_ADDR(320, "同一父级的地址下只能有一个留空地址"),
+	PARAM_MISSED_WHILE_CHECK_ADDR_NAME(321, "检查地址名的时候发现需要的属性不完整,至少需要地址名、是否留空、父级ID和当前地址级别"),
+	NON_BLANK_ADDR_WITH_NO_NAME(322, "非留空地址的名字为空"),
 	
 	
 	//系统

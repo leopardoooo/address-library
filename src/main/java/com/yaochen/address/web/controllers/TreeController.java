@@ -163,17 +163,21 @@ public class TreeController implements BeanFactoryAware{
 		return ReturnValueUtil.getJsonRoot(treeService.addTree(tree));
 	}
 	
+	
 	/**
-	 * 添加地址
-	 * 
-	 * @param tree
+	 * 批量添加地址.
+	 * @param tree 本次新增地址的通用参数.
+	 * @param addrNamePreffix	地址名 前缀.
+	 * @param addrNameSuffix	地址名 后缀.
+	 * @param start		起始位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
+	 * @param end		结束位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
 	 * @return
 	 * @throws Throwable
 	 */
 	@RequestMapping("/addTrees")
 	@ResponseBody
-	public Root<List<Integer>> addTrees(AdTree tree,Integer startPosi,Integer endPosi)throws Throwable {
-		return ReturnValueUtil.getJsonRoot(treeService.addTrees(tree, startPosi, endPosi ));
+	public Root<List<Integer>> addTrees(AdTree tree,String start,String end,String addrNamePreffix,String addrNameSuffix)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.addTrees(tree,addrNamePreffix,addrNameSuffix, start, end ));
 	}
 	
 	/**

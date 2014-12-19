@@ -86,17 +86,20 @@ public class TreeServiceTest extends SpringRunTest{
 	}
 	
 	/**
-	 * 增加一个用来测试其他业务的地址
+	 * 添加区,比如 南宁市青秀区.
+	 * 二级.
 	 * @throws Throwable
 	 */
 	@Test
-	public void testAddTreeForOtherBusiTest() throws Throwable {
+	public void testAddDIsctOfCity() throws Throwable {
 		
 		AdTree tree = new AdTree();
-		tree.setAddrCode("12346");
-		tree.setAddrLevel(3);
-		tree.setAddrName("29号");
-		tree.setAddrParent(32);
+		Long code = System.currentTimeMillis() % 10000000;
+		tree.setAddrCode(code.toString());
+		tree.setAddrLevel(2);
+		tree.setAddrName("青秀区");
+		tree.setAddrFullName("广西南宁市青秀区");
+		tree.setAddrParent(1);
 		tree.setAddrType(BusiConstants.AddrType.CITY.name());
 		tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
 		tree.setIsBlank("F");
@@ -107,26 +110,26 @@ public class TreeServiceTest extends SpringRunTest{
 	}
 	
 	/**
-	 * 增加一个用来测试其他业务的地址
+	 * 增加路,如南宁市青秀区新民路.
+	 * 三级.
 	 * @throws Throwable
 	 */
 	@Test
-	public void testAddTreeForOtherBusiTest2() throws Throwable {
-		
+	public void testAddRodeOfDisct() throws Throwable {
 		AdTree tree = new AdTree();
-		tree.setAddrCode("4321");
-		tree.setAddrFullName("广西南宁市新民路15号");
+		Long code = System.currentTimeMillis() % 10000000;
+		tree.setAddrCode(code.toString());
 		tree.setAddrLevel(3);
-		tree.setAddrName("15号");
-		tree.setAddrParent(32);
-		tree.setAddrPrivateName("15号");
+		tree.setAddrName("新民路");
+		tree.setAddrFullName("广西南宁市青秀区新民路");
+		tree.setAddrParent(15);
 		tree.setAddrType(BusiConstants.AddrType.CITY.name());
 		tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
 		//TODO 
 		AdTree addTree = treeService.addTree(tree);
-		System.err.println(addTree);
+		System.err.println(JSON.toJSONString(addTree, true));
 	}
 	
 	@Test
@@ -191,18 +194,22 @@ public class TreeServiceTest extends SpringRunTest{
 	public void testAddTreeBatch() throws Throwable {
 		//TODO addrCode 怎么确定/????
 		AdTree tree = new AdTree();
-		tree.setAddrCode("1234");
-		tree.setAddrFullName("广西南宁市新民路 25号");
-		tree.setAddrLevel(2);
-		tree.setAddrName("25号");
-		tree.setAddrParent(2);
-		tree.setAddrPrivateName("25号");
+		Long code = System.currentTimeMillis() % 10000000;
+//		tree.setAddrCode(code.toString());
+		tree.setAddrLevel(4);
+		tree.setAddrParent(52);
 		tree.setAddrType(BusiConstants.AddrType.CITY.name());
 		tree.setAddrUse(BusiConstants.AddrUsage.CITY.name());
 		tree.setIsBlank("F");
 		tree.setStatus(BusiConstants.Status.ACTIVE.name());
-		//TODO 
-		treeService.addTrees(tree,1,10);
+		//TODO  待测试
+		//卧槽，全角的数字也可以
+		try {
+			treeService.addTrees(tree, "", "号", "１", "10");
+		} catch (Throwable e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 	
 	
@@ -223,20 +230,6 @@ public class TreeServiceTest extends SpringRunTest{
 			e.printStackTrace();
 		}
 		
-	}
-	
-	/**
-	 * 批量增加.
-	 * @throws Throwable
-	 */
-	@Test
-	@Ignore
-	public void testAddTrees() throws Throwable{
-		Integer startPosi = 1;
-		Integer endPosi = 10 ;
-		AdTree param = new AdTree();
-		//TODO
-		treeService.addTrees(param, startPosi, endPosi);
 	}
 	
 	

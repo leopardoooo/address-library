@@ -6,15 +6,23 @@ import java.util.regex.PatternSyntaxException;
 
 public class StringHelper {
 	
-	//地址去空格(包括里面的)  a 3
-	//全角数字，标点  转半角
-	//地址不能为空 留空为 T 的例外
-	
-	//有特殊字符的，报错
-	
 	public static boolean isEmpty(String raw){
 		if(null == raw || raw.trim().length() ==0 || "null".equals(raw.trim())){
 			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 传入多个字符串,只要有任意一个为空,返回true.否则返回false.
+	 * @param arr
+	 * @return
+	 */
+	public static boolean isAnyEmpty(String ...arr){
+		for (String str : arr) {
+			if(isEmpty(str)){
+				return true;
+			}
 		}
 		return false;
 	}
@@ -168,6 +176,70 @@ public class StringHelper {
 	public static boolean isNumeric(String str) {
 		for (int i = str.length(); --i >= 0;) {
 			if (!Character.isDigit(str.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+
+	/**
+	 * 判断char 是不是大写英文字母的.
+	 * @param chr
+	 * @return
+	 */
+	public static boolean isUpperEnglishCharacter(char chr) {
+		int upperStart = 65;//'A'
+		int upperEnd = 90;//'Z'
+		int code = (int) chr;
+		return code >= upperStart && code <= upperEnd;
+	}
+	
+	/**
+	 * 判断char 是不是大写英文字母的.
+	 * @param chr
+	 * @return
+	 */
+	public static boolean isLowerEnglishCharacter(char chr) {
+		int lowerStart = 97;//'a'
+		int lowerEnd = 122;//'z'
+		int code = (int) chr;
+		return code >= lowerStart && code <= lowerEnd;
+	}
+	
+	/**
+	 * 当前字符是否是英文字符.
+	 * @param chr
+	 * @return
+	 */
+	public static boolean isAlphabet(char chr){
+		return isLowerEnglishCharacter(chr) || isUpperEnglishCharacter(chr);
+	}
+	
+	/**
+	 * 判断的当前字符串是否是英文(或者数字)的.
+	 * @param str
+	 * @return
+	 */
+	public static boolean isAlphabetOrNumric(String str){
+		for (int index = 0; index < str.length(); index++) {
+			char chr = str.charAt(index);
+			if(!isAlphabet(chr) && !Character.isDigit(chr)){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * 判断的当前字符串是否是英文字符,不包括数字.
+	 * @param str
+	 * @return
+	 */
+	public static boolean isAlphabet(String str){
+		for (int index = 0; index < str.length(); index++) {
+			char chr = str.charAt(index);
+			if(!isAlphabet(chr)){
 				return false;
 			}
 		}

@@ -75,7 +75,7 @@ public class TreeService {
 		tree.setCountyId(countyId);
 		//验证
 		String addrName = checkAddrName(tree);
-		
+		boolean isBlank = tree.getIsBlank().equals(BusiConstants.Booleans.T.name());
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR);
 		
 		tree.setAddrName(addrName);
@@ -83,12 +83,12 @@ public class TreeService {
 		AdTree parentNode = queryByKey(tree.getAddrParent());
 		String str1 = null;
 		if(null != parentNode){
-			str1 = parentNode.getStr1() +BusiConstants.StringConstants.SLASH + addrName;
+			str1 = parentNode.getStr1() +( isBlank ? "": BusiConstants.StringConstants.SLASH + addrName );
 		}else{//如果没有上级,这里一定是一级地址
-			str1 = addrName;
+			str1 = ( isBlank ? "": addrName );
 		}
 		tree.setStr1(str1);
-		tree.setStatus(BusiConstants.Status.ACTIVE.name());
+		tree.setStatus(BusiConstants.StringConstants.ADDR_INIT_STATUS);
 		//新增的树的ID
 		adTreeMapper.insertSelective(tree);
 		Integer newAddedAddrId = tree.getAddrId();
@@ -113,39 +113,85 @@ public class TreeService {
 	 */
 	public String checkAddrName(AdTree tree,AdTree ... children) throws MessageException,
 			Exception, Throwable {
+		logger.info("检测地址名...");
 		String addrName = tree.getAddrName();
+		String isBlank = tree.getIsBlank();
+		boolean numNull = null == tree.getAddrParent() || null == tree.getAddrLevel();
+		boolean blankIsNull = StringHelper.isEmpty(isBlank);
+		if(numNull || blankIsNull){
+			throw new MessageException(StatusCodeConstant.PARAM_MISSED_WHILE_CHECK_ADDR_NAME);
+		}else if(BusiConstants.Booleans.F.name().equals(isBlank) && StringHelper.isEmpty(addrName)){
+			throw new MessageException(StatusCodeConstant.NON_BLANK_ADDR_WITH_NO_NAME);
+		}
 		addrName = literalCheckAddrName(tree, addrName);
-		
 		String check = addrNameChecker.checkBusiRule(tree );
 		if(null!=check){
 			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
 		}
-		
-		Integer addrParent = tree.getAddrParent();
 		//检查同级别的有没有同名地址
 		boolean exists = false;
+		tree.setAddrName(addrName);
 		if(null != children && children.length > 0 ){
 			List<AdTree> list = Arrays.asList(children);
-			exists = checkSameLevelAddrName(addrName,list);
+			exists = checkSameLevelAddrName(tree,list);
 		}else{
-			exists = checkSameLevelAddrName(addrParent, addrName);
+			exists = checkSameLevelAddrName(tree);
 		}
 		if(exists){
 			throw new MessageException(StatusCodeConstant.ADDR_ALREADY_EXISTS_THIS_LEVEL);
 		}
 		return addrName;
 	}
-
-
-	public List<Integer> addTrees(AdTree param,Integer startPosi,Integer endPosi) throws Throwable{
+	
+	/**
+	 * 批量添加地址.
+	 * @param param 本次通用参数.
+	 * @param addrNamePreffix	地址名 前缀.
+	 * @param addrNameSuffix	地址名 后缀.
+	 * @param start		起始位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
+	 * @param end		结束位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
+	 * @return
+	 * @throws Throwable
+	 */
+	public List<Integer> addTrees(AdTree param,String addrNamePreffix, String addrNameSuffix, String start,String end) throws Throwable{
 		UserInSession optr = getUserInSession();
 		//验证参数
-		if(null == startPosi || null == endPosi){ //提示起始位置不能为空
-			logger.info("参数为空");
-			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
+		if(StringHelper.isEmpty(end) || StringHelper.isEmpty(start)){ //提示起始位置不能为空
+			throw new MessageException(StatusCodeConstant.BATCH_ADD_RANGE_EMPTY);
 		}
-		if(endPosi < startPosi){ //后者不能小于前者
-			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
+		//TODO 批量添加的时候,不允许批量留空地址
+		if(BusiConstants.Booleans.T.name().equals(param.getIsBlank())){
+			throw new MessageException(StatusCodeConstant.TOO_MANY_BLANK_ADDR);
+		}
+		
+		Integer endPosi = null;
+		Integer startPosi = null;
+		
+		start = start.trim();
+		end = end.trim();
+		
+		boolean bothNum = false;//都是数字
+		boolean bothEngChar = false;//都是字母
+		if(start.length() == 1 && end.length() ==1){//只有范围的的字符串都是一位的时候才判断是否为字母,否则超过一位的肯定不是字母.
+			bothEngChar = StringHelper.isAlphabet(start) && StringHelper.isAlphabet(end);
+		}
+		if(!bothEngChar){//如果确定是字母了,肯定不是数字了.
+			bothNum = StringHelper.isNumeric(start) && StringHelper.isNumeric(end);
+		}
+		if(!bothEngChar && !bothNum){//两者都不是,抛出异常
+			throw new MessageException(StatusCodeConstant.BATCH_ADD_WRONG_RANGE_TYPE_MISTACH);
+		}
+		if(bothNum){//前面的检查确保了这里不会抛错
+			startPosi = Integer.parseInt(start);
+			endPosi = Integer.parseInt(end);
+		}
+		if(bothEngChar){
+			startPosi = (int) start.charAt(0);
+			endPosi = (int) end.charAt(0);
+		}
+		
+		if(endPosi < startPosi){ //范围后者不能小于前者
+			throw new MessageException(StatusCodeConstant.BATCH_ADD_WRONG_RANGE_ORDER_WRONG);
 		}
 		
 		List<Integer> result = new ArrayList<Integer>();
@@ -157,15 +203,24 @@ public class TreeService {
 		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
 		List<AdTree> children = childrenPager.getRecords();
 		AdTree parentNode = queryByKey(param.getAddrParent());
-		for (Integer index = startPosi; index < endPosi; index++) {
+		addrNamePreffix = StringHelper.isEmpty(addrNamePreffix) ? "":addrNamePreffix;
+		addrNameSuffix = StringHelper.isEmpty(addrNameSuffix) ? "":addrNameSuffix;
+		
+		for (int index = startPosi; index <= endPosi; index++) {
 			AdTree tree = new AdTree();
 			CglibUtil.copy(param, tree);
 			tree.setCreateDoneCode(createDoneCode);
 			tree.setCreateTime(createTime);
 			tree.setCountyId(countyId);
 			tree.setCreateOptrId(optrId);
-
-			String addrName = tree.getAddrName();
+			
+			String addrName = addrNamePreffix;
+			if(bothNum){
+				addrName += index + addrNameSuffix;
+			}else if(bothEngChar){
+				addrName += (char)index + addrNameSuffix;
+			}
+			tree.setAddrName(addrName);
 			try {
 				addrName = checkAddrName(tree,children.toArray(new AdTree[children.size()]));
 			} catch (Throwable e) {
@@ -173,15 +228,19 @@ public class TreeService {
 				continue;
 			}
 			tree.setAddrName(addrName);
-			
+			boolean isBlank = param.getIsBlank().equals(BusiConstants.Booleans.T.name());
 			String str1 = null;
+			String addrFullName = null;
 			if(null != parentNode){
 				str1 = parentNode.getStr1() +BusiConstants.StringConstants.SLASH + addrName;
+				addrFullName = parentNode.getAddrFullName() + ( isBlank ? "": BusiConstants.StringConstants.SLASH + addrName );
 			}else{//如果没有上级,这里一定是一级地址
 				str1 = addrName;
+				addrFullName = ( isBlank ? "": addrName );
 			}
 			tree.setStr1(str1);
-			tree.setStatus(BusiConstants.Status.ACTIVE.name());
+			tree.setAddrFullName(addrFullName);
+			tree.setStatus(BusiConstants.StringConstants.ADDR_INIT_STATUS);
 			adTreeMapper.insertSelective(tree);
 			Integer addrId = tree.getAddrId();
 			
@@ -289,6 +348,7 @@ public class TreeService {
 			addrName = checkAddrName(checker);
 			tree.setAddrName(addrName);
 		}
+		
 		if(ignoreEmpty){
 			adTreeMapper.updateByPrimaryKeySelective(tree);
 		}else{
@@ -465,14 +525,36 @@ public class TreeService {
 		return createDoneCode;
 	}
 	
-	private boolean checkSameLevelAddrName(Integer addrParent, String addrName) throws Throwable, MessageException {
-		Pagination childrenPager = findChildrensAndPagingByPid(addrParent, 0, Integer.MAX_VALUE);
+	/**
+	 * 检查名字是否重复以及是否有多个留空地址.
+	 * @param addrParent
+	 * @param tree 至少保证 addrParent,addrName,isBlank 不为空
+	 * @return
+	 * @throws Throwable
+	 */
+	private boolean checkSameLevelAddrName(AdTree tree) throws Throwable {
+		Pagination childrenPager = findChildrensAndPagingByPid(tree.getAddrParent(), 0, Integer.MAX_VALUE);
 		List<AdTree> children = childrenPager.getRecords();
-		return checkSameLevelAddrName(addrName, children);
+		return checkSameLevelAddrName(tree, children);
 	}
 
-	private boolean checkSameLevelAddrName(String addrName,List<AdTree> children) {
+	/**
+	 * 检查名字是否重复以及是否有多个留空地址.如果重名,返回true,如果有多个留空地址,抛出异常
+	 * @param tree
+	 * @param children
+	 * @return
+	 * @throws MessageException
+	 */
+	private boolean checkSameLevelAddrName(AdTree tree,List<AdTree> children) throws MessageException {
+		String addrName = tree.getAddrName();
+		String isBlank = tree.getIsBlank();
+		if(StringHelper.isEmpty(isBlank)){
+			throw new MessageException(StatusCodeConstant.PARAM_MISSED_WHILE_CHECK_ADDR_NAME);
+		}
 		for (AdTree child : children) {
+			if(child.getIsBlank().equals(isBlank)){
+				throw new MessageException(StatusCodeConstant.TOO_MANY_BLANK_ADDR);
+			}
 			if(child.getAddrName().equals(addrName)){
 				return true;
 			}
