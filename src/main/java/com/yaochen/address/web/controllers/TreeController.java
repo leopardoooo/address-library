@@ -120,6 +120,18 @@ public class TreeController implements BeanFactoryAware{
 	}
 	
 	/**
+	 * 根据主键查询.
+	 * @param tree
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/queryById")
+	@ResponseBody
+	public Root<AdTree> queryById(Integer addrId)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.queryByKey(addrId));
+	}
+	
+	/**
 	 * 添加地址
 	 * 
 	 * @param tree
