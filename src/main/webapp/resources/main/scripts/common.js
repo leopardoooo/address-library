@@ -23,6 +23,10 @@ common = {
 	}
 };
 
+Alert = function(msg){
+	alert(msg);
+};
+
 /**
  * opts参数为“Object”时，替换目标字符串中的#{property name}部分。<br> 
  * opts为“string...”时，替换目标字符串中的#{0}、#{1}...部分。 

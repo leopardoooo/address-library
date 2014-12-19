@@ -3,43 +3,44 @@
 <!-- 编辑区 -->
 <div id="edit" class="panel panel-default">
 	<div class="panel-heading clearfix">
-		<span class="text">地址编辑</span>
+		<span class="text">地址信息</span>
 		<div class="pull-right">
-			<button type="button" class="btn btn-default" title="收藏"> <i class="glyphicon glyphicon-star-empty"></i></button>
-			<button type="button" class="btn btn-default" title="删除"> <i class="glyphicon glyphicon-trash"></i></button>
+			<button type="button" class="btn btn-default" id="editFormCollectBtn" title="收藏"> <i class="glyphicon glyphicon-star-empty"></i></button>
+			<button type="button" class="btn btn-default" id="editFormDeleteBtn" title="删除"> <i class="glyphicon glyphicon-trash"></i></button>
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addAddressModal" title="添加下级地址"> <i class="glyphicon glyphicon-plus-sign"></i></button>
-			<button type="button"  class="btn btn-default" title="保存"> <i class="glyphicon glyphicon-ok"></i></button>
+			<button type="button" class="btn btn-default" id="editFormSaveBtn" title="保存"> <i class="glyphicon glyphicon-ok"></i></button>
 		</div>
 	</div>
 	<div class="panel-body" id="editForm">
 		<div class="form-group">
-			<label for="currentLevelAddr">完整名称（1/2/3）</label>
-			<input type="text" class="form-control" readonly="readonly" value="南宁市/青秀区/民族大道">
+			<label for="currentLevelAddr">完整名称<b id="editFormFullLevel"></b></label>
+			<input type="text" class="form-control" id="editFormFullAddrName" readonly="readonly" placeholder="完整的地址名称" value="">
 		</div>
 		<div class="form-group"> 
-			<label for="parentLevelAddr">地址代码</label>
-			<input type="text" class="form-control" id="parentLevelAddr" readonly="readonly" placeholder="003201">
+			<label for="parentLevelAddr">地址编号</label>
+			<input type="text" class="form-control" id="editFormAddrId" readonly="readonly" placeholder="可通过编号直接搜索">
 		</div>
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-6">
 					<div class="form-group"> 
-						<label for="parentLevelAddr">地址类型</label>
-						<select class="form-control">
-							<option>城市地址</option>
-							<option>农村地址</option>
+						<label for="editFormAddrType">地址类型</label>
+						<select class="form-control" id="editFormAddrType">
+							<option value=""></option>
+							<option value="CITY">城市地址</option>
+							<option value="RURAL">农村地址</option>
 						</select>
 					</div>
 				</div>
 				<div class="col-xs-6">
 					<div class="form-group"> 
-						<label for="parentLevelAddr">地址用途</label>
-						<select class="form-control">
-							<option>城市小区</option>
-							<option>工业园厂房</option>
-							<option>城市酒店</option>
-							<option>小区商铺</option>
-							<option>其它</option>
+						<label for="editFormAddrPurpose">地址用途</label>
+						<select class="form-control" id="editFormAddrPurpose">
+							<option value="CITY">城市小区</option>
+							<option value="INDUSTRIAL_PARK">工业园厂房</option>
+							<option value="CITY_HOTEL">城市酒店</option>
+							<option value="SHOPS">小区商铺</option>
+							<option value="OTHERS" selected="selected" >其它</option>
 						</select>
 					</div>
 				</div>
@@ -54,7 +55,7 @@
 			<div class="tab-content">
 				<div role="tabpanel" class="tab-pane active" id="normalEdit">
 					<div class="form-group">
-						<input type="text" class="form-control" id="currentLevelAddr" placeholder="所有下级地址的完整名称也会修改">
+						<input type="text" class="form-control" id="editFormAddrName" placeholder="同时修改下级地址的完整名称">
 					</div>
 				</div>
 				<div role="tabpanel" class="tab-pane" id="mergeAddress">

@@ -86,13 +86,15 @@ public class UserController {
 	 */
 	@RequestMapping("/setAddrScope")
 	@ResponseBody
-	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("pid") String pid,@RequestParam("subId") String subId,HttpSession session)throws Throwable {
+	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("pid") String pid,@RequestParam("subId") String subId, 
+			@RequestParam("scopeText") String scopeText, HttpSession session)throws Throwable {
 		String slash = BusiConstants.StringConstants.SLASH;
 		String str = BusiConstants.StringConstants.TOP_PID + slash + pid;
 		if(!StringHelper.isEmpty(subId)){
 			str += slash + subId;
 		}
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, str);
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT, scopeText);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	

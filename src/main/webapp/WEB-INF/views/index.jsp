@@ -1,3 +1,5 @@
+<%@page import="com.yaochen.address.dto.UserInSession"%>
+<%@page import="com.yaochen.address.common.BusiConstants"%>
 <%@page import="com.yaochen.address.data.domain.address.AdLevel"%>
 <%@page import="com.yaochen.address.data.domain.address.AdTree"%>
 <%@page import="java.util.List"%>
@@ -11,6 +13,9 @@
 	Map<String, Object> params = TreeController.getCurrentIndexParams(session);
 	List<AdTree> cityList = (List<AdTree>)params.get("cityList");
 	List<AdLevel> levelList = (List<AdLevel>)params.get("levelList");
+	Object city = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
+	
+	UserInSession user = (UserInSession)session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 %>
 <html>
 <head> 
@@ -40,7 +45,8 @@
 				</p>
 			</li>
 			<li><a href="#" data-toggle="modal" data-target="#switchCityModal">
-				选择城市 <i class="fa fa-angle-down"></i></a> </li>
+				<span id="switchCityModalTargetlabel"><%=city == null ? "选择城市": city.toString() %></span>
+				<i class="fa fa-angle-down"></i></a> </li>
 		  </ul>
 		  <ul class="nav navbar-nav navbar-right">
 			<li><a href="#" title="地址库"><i class="glyphicon glyphicon-map-marker" ></i></a></li>
@@ -48,11 +54,11 @@
 			<li><a href="#" class="admin-pic"> <img alt="" class="img-circle" src="<%=RES %>/main/t2.jpg"> </a></li>
 			<li class="dropdown">
 				  <a href="#" class="dropdown-toggle admin-info" data-toggle="dropdown">
-					Hi, Administrator <i class="fa fa-angle-down"></i></a>
+					Hi, <%=user.getUserName() %> <i class="fa fa-angle-down"></i></a>
 				  <ul class="dropdown-menu" role="menu">
-					<li class="dropdown-header">来自 “xx” 部门</li>
+					<li class="dropdown-header">来自 “<%=user.getCompanyName() + "/" + user.getDepartmentName() %>” 部门</li>
 					<li class="divider"></li>
-					<li><a href="#"><i class=""></i> 退出</a></li>
+					<li><a href="<%=ROOT %>/user/logout">退出</a></li>
 				  </ul>
 			</li>
 		  </ul>
@@ -67,7 +73,7 @@
 					<div class="input-group-btn condition">
 						<button type="button" class="btn btn-default dropdown-toggle" id="searchLevelBtn" data-toggle="dropdown"><span id="levelLabel">所有</span> <span class="caret"></span></button>
 						<ul class="dropdown-menu" id="searchLevelList" role="menu">
-							<li><a href="#">所有</a></li>
+							<li><a href="#" data-level="-1">所有</a></li>
 							<li class="divider"></li>
 							<% for(AdLevel level: levelList){ %>
 								<li><a href="#" data-level="<%=level.getLevelNum() %>">
@@ -78,25 +84,14 @@
 						</ul>
 					</div><!-- /btn-group -->
 					<div class="input-container">
-						<input type="text" class="form-control" id="searchInput" placeholder="输入关键字搜索 “南宁市” 的信息 " autocomplete="off"
+						<input type="text" class="form-control" id="searchInput" placeholder="输入关键字，搜索地址信息 " autocomplete="off"
 							x-webkit-speech="" x-webkit-grammar="builtin:translate" >
 						<ul id="matchingResult" class="dropdown-menu">
-							<li><a href="#">好大一个结果集啊1</a></li>
-							<li><a href="#">好大一个结果集啊2</a></li>
-							<li><a href="#">好大一个结果集啊3</a></li>
-							<li><a href="#">好大一个结果集啊4</a></li>
-							<li><a href="#">好大一个结果集啊5</a></li>
-							<li><a href="#">好大一个结果集啊6</a></li>
-							<li><a href="#">好大一个结果集啊7</a></li>
-							<li><a href="#">好大一个结果集啊8</a></li>
-							<li><a href="#">好大一个结果集啊9</a></li>
-							<li><a href="#">好大一个结果集啊10</a></li>
-							<li class="divider"></li>
-							<li class="dropdown-header">共1000条相关的结果，按“←”或“→”方向键显示上下页内容</li>
+							<li class="empty">等待输入进行搜索..</li>
 						</ul>
 					</div>
 					<span class="input-group-btn search-submit">
-						<button class="btn btn-primary" type="button"> <i class="glyphicon glyphicon-search"></i></button>
+						<button class="btn btn-primary" id="indexSearchBtn" type="button"> <i class="glyphicon glyphicon-search"></i></button>
 					</span>
 				</div><!-- /input-group -->
 		    </div>
@@ -116,10 +111,10 @@
 		<div class="row search-footer">
 			<!-- Collect the nav links, forms, and other content for toggling -->
 			<p id="resultDesc" class="pull-left">
-				 已定位至 “中国广西南宁市西乡塘区友爱南路8号”，下级地址共 “9,000” 个，含直接下级 “21” 个。
+				<i class="glyphicon glyphicon-map-marker"></i>
+				<label id="currentAddressLabel">（无）</label>
 			</p>
 			<ul class="nav navbar-nav navbar-right" id="tools">
-				<li><a href="#" data-toggle="modal" data-target="#addModal"><i class="glyphicon glyphicon-plus"></i></a></li>
 				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-import"></i></a></li>
 				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-cog"></i></a></li>
 			</ul>
@@ -135,52 +130,20 @@
 				<div class="panel-heading clearfix">
 					<span class="text">地址列表</span>
 					<div class="pull-right">
-					  <button type="button" class="btn btn-default" title="首页"> <i class="fa fa-angle-left"></i></button>
-					  <button type="button" class="btn btn-default"> 2 </button>
-					  <button type="button" class="btn btn-default"> 3 </button>
-					  <button type="button" class="btn btn-default"> 4 </button>
-					  <button type="button" class="btn btn-default"> ... </button>
-					  <button type="button" class="btn btn-default" title="末页"> <i class="fa fa-angle-right"></i></button>
+						<button type="button" class="btn btn-default" title="首页"> <i class="fa fa-angle-left"></i></button>
+						<button type="button" class="btn btn-default"> 2 </button>
+						<button type="button" class="btn btn-default"> 3 </button>
+						<button type="button" class="btn btn-default"> 4 </button>
+						<button type="button" class="btn btn-default"> ... </button>
+						<button type="button" class="btn btn-default" title="末页"> <i class="fa fa-angle-right"></i></button>
 					</div>
 				</div>
-				<div class="panel-body container-fluid">
-					<div class="col-md-6 result-body" id="resultBody">
-						<div class="item level3">
-							<p class="left">3</p>
-							<address>
-								<strong>南宁西乡塘区友爱南路8号</strong>
-								<small><i class="glyphicon glyphicon-map-marker"></i><label>3,000</label></small>
-							</address>
-							<p class="right"><i class="fa fa-chevron-right"></i></p>
-						</div>
-					</div>
-					<div class="col-md-6 result-body" id="subResultBody">
-						<div class="item level4">
-							<p class="left">4</p>
-							<address>
-								<strong>南宁西乡塘区友爱南路8号</strong>
-								<small><i class="glyphicon glyphicon-map-marker"></i><label>3,000</label></small>
-							</address>
-							<p class="right"><i class="fa fa-chevron-right"></i></p>
-						</div>
-						<div class="item level4">
-							<p class="left">4</p>
-							<address>
-								<strong>南宁西乡塘区友爱南路8号</strong>
-								<small><i class="glyphicon glyphicon-map-marker"></i><label>3,000</label></small>
-							</address>
-							<p class="right"><i class="fa fa-chevron-right"></i></p>
-						</div>
-						<div class="item level4">
-							<p class="left">4</p>
-							<address>
-								<strong>南宁西乡塘区友爱南路8号</strong>
-								<small><i class="glyphicon glyphicon-map-marker"></i><label>3,000</label></small>
-							</address>
-							<p class="right"><i class="fa fa-chevron-right"></i></p>
-						</div>
-					</div>
-				</div>
+				<div class="panel-body" id="resultBody">
+					<p class="empty">
+						<i class="glyphicon glyphicon-search"></i>
+						<span id="resultEmptyText">请使用搜索，定位上级地址！</span>
+					</p>   
+				</div> 
 			</div><!-- 搜索结果集结束 -->
 		</div>
 	</section>
@@ -219,38 +182,23 @@
 	</div>
 	
 	<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-					<h4 class="modal-title" id="addModalLabel">添加下级地址</h4>
-				</div>
-				<div class="modal-body">
-					<%@ include file="/WEB-INF/views/AddForm.jsp" %>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" title="将保存的地址作为上级地址">保存（并添加下级）</button>
-					<button type="button" class="btn btn-default" title="将继续添加和当前同上级的地址">保存（并继续）</button>
-					<button type="button" class="btn btn-primary" title="保存当前地址并关闭窗口">保存关闭</button>
-				</div>
-			</div>
-		</div>
+		<%@ include file="/WEB-INF/views/AddForm.jsp" %>
 	</div>
 </body>
 <%@ include file="/WEB-INF/common/foot.jsp" %>
 <script src="<%=RES %>/main/scripts/common.js"></script>
+<script src="<%=RES %>/main/scripts/address.js"></script>
 <script src="<%=RES %>/main/scripts/index.js"></script>
 <script>
 	/** 首页初始化函数 */
 	Main = function(){
-		
-		var __modules = [SwitchCityModal, Search];
-		
 		return {
 			initialize: function(){
-				for (var i = 0; i < __modules.length; i++) {
-					__modules[i].initialize();
-				}
+				SwitchCityModal.initialize(<%=city == null ? true: false %>);
+				Search.initialize();
+				Address.initialize();
+				AddressEdit.initialize();
+				AddressAdd.initialize();
 			}
 		};
 	}();
