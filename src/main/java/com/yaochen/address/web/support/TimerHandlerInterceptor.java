@@ -31,6 +31,7 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 			logger.debug(String.format("A new request for %s", request.getRequestURI()));
 		}
 		String servletPath = request.getServletPath();
+		String contextPath = request.getContextPath();
 		String login = BusiConstants.StringConstants.SLASH + BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
 		HttpSession session = request.getSession();
 		Object userInsession = session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
@@ -39,7 +40,7 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 		}else{
 			//这里多做了点事情,不用重新搞个filter
 			if(!"/user/login".equals(servletPath) && ! login.equals(servletPath)){
-				response.sendRedirect("/"+BusiConstants.StringConstants.LOGIN_FAILURE_VIEW);
+				response.sendRedirect(contextPath );
 				return false;
 			}
 			
