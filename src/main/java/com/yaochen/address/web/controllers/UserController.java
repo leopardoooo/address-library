@@ -46,7 +46,7 @@ public class UserController {
 		}
 		req.getSession(true).setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
 		ThreadUserParamHolder.setUserInSession(login);
-		String success ="redirect:/" +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
+		String success = BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
 		return success;
 	}
 	
@@ -61,7 +61,7 @@ public class UserController {
 		// TODO
 		session.removeAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
-		return "redirect:/";
+		return BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH;
 	}
 	
 	/**

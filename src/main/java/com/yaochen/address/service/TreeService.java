@@ -323,10 +323,11 @@ public class TreeService {
 	}
 
 	public void delTree(Integer addrId) throws Throwable {
-		//TODO 判断有没有被BOSS系统引用
-		//TODO 判断有没有被光站系统引用   
 		//以上留 空的接口
 		AdTree tree = checkTreeExists(addrId);
+		//TODO 判断有没有被BOSS系统引用
+		//TODO 判断有没有被光站系统引用   
+		this.addrNameChecker.usedByOtherSystem(tree);
 		//只要有一个子节点都不给删除
 		Pagination pager = findChildrensAndPagingByPid(addrId, 0, 1);
 		List<Object> children = pager.getRecords();
