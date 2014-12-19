@@ -103,7 +103,7 @@ public class TreeController implements BeanFactoryAware{
 	}
 	
 	/**
-	 * 查询当前用户有权访问的Level
+	 * 查询当前用户有权访问的Level,从session里取。并且是过滤过的.
 	 */
 	@RequestMapping("/findAuthLevelInSession")
 	@ResponseBody
