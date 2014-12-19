@@ -1,5 +1,8 @@
 package com.yaochen.address.web.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -11,8 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yaochen.address.common.BusiConstants;
-import com.yaochen.address.common.StringHelper;
+import com.yaochen.address.data.domain.address.AdLevel;
+import com.yaochen.address.data.domain.address.AdTree;
 import com.yaochen.address.dto.UserInSession;
+import com.yaochen.address.service.TreeService;
 import com.yaochen.address.support.AddrNameChecker;
 import com.yaochen.address.support.LoginWebServiceClient;
 import com.yaochen.address.support.ThreadUserParamHolder;
@@ -28,6 +33,8 @@ public class UserController {
 	private LoginWebServiceClient loginWebServiceClient;
 	@Autowired
 	private AddrNameChecker addrNameChecker;
+	@Autowired
+	private TreeService treeService;
 	
 	@RequestMapping("/login")
 	public String login(HttpServletRequest req)throws Throwable {
@@ -58,7 +65,6 @@ public class UserController {
 	 */
 	@RequestMapping("/logout")
 	public String logout(HttpSession session)throws Throwable {
-		// TODO
 		session.removeAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
 		return BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH;
@@ -86,18 +92,31 @@ public class UserController {
 	 */
 	@RequestMapping("/setAddrScope")
 	@ResponseBody
-	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("pid") String pid,@RequestParam("subId") String subId, 
+	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("pid") Integer pid,@RequestParam("subId") Integer subId, 
 			@RequestParam("scopeText") String scopeText, HttpSession session)throws Throwable {
 		String slash = BusiConstants.StringConstants.SLASH;
 		String str = BusiConstants.StringConstants.TOP_PID + slash + pid;
-		if(!StringHelper.isEmpty(subId)){
+		Integer lowestAddrId = pid;
+		if(null != subId ){
+			lowestAddrId = subId;
 			str += slash + subId;
 		}
+		AdTree tree = treeService.queryByKey(lowestAddrId);
+		
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, str);
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT, scopeText);
 		
+		List<AdLevel> levelRaw = treeService.findAuthLevelByCurrentUser();
+		List<AdLevel> levels = new ArrayList<AdLevel>();
+		Integer addrLevel = tree.getAddrLevel();
+		for (AdLevel level : levelRaw) {
+			boolean ok = level.getLevelNum()>addrLevel;
+			if(ok){
+				levels.add(level);
+			}
+		}
 		//设置了这个属性之后,  把 操作员的 权限级别  放入到session
-		
+		session.setAttribute(BusiConstants.StringConstants.FILTERED_LEVELS_IN_SESSION, levels);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	

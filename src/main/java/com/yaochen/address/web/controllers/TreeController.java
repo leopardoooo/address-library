@@ -103,6 +103,18 @@ public class TreeController implements BeanFactoryAware{
 	}
 	
 	/**
+	 * 查询当前用户有权访问的Level
+	 */
+	@RequestMapping("/findAuthLevelInSession")
+	@ResponseBody
+	public Root<List<AdLevel>> findAuthLevelInSession(HttpSession session)throws Throwable {
+		Object levelsRaw = session.getAttribute(BusiConstants.StringConstants.FILTERED_LEVELS_IN_SESSION);
+		@SuppressWarnings("unchecked")
+		List<AdLevel> list = (List<AdLevel>) levelsRaw;
+		return ReturnValueUtil.getJsonRoot(list);
+	}
+	
+	/**
 	 * 根据关键字进行搜索地址， 地址按照一定的规则进行排序
 	 * 搜索时需要根据用户设置的作用域并结合startLevel进行搜索
 	 * 
