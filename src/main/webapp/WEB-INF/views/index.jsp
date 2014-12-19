@@ -129,13 +129,15 @@
 			<div class="panel panel-default">
 				<div class="panel-heading clearfix">
 					<span class="text">地址列表</span>
-					<div class="pull-right">
+					<div class="pull-right" id="resultPagingTool">
+						<!-- 
 						<button type="button" class="btn btn-default" title="首页"> <i class="fa fa-angle-left"></i></button>
 						<button type="button" class="btn btn-default"> 2 </button>
 						<button type="button" class="btn btn-default"> 3 </button>
 						<button type="button" class="btn btn-default"> 4 </button>
 						<button type="button" class="btn btn-default"> ... </button>
 						<button type="button" class="btn btn-default" title="末页"> <i class="fa fa-angle-right"></i></button>
+						 -->
 					</div>
 				</div>
 				<div class="panel-body" id="resultBody">
@@ -174,7 +176,6 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 					<button type="button" class="btn btn-primary" id="switchCityModalOkBtn">确定</button>
 				</div>
 			</div>
@@ -194,7 +195,7 @@
 	Main = function(){
 		return {
 			initialize: function(){
-				SwitchCityModal.initialize(<%=city == null ? true: false %>);
+				SwitchCityModal.initialize('<%=city %>');
 				Search.initialize();
 				Address.initialize();
 				AddressEdit.initialize();

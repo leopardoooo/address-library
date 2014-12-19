@@ -163,8 +163,8 @@ AddressEdit = function(){
 		initialize: function(){
 			that = AddressEdit;
 			$("#editFormSaveBtn").click(that.doUpdate);
-			
 			$("#editFormDeleteBtn").click(that.doDelete);
+			$("#editFormCollectBtn").click(that.doCollect);
 		},
 		loadForm: function(addrTreeObj, __mode){
 			mode = __mode || mode;
@@ -179,11 +179,14 @@ AddressEdit = function(){
 		},
 		setValues: function(addrTreeObj){
 			$fullLevel.text("（" + (addrTreeObj["addrPrivateName"] || "") + "）");
-			$fullAddrName.val(addrTreeObj["addrFullName"]);
+			$fullAddrName.val(addrTreeObj["str1"]);
 			$addrId.val(addrTreeObj["addrId"]);
 			$addrType.val(addrTreeObj["addrType"]);
 			$addrPurpose.val(addrTreeObj["addrUse"]);
 			$addrName.val(addrTreeObj["addrName"]);
+		},
+		doCollect: function(){
+			alert("收藏");
 		},
 		doDelete: function(){
 			if(!lastAddrTreeObj)
