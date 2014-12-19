@@ -64,12 +64,14 @@ Address = function(){
 				that.toggleActive($parent);
 				AddressEdit.loadForm(addrTreeObj, "detail");
 			}else if(event === "up"){
-				alert("上一级，提供一个方法查找上一级的treeobj，然后调用");
-				// TODO 
-				common.post("tree/findTreeObjById", {
+				if(addrTreeObj["addrParent"] == "0"){
+					Alert("已经是顶级地址了!");
+					return ;
+				}
+				common.post("tree/queryById", {
 					"addrId": addrTreeObj["addrParent"],
 				}, function(data){
-					that.doShowAddress(addrTreeObj);
+					that.doShowAddress(data);
 				});
 			}else if(event === "down"){
 				that.doShowAddress(addrTreeObj);
@@ -257,11 +259,23 @@ AddressAdd = function(){
 		$addrUseInput = $("#addFormAddrUse"),
 		$addrNameInput = $("#addFormAddrName"),
 		$addrFullNameLabel = $("#addFormAddrFullName");
+	var $addFormAddrNamePreffix = $("#addFormAddrNamePreffix"),
+		$addFormAddrNameSuffix = $("#addFormAddrNameSuffix"),
+		$addFormBatchStartNum = $("#addFormBatchStartNum"),
+		$addFormBatchEndNum = $("#addFormBatchEndNum");
 	
 	var $win = $("#addAddressModal");
 	
 	var that = null;
 	var parentAddressObj = null;
+	var mode = "single"; // batch
+	
+	function toggleMode(){
+		mode = mode == "single" ? "batch" : "single";
+	}
+	function isBatchMode(){
+		return mode === "batch";
+	}
 	
 	return {
 		initialize: function(){
@@ -274,6 +288,17 @@ AddressAdd = function(){
 					e.stopPropagation();
 				}else{
 					that.loadForm(treeObj);
+				}
+			});
+			
+			$('#addFormTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+				toggleMode();
+				if(isBatchMode()){
+					$("#addFormSaveToNextBtn").hide();
+					$("#addFormSaveContinue").hide();
+				}else{
+					$("#addFormSaveToNextBtn").show();
+					$("#addFormSaveContinue").show();
 				}
 			});
 			
@@ -296,6 +321,12 @@ AddressAdd = function(){
 			$addTypeInput.val(treeObj["addrType"]);
 			$addrUseInput.val(treeObj["addrUse"]);
 			$addrFullNameLabel.text(treeObj["addrFullName"]);
+			
+			$addrNameInput.val("");
+			$addFormAddrNamePreffix.val("");
+			$addFormAddrNameSuffix.val("");
+			$addFormBatchStartNum.val("");
+			$addFormBatchEndNum.val("");
 		},
 		doOnlySave: function(){
 			that.doSave(function(data){
@@ -313,26 +344,47 @@ AddressAdd = function(){
 			});
 		},
 		doSave: function(callback){
-			if($isBlankInput.val() === "F" && !$addrNameInput.val()){
-				Alert("地址名称不能为空!");
+			if(isBatchMode()){
+				if(!$addFormBatchStartNum.val() && !$addFormBatchEndNum.val()){
+					Alert("开始或结束数字不能为空");
+					return;
+				}
+			}else{
+				if($isBlankInput.val() === "F" && !$addrNameInput.val()){
+					Alert("地址名称不能为空!");
+					return;
+				}
 			}
 			var data = {
-				addrName: $addrNameInput.val(),
 				isBlank: $isBlankInput.val(),
 				addrParent: parentAddressObj["addrId"],
 				addrLevel: parentAddressObj["addrLevel"] + 1,
 				addrType: $addTypeInput.val(),
 				addrUse: $addrUseInput.val()
-			};
+			}, uri = null, addrFullName = null;
 			
-			data["addrFullName"] = parentAddressObj["addrFullName"] + data["addrName"];
+			// 如果是批量模式
+			if(isBatchMode()){
+				data["addrNamePreffix"] = $addFormAddrNamePreffix.val();
+				data["addrNameSuffix"] = $addFormAddrNameSuffix.val();
+				data["start"] = $addFormBatchStartNum.val();
+				data["end"] = $addFormBatchEndNum.val();
+				uri = "tree/addTrees";
+				addrFullName = parentAddressObj["addrFullName"] + data["addrNamePreffix"] 
+					+ (data["start"] + "-" + data["end"]) + data["addrNameSuffix"] ;
+			}else{
+				data["addrName"] = $addrNameInput.val();
+				data["addrFullName"] = parentAddressObj["addrFullName"] + data["addrName"];
+				uri = "tree/addTree";
+				addrFullName = data["addrFullName"];
+			}
 			
-			if(!confirm(String.format('确定要为添加下级地址#{0}吗', data["addrFullName"] ))){
+			if(!confirm(String.format('确定要为添加下级地址 "#{0}"吗', addrFullName))){
 				return ;
 			}
 			
 			//post
-			common.post("tree/addTree", data, function(responseData){
+			common.post(uri, data, function(responseData){
 				Alert("添加成功!");
 				$addrNameInput.val();
 				callback(responseData);

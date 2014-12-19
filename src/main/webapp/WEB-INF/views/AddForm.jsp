@@ -60,7 +60,7 @@
 					</div> <!-- /row -->
 				</div>
 				<div class="form-tabs"> 
-					<ul class="nav nav-tabs" role="tablist">
+					<ul class="nav nav-tabs" id="addFormTabs" role="tablist">
 						<li role="presentation" class="active"><a href="#singleAddInAddForm" role="tab" data-toggle="tab">单一地址</a></li>
 						<li role="presentation"><a href="#batchAddInAddForm" role="tab" data-toggle="tab">多个地址（前缀+数字+后缀）</a></li>
 					</ul> 
@@ -76,21 +76,21 @@
 								<div class="row">
 									<div class="col-xs-6 column">
 										<div class="form-group"> 
-											<input type="text" class="form-control" placeholder="地址名称前缀">
+											<input type="text" class="form-control" id="addFormAddrNamePreffix" placeholder="地址名称前缀">
 										</div>
 									</div>
 									<div class="col-xs-6 column end">
 										<div class="form-group"> 
-											<input type="text" class="form-control" placeholder="地址名称后缀">
+											<input type="text" class="form-control" id="addFormAddrNameSuffix" placeholder="地址名称后缀">
 										</div>
 									</div>
 								</div> <!-- /row -->
 							</div>
 							<div class="form-group">
 								<div class="input-group num-range">
-									<input type="text" class="form-control" placeholder="开始位置，只能输入数字">
+									<input type="text" class="form-control" id="addFormBatchStartNum" placeholder="开始位置，只能输入数字">
 									<div class="input-group-addon"> <i>至</i> </div>
-									<input type="text" class="form-control" placeholder="结束位置，只能输入数字">
+									<input type="text" class="form-control" id="addFormBatchEndNum" placeholder="结束位置，只能输入数字">
 								</div><!-- /input-group -->
 								<span class="help-block"></span>
 							</div>
@@ -102,7 +102,7 @@
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default" id="addFormSaveToNextBtn" title="将保存的地址作为上级地址">保存（并添加下级）</button>
 			<button type="button" class="btn btn-default" id="addFormSaveContinue" title="将继续添加和当前同上级的地址">保存（并继续）</button>
-			<button type="button" class="btn btn-primary" id="addFormOnlySave"  title="保存当前地址并关闭窗口">保存关闭</button>
+			<button type="button" class="btn btn-primary" id="addFormOnlySave"  title="保存当前地址并关闭窗口">保存</button>
 		</div>
 	</div>
 </div>
