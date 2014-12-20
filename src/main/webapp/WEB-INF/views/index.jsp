@@ -137,7 +137,7 @@
 						<button type="button" class="btn btn-default"> 4 </button>
 						<button type="button" class="btn btn-default"> ... </button>
 						<button type="button" class="btn btn-default" title="末页"> <i class="fa fa-angle-right"></i></button>
-						 -->
+						 --> 
 					</div>
 				</div>
 				<div class="panel-body" id="resultBody">

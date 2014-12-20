@@ -26,7 +26,15 @@ Address = function(){
 				+'<span id="resultEmptyText">查找中，稍等片刻...</span>'
 			+'</p>';
 	
-	var limit = 10;
+	var pageConfig = {
+		prevTpl: '<button class="btn btn-default" data-type="prev" title="首页"><b class="glyphicon glyphicon-chevron-left"></b></button> \n',
+		nextTpl: '<button class="btn btn-default" data-type="next" title="末页"><b class="glyphicon glyphicon-chevron-right"></b></button> \n',
+		numTPl: '<button class="btn btn-default" data-type="num" title="第#{0}页" data-num="#{0}" >#{0}</button> \n',
+		activeTPl: '<button class="btn btn-default active" data-type="active" title="当前页">#{0}</button> \n',
+		maxBlock: 9  
+	};
+	
+	var limit = 4;
 	var that = null;
 	var currentAddressDescTpl = " 已定位至 “#{addrFullName}”，下级地址 “#{totalCount}” 个。";
 	
@@ -55,7 +63,38 @@ Address = function(){
 				
 				var index = $parent.attr("data-addr-index");
 				that.doTriggerEvent(index, event, $parent);
-			}); 
+			});
+			
+			// 分页条事件注册
+			$("#resultPagingTool").click(function(e){
+				var tag = e.target.tagName, $target = null;
+				
+				if(/button/i.test(tag)){
+					$target = $(e.target);
+				}else if(/b/i.test(tag)){
+					$target = $(e.target).parent();
+				}else{
+					return;
+				}
+				
+				var type = $target.attr("data-type");
+				if(type === "active") return;
+				var start = 0, currentStart = that.data["offset"], totalCount = that.data["totalCount"];
+				switch(type){
+				case "next": 
+					start = (totalCount % limit > 0) ? (totalCount - totalCount % limit) : (totalCount - limit); 
+					break;
+				case "prev":
+					start = 0;
+					break;
+				default: 
+					start = (parseInt($target.attr("data-num")) - 1) * limit;
+				}
+				// paging
+				if(start != currentStart){
+					that.doShowAddress(that.lastAddrTreeObj, start);
+				}
+			});
 		},
 		doTriggerEvent: function(index, event, $parent){
 			var addrTreeObj = (index == -1) ? that.lastAddrTreeObj : that.data.records[index];
@@ -102,7 +141,7 @@ Address = function(){
 			// 加载编辑表单
 			AddressEdit.loadForm(addrTreeObj);
 		},
-		doShowAddress: function(addrTreeObj){
+		doShowAddress: function(addrTreeObj, start){
 			that.lastAddrTreeObj = addrTreeObj;
 			
 			// show loading
@@ -110,15 +149,13 @@ Address = function(){
 			// loading subtree
 			common.post("tree/findChildrensAndPaging", {
 				"pid": addrTreeObj["addrId"],
-				"start": 0,
+				"start": start || 0,
 				"limit": limit
 			}, function(data){
 				$("#currentAddressLabel").text(String.format(currentAddressDescTpl, {
 					addrFullName: addrTreeObj["addrFullName"],
 					totalCount: data["totalCount"]
 				}));
-				
-				$("#resultPagingTool").html("一共" + data["totalCount"] + "条.");
 				
 				that.data = data;
 				
@@ -139,7 +176,43 @@ Address = function(){
 				
 				// 激活ptree
 				that.activeParent(addrTreeObj);
+				
+				// 渲染分页
+				that.doRenderPaging();
 			});
+		},
+		doRenderPaging: function(){
+			var start = that.data["offset"], 
+				total = that.data["totalCount"],
+				currentPage = start / limit + 1,
+				totalPage = Math.floor(total / limit) + (total % limit > 0 ? 1 : 0);
+			
+			var halfNum = Math.floor(pageConfig.maxBlock / 2),
+			leftBlock = currentPage - halfNum,
+			rightBlock = currentPage + pageConfig.maxBlock - halfNum; 
+			
+			if(totalPage <= pageConfig.maxBlock){
+				leftBlock = 1;
+				rightBlock = totalPage;
+			}else{
+				if(leftBlock <= 0 ){ 
+					rightBlock += -leftBlock;
+					leftBlock = 1;
+				}else{
+					rightBlock --;
+				} 
+				if(rightBlock > totalPage){
+					leftBlock -= rightBlock - totalPage;
+					rightBlock = totalPage;
+				}
+			}
+			
+			var links = String.format(pageConfig.prevTpl) ;
+			for(var i = leftBlock; i <= rightBlock; i++){
+				links += String.format(pageConfig[currentPage === i?"activeTPl":"numTPl"], i);
+			}
+			links += String.format(pageConfig.nextTpl); 
+			$("#resultPagingTool").html(links);
 		}
 	};
 }();

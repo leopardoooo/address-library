@@ -74,7 +74,7 @@ SwitchCityModal = function(w){
 				"subId": subId || null,
 				"scopeText": scopeText
 			}, function(data){
-				common.href("/index");
+				common.href("index");
 			});
 		},
 		doSubAddrList: function(parentAddrId){
