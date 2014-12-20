@@ -1,4 +1,3 @@
-
 Address = function(){
 	var tpl = '<div class="item default" data-type="item" data-addr-index="#{index}">'
 				+'<address>'
@@ -218,114 +217,6 @@ Address = function(){
 }();
 
 /**
- * 地址编辑
- */
-AddressEdit = function(){
-	
-	var $fullLevel = $("#editFormFullLevel"),
-		$fullAddrName = $("#editFormFullAddrName"),
-		$addrId = $("#editFormAddrId"),
-		$addrType = $("#editFormAddrType"),
-		$addrPurpose = $("#editFormAddrPurpose"),
-		$addrName = $("#editFormAddrName");
-	
-	// 保存最后一条记录
-	var lastAddrTreeObj = null; 
-	var that = null;
-	var mode = "childs";
-	
-	return {
-		initialize: function(){
-			that = AddressEdit;
-			$("#editFormSaveBtn").click(that.doUpdate);
-			$("#editFormDeleteBtn").click(that.doDelete);
-			$("#editFormCollectBtn").click(that.doCollect);
-		},
-		loadForm: function(addrTreeObj, __mode){
-			mode = __mode || mode;
-			lastAddrTreeObj = addrTreeObj;
-			that.setValues(addrTreeObj);
-		},
-		resetForm: function(){
-			lastAddrTreeObj = null;
-			that.setValues({
-				addrUse: "OTHERS"
-			});
-		},
-		setValues: function(addrTreeObj){
-			$fullLevel.text("（" + (addrTreeObj["addrLevel"] || "") + "级地址）");
-			$fullAddrName.val(addrTreeObj["str1"]);
-			$addrId.val(addrTreeObj["addrId"]);
-			$addrType.val(addrTreeObj["addrType"]);
-			$addrPurpose.val(addrTreeObj["addrUse"]);
-			$addrName.val(addrTreeObj["addrName"]);
-		},
-		doCollect: function(){
-			alert("收藏");
-		},
-		doDelete: function(){
-			if(!lastAddrTreeObj)
-				return ;
-			
-			if(confirm(String.format('确定要删除“#{addrFullName}”?', lastAddrTreeObj))){
-				// post
-				common.post("tree/delTree", {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
-					Alert("删除成功!");
-					if(mode === "detail"){ 
-						//清空表单
-						that.resetForm();
-					}else{
-						Address.reloadAddress();
-					}
-				});
-			}
-		},
-		doUpdate: function(){
-			if(!lastAddrTreeObj){
-				return ;
-			}
-			
-			var changeItems = that.compareChange();
-			if(that.compareChange().length == 0){
-				Alert("修改前与修改后的内容一致，无需提交！");
-				return ;
-			}
-			
-			var data = {
-				ignoreEmpty: true,
-				addrId: lastAddrTreeObj["addrId"]
-			};
-			for (var i = 0; i < changeItems.length; i++) {
-				data[changeItems[i].name] = changeItems[i].input.val();
-			}
-			
-			// post
-			common.post("tree/modTree", data, function(responseData){
-				Alert("修改成功!");
-			});
-		},
-		compareChange: function(){
-			var changeProps = new Array();
-			if($addrType.val() != lastAddrTreeObj["addrType"]){
-				changeProps.push({name: 'addrType', input: $addrType});
-			}
-			if($addrPurpose.val() != lastAddrTreeObj["addrUse"]){
-				changeProps.push({name: 'addrUse', input: $addrPurpose});
-			}
-			if($addrName.val() != lastAddrTreeObj["addrName"]){
-				changeProps.push({name: 'addrName', input: $addrName});
-			}
-			
-			return changeProps;
-		},
-		getLastAddrTreeObj: function(){
-			return lastAddrTreeObj;
-		}
-	};
-}();
-
-
-/**
  * 添加下级地址
  */
 AddressAdd = function(){
@@ -475,6 +366,139 @@ AddressAdd = function(){
 				$addrNameInput.val();
 				callback(responseData);
 			});
+		}
+	};
+}();
+
+/**
+ * 地址编辑
+ */
+AddressEdit = function(){
+	
+	var $fullLevel = $("#editFormFullLevel"),
+		$fullAddrName = $("#editFormFullAddrName"),
+		$addrId = $("#editFormAddrId"),
+		$addrType = $("#editFormAddrType"),
+		$addrPurpose = $("#editFormAddrPurpose"),
+		$addrName = $("#editFormAddrName");
+	var $collectBtn = $("#editFormCollectBtn");
+	
+	// 保存最后一条记录
+	var lastAddrTreeObj = null; 
+	var that = null;
+	var mode = "childs";
+	
+	return {
+		initialize: function(){
+			that = AddressEdit;
+			$("#editFormSaveBtn").click(that.doUpdate);
+			$("#editFormDeleteBtn").click(that.doDelete);
+			$("#editFormCollectBtn").click(that.doCollect);
+		},
+		loadForm: function(addrTreeObj, __mode){
+			mode = __mode || mode;
+			lastAddrTreeObj = addrTreeObj;
+			
+			if(lastAddrTreeObj.collected ==1){//没收藏
+				$collectBtn.attr("title", "收藏")
+					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-open");
+			}else{//已收藏
+				$collectBtn.attr("title", "取消收藏") 
+					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-close");
+			}
+			that.setValues(addrTreeObj);
+		},
+		resetForm: function(){
+			lastAddrTreeObj = null;
+			that.setValues({
+				addrUse: "OTHERS"
+			});
+		},
+		setValues: function(addrTreeObj){
+			$fullLevel.text("（" + (addrTreeObj["addrLevel"] || "") + "级地址）");
+			$fullAddrName.val(addrTreeObj["str1"]);
+			$addrId.val(addrTreeObj["addrId"]);
+			$addrType.val(addrTreeObj["addrType"]);
+			$addrPurpose.val(addrTreeObj["addrUse"]);
+			$addrName.val(addrTreeObj["addrName"]);
+		},
+		doCollect: function(){
+			if(!lastAddrTreeObj){
+				Alert('没有选中地址');
+				return ;
+			}
+			var action = 'collectTree';
+			var confirmMessagePre = '确定要收藏';
+			if(lastAddrTreeObj.collected == 0){
+				action = 'cancelCollectTree';//取消收藏
+				confirmMessagePre = '确定要取消收藏';
+			}
+			if(confirm(String.format(confirmMessagePre + '“#{addrFullName}”?', lastAddrTreeObj))){
+				// post
+				common.post("tree/"+action, {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
+					Alert("操作成功!");
+					Collections.doRender();
+				});
+			}
+		},
+		doDelete: function(){
+			if(!lastAddrTreeObj)
+				return ;
+			
+			if(confirm(String.format('确定要删除“#{addrFullName}”?', lastAddrTreeObj))){
+				// post
+				common.post("tree/delTree", {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
+					Alert("删除成功!");
+					Collections.doRender();
+					if(mode === "detail"){ 
+						//清空表单
+						that.resetForm();
+					}else{
+						Address.reloadAddress();
+					}
+				});
+			}
+		},
+		doUpdate: function(){
+			if(!lastAddrTreeObj){
+				return ;
+			}
+			
+			var changeItems = that.compareChange();
+			if(that.compareChange().length == 0){
+				Alert("修改前与修改后的内容一致，无需提交！");
+				return ;
+			}
+			
+			var data = {
+				ignoreEmpty: true,
+				addrId: lastAddrTreeObj["addrId"]
+			};
+			for (var i = 0; i < changeItems.length; i++) {
+				data[changeItems[i].name] = changeItems[i].input.val();
+			}
+			
+			// post
+			common.post("tree/modTree", data, function(responseData){
+				Alert("修改成功!");
+			});
+		},
+		compareChange: function(){
+			var changeProps = new Array();
+			if($addrType.val() != lastAddrTreeObj["addrType"]){
+				changeProps.push({name: 'addrType', input: $addrType});
+			}
+			if($addrPurpose.val() != lastAddrTreeObj["addrUse"]){
+				changeProps.push({name: 'addrUse', input: $addrPurpose});
+			}
+			if($addrName.val() != lastAddrTreeObj["addrName"]){
+				changeProps.push({name: 'addrName', input: $addrName});
+			}
+			
+			return changeProps;
+		},
+		getLastAddrTreeObj: function(){
+			return lastAddrTreeObj;
 		}
 	};
 }();

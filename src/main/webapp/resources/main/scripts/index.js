@@ -1,4 +1,3 @@
-
 /**
  * 选择城市
  * @param w
@@ -74,7 +73,7 @@ SwitchCityModal = function(w){
 				"subId": subId || null,
 				"scopeText": scopeText
 			}, function(data){
-				common.href("index");
+				common.href("/index");
 			});
 		},
 		doSubAddrList: function(parentAddrId){
@@ -98,6 +97,45 @@ SwitchCityModal = function(w){
 	return F;
 }(window);
 
+/**
+ * 收藏.
+ */
+Collections = function(){
+	$parent = $("#searchRight");
+	collectionLimit = 6;
+	return {
+		initialize: function(){
+			$parent.click(function(e){
+				if(!/a/i.test(e.target.tagName)) return ;
+				var addrId = $(e.target).attr("data-id");
+				Address.doShowAddressById(addrId);
+			});
+			Collections.doRender();
+		},
+		doRender: function(){
+			common.post("tree/findCollects", {
+				"limit": collectionLimit,
+			}, function(data){
+				if(!data || data.length ==0){
+					return;
+				}
+				var cellTpl = '<div class="col-md-4"><a href="#" data-id="#{addrId}" class="btn btn-link ellipsis">#{addrFullName}</a></div>';
+				var links = '';
+				for(var index =0;index<data.length;index++){
+					var addr = data[index];
+					if(index % 3 == 0){
+						links += '<div class="row">';
+					}
+					links +=String.format(cellTpl, addr);
+					if(index % 3 == 2 || index == data.length -1){
+						links += '</div>';
+					}
+				}
+				$parent.html(links);
+			});
+		}
+	}
+}();
 
 /***
  * 首页搜索封装，完全依赖页面的元素
@@ -231,5 +269,4 @@ Search = function(W){
 			}
 		}
 	};
-	
 }(window);

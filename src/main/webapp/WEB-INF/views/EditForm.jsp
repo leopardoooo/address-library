@@ -5,7 +5,7 @@
 	<div class="panel-heading clearfix">
 		<span class="text">地址信息</span>
 		<div class="pull-right">
-			<button type="button" class="btn btn-default" id="editFormCollectBtn" title="收藏"> <i class="glyphicon glyphicon-star-empty"></i></button>
+			<button type="button" class="btn btn-default" id="editFormCollectBtn" title="收藏"> <i class="glyphicon glyphicon-eye-open"></i></button>
 			<button type="button" class="btn btn-default" id="editFormDeleteBtn" title="删除"> <i class="glyphicon glyphicon-trash"></i></button>
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addAddressModal" title="添加下级地址"> <i class="glyphicon glyphicon-plus-sign"></i></button>
 			<button type="button" class="btn btn-default" id="editFormSaveBtn" title="保存"> <i class="glyphicon glyphicon-ok"></i></button>

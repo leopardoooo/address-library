@@ -1,3 +1,4 @@
+<%@page import="com.sun.tools.xjc.reader.dtd.TDTDReader"%>
 <%@page import="com.yaochen.address.dto.UserInSession"%>
 <%@page import="com.yaochen.address.common.BusiConstants"%>
 <%@page import="com.yaochen.address.data.domain.address.AdLevel"%>
@@ -13,6 +14,7 @@
 	Map<String, Object> params = TreeController.getCurrentIndexParams(session);
 	List<AdTree> cityList = (List<AdTree>)params.get("cityList");
 	List<AdLevel> levelList = (List<AdLevel>)params.get("levelList");
+	List<AdTree> collections = (List<AdTree>)params.get("collections");
 	Object city = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
 	
 	UserInSession user = (UserInSession)session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
@@ -96,16 +98,7 @@
 				</div><!-- /input-group -->
 		    </div>
 			<div class="col-md-6 container-fluid" id="searchRight">
-				 <div class="row">
-					<div class="col-md-4"><a href="#" class="btn btn-link ellipsis">南宁市景秀区民族大道..</a></div>
-					<div class="col-md-4"><a href="#" class="btn btn-link ellipsis">南宁市景秀区民族大道..</a></div>
-					<div class="col-md-4"><a href="#" class="btn btn-link ellipsis">南宁市景秀区民族大道..</a></div>
-				 </div>
-				 <div class="row">
-					<div class="col-md-4"><a href="#" class="btn btn-link ellipsis">南宁市景秀区民族大道..</a></div>
-					<div class="col-md-4"><a href="#" class="btn btn-link ellipsis">南宁市景秀区民族大道..</a></div>
-					<div class="col-md-4"><a href="#" class="btn btn-link ellipsis">南宁市景秀区民族大道..</a></div>
-				 </div>
+				<!--  -->
 			</div>
 		</div>
 		<div class="row search-footer">
@@ -137,7 +130,7 @@
 						<button type="button" class="btn btn-default"> 4 </button>
 						<button type="button" class="btn btn-default"> ... </button>
 						<button type="button" class="btn btn-default" title="末页"> <i class="fa fa-angle-right"></i></button>
-						 --> 
+						 -->
 					</div>
 				</div>
 				<div class="panel-body" id="resultBody">
@@ -197,6 +190,7 @@
 			initialize: function(){
 				SwitchCityModal.initialize('<%=city %>');
 				Search.initialize();
+				Collections.initialize();
 				Address.initialize();
 				AddressEdit.initialize();
 				AddressAdd.initialize();

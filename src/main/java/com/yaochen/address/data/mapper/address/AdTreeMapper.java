@@ -4,6 +4,7 @@
 package com.yaochen.address.data.mapper.address;
 
 import java.util.List;
+import java.util.Map;
 
 import com.easyooo.framework.sharding.annotation.Table;
 import com.easyooo.framework.support.mybatis.Pagination;
@@ -20,7 +21,7 @@ public interface AdTreeMapper {
 
     int insertSelective(AdTree record);
 
-    AdTree selectByPrimaryKey(Integer addrId);
+    AdTree selectByPrimaryKey(Map<String, Object> map);
 
     int updateByPrimaryKeySelective(AdTree record);
 
