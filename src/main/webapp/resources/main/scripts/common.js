@@ -20,6 +20,12 @@ common = {
 						+ ", message: " + responseData["message"]);
 			}
 		}, dataType);
+	},
+	href: function(url){
+		if(common.settings.path){
+			url = common.settings.path + "/" + url;
+		}
+		window.location.href = url;
 	}
 };
 

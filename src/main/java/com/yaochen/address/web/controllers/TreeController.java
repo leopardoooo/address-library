@@ -254,7 +254,7 @@ public class TreeController implements BeanFactoryAware{
 		params.put("cityList", tc.findTopTreesByCurrentUser().getData());
 		
 		// 当前用户能访问的级别级别
-		params.put("levelList", tc.findAuthLevelByCurrentUser().getData());
+		params.put("levelList", tc.findAuthLevelInSession(session).getData());
 		
 		// 当前用户信息
 		//params.put("session", );

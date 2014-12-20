@@ -3,7 +3,7 @@ Address = function(){
 	var tpl = '<div class="item default" data-type="item" data-addr-index="#{index}">'
 				+'<address>'
 					+'<label class="label">#{addrLevel}</label> #{addrFullName}'
-					+'<small><i class="type">#{addrType}</i><i class="use">#{addrUse}</i></small>'
+					+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 				+'</address>'
 				+'<b class="down"></b>'
 			+'</div>';
@@ -11,7 +11,7 @@ Address = function(){
 	var parentTpl = '<div class="item parent" data-type="parent" data-addr-index="#{index}">'
 						+'<address>'
 							+'<label class="label">#{addrLevel}</label> #{addrFullName}'
-							+'<small><i class="type">#{addrType}</i><i class="use">#{addrUse}</i></small>'
+							+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 						+'</address>'
 						+'<i class="up"></i>'
 					+'</div>';
@@ -178,7 +178,7 @@ AddressEdit = function(){
 			});
 		},
 		setValues: function(addrTreeObj){
-			$fullLevel.text("（" + (addrTreeObj["addrPrivateName"] || "") + "）");
+			$fullLevel.text("（" + (addrTreeObj["addrLevel"] || "") + "级地址）");
 			$fullAddrName.val(addrTreeObj["str1"]);
 			$addrId.val(addrTreeObj["addrId"]);
 			$addrType.val(addrTreeObj["addrType"]);

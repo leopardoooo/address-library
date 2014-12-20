@@ -11,10 +11,10 @@ SwitchCityModal = function(w){
 	
 	F = {
 		initialize: function(text){
-			scopeText = text;
+			scopeText = text === "null" ? null : text;
 			$('#switchCityModal').modal({
 				show: !scopeText
-			}).on("hide.bs.modal", function(){
+			}).on("hide.bs.modal", function(e){
 				if(!scopeText){
 					Alert("必须选择一个城市!");
 					e.preventDefault();
@@ -74,8 +74,7 @@ SwitchCityModal = function(w){
 				"subId": subId || null,
 				"scopeText": scopeText
 			}, function(data){
-				$('#switchCityModal').modal("hide");
-				$("#switchCityModalTargetlabel").text(scopeText);
+				common.href("/index");
 			});
 		},
 		doSubAddrList: function(parentAddrId){
@@ -113,7 +112,7 @@ Search = function(W){
 	var hide = function(){ $parent.removeClass("open"); },
 		show = function(){ $parent.addClass("open"); };
 		
-	var limit = 10;
+	var limit = 11;
 	var linkTpl = '<li><a href="#" data-addr-index="#{index}">#{addrFullName}</a></li>';
 	var pagingHeader = '<li class="dropdown-header">共#{offset}/#{totalCount}条相关的地址，按“←”或“→”方向键显示上下页内容</li>';
 	var nopagingHeader = '<li class="dropdown-header">共#{totalCount}条相关的地址。</li>';
