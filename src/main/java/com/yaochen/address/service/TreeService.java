@@ -82,8 +82,9 @@ public class TreeService {
 		tree.setCreateDoneCode(createDoneCode);
 		AdTree parentNode = queryByKey(tree.getAddrParent());
 		String str1 = null;
+		String slash = BusiConstants.StringConstants.SLASH;
 		if(null != parentNode){
-			str1 = parentNode.getStr1() +( isBlank ? "": BusiConstants.StringConstants.SLASH + addrName );
+			str1 = parentNode.getStr1() +( isBlank ? "": slash + addrName );
 		}else{//如果没有上级,这里一定是一级地址
 			str1 = ( isBlank ? "": addrName );
 		}
@@ -93,9 +94,9 @@ public class TreeService {
 		adTreeMapper.insertSelective(tree);
 		Integer newAddedAddrId = tree.getAddrId();
 		
-		String addrPrivateName = BusiConstants.StringConstants.TOP_PID + BusiConstants.StringConstants.SLASH + newAddedAddrId ;
+		String addrPrivateName = BusiConstants.StringConstants.TOP_PID + slash + newAddedAddrId + slash ;
 		if(null != parentNode){
-			addrPrivateName = parentNode.getAddrPrivateName() +   BusiConstants.StringConstants.SLASH + newAddedAddrId ;
+			addrPrivateName = parentNode.getAddrPrivateName() + newAddedAddrId + slash ;
 		}
 		tree.setAddrPrivateName(addrPrivateName);
 		adTreeMapper.updateByPrimaryKeySelective(tree);
@@ -205,6 +206,7 @@ public class TreeService {
 		AdTree parentNode = queryByKey(param.getAddrParent());
 		addrNamePreffix = StringHelper.isEmpty(addrNamePreffix) ? "":addrNamePreffix;
 		addrNameSuffix = StringHelper.isEmpty(addrNameSuffix) ? "":addrNameSuffix;
+		String slash = BusiConstants.StringConstants.SLASH;
 		
 		for (int index = startPosi; index <= endPosi; index++) {
 			AdTree tree = new AdTree();
@@ -232,8 +234,8 @@ public class TreeService {
 			String str1 = null;
 			String addrFullName = null;
 			if(null != parentNode){
-				str1 = parentNode.getStr1() +BusiConstants.StringConstants.SLASH + addrName;
-				addrFullName = parentNode.getAddrFullName() + ( isBlank ? "": BusiConstants.StringConstants.SLASH + addrName );
+				str1 = parentNode.getStr1() +slash + addrName;
+				addrFullName = parentNode.getAddrFullName() + ( isBlank ? "": slash + addrName );
 			}else{//如果没有上级,这里一定是一级地址
 				str1 = addrName;
 				addrFullName = ( isBlank ? "": addrName );
@@ -244,9 +246,9 @@ public class TreeService {
 			adTreeMapper.insertSelective(tree);
 			Integer addrId = tree.getAddrId();
 			
-			String addrPrivateName = BusiConstants.StringConstants.TOP_PID + BusiConstants.StringConstants.SLASH + addrId ;
+			String addrPrivateName = BusiConstants.StringConstants.TOP_PID + addrId + slash ;
 			if(null != parentNode){
-				addrPrivateName = parentNode.getAddrPrivateName() +   BusiConstants.StringConstants.SLASH + addrId ;
+				addrPrivateName = parentNode.getAddrPrivateName()  + addrId + slash ;
 			}
 			tree.setAddrPrivateName(addrPrivateName);
 			adTreeMapper.updateByPrimaryKeySelective(tree);
@@ -552,7 +554,7 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.PARAM_MISSED_WHILE_CHECK_ADDR_NAME);
 		}
 		for (AdTree child : children) {
-			if(child.getIsBlank().equals(isBlank)){
+			if(child.getIsBlank().equals(isBlank) && BusiConstants.Booleans.T.name().equals(isBlank)){
 				throw new MessageException(StatusCodeConstant.TOO_MANY_BLANK_ADDR);
 			}
 			if(child.getAddrName().equals(addrName)){

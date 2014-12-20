@@ -205,7 +205,8 @@ public class TreeServiceTest extends SpringRunTest{
 		//TODO  待测试
 		//卧槽，全角的数字也可以
 		try {
-			treeService.addTrees(tree, "", "号", "１", "10");
+			List<Integer> addTrees = treeService.addTrees(tree, "", "号", "11", "15");
+			System.err.println(JSON.toJSONString(addTrees, true));
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw e;
