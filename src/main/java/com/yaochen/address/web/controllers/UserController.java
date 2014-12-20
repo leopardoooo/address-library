@@ -95,11 +95,11 @@ public class UserController {
 	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("pid") Integer pid,@RequestParam("subId") Integer subId, 
 			@RequestParam("scopeText") String scopeText, HttpSession session)throws Throwable {
 		String slash = BusiConstants.StringConstants.SLASH;
-		String str = BusiConstants.StringConstants.TOP_PID + slash + pid;
+		String str = BusiConstants.StringConstants.TOP_PID + slash + pid + slash;
 		Integer lowestAddrId = pid;
 		if(null != subId ){
 			lowestAddrId = subId;
-			str += slash + subId;
+			str += subId + slash;
 		}
 		AdTree tree = treeService.queryByKey(lowestAddrId);
 		

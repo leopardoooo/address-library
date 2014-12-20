@@ -8,6 +8,9 @@ import java.util.Date;
 import com.yaochen.address.common.BusiConstants;
 
 public class AdTree {
+	/**是否被当前操作员收藏 1(true) ,0 false**/
+	private Integer collected;
+	
     /** 地址ID */
     private Integer addrId;
 
@@ -249,4 +252,13 @@ public class AdTree {
 	public void setAddrUseText(String addrUseText) {
 		this.addrUseText = addrUseText;
 	}
+
+	public Integer getCollected() {
+		return collected;
+	}
+
+	public void setCollected(Integer collected) {
+		this.collected = collected;
+	}
+	
 }

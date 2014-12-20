@@ -1,5 +1,7 @@
 package com.yaochen.test.service;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -205,13 +207,19 @@ public class TreeServiceTest extends SpringRunTest{
 		//TODO  待测试
 		//卧槽，全角的数字也可以
 		try {
-			treeService.addTrees(tree, "", "号", "１", "10");
+			List<Integer> addTrees = treeService.addTrees(tree, "", "号", "11", "15");
+			System.err.println(JSON.toJSONString(addTrees, true));
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
 	
+	@Test
+	public void testDOQuery() throws Throwable {
+		Pagination pager = treeService.doSearchAddress(-1, "", 0, 100);
+		System.err.println(JSON.toJSONString(pager, true));
+	}
 	
 	@Test
 	public void testFindChildrensByPid() throws Throwable {
