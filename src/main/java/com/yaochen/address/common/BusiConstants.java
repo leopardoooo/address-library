@@ -2,7 +2,11 @@ package com.yaochen.address.common;
 
 public class BusiConstants {
 	
+	/**首页查询收藏的数目**/
+	public static Integer COLLECTIONS_QUERY_COUNT = 6;
+	
 	public static interface StringConstants{
+		/**webservice登录返回的XML根节点**/
 		public static String WSDL_TARGET_NODE_NAME = "string";
 		
 		public static String REDIRECT_ACTION = "redirect:";

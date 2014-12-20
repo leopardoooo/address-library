@@ -100,7 +100,10 @@ public class TreeService {
 		}
 		tree.setAddrPrivateName(addrPrivateName);
 		adTreeMapper.updateByPrimaryKeySelective(tree);
-		return adTreeMapper.selectByPrimaryKey(newAddedAddrId);
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("addrId", tree.getAddrId());
+		query.put("userid", getUserInSession().getUserOID());
+		return adTreeMapper.selectByPrimaryKey(query);
 	}
 
 	/**
@@ -278,6 +281,7 @@ public class TreeService {
 		String baseScope = getBaseScope();
 		param.put("baseScope", baseScope);
 		param.put("addrLevel", startLevel);
+		param.put("userid", getUserInSession().getUserOID());
 		param.put("keyword", keyword);//全名
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
@@ -323,6 +327,7 @@ public class TreeService {
 			Integer limit) throws Throwable {
 		Map<String, Object>	param = new HashMap<String, Object>();
 		param.put("addrParent", parentAddrId);
+		param.put("userid", getUserInSession().getUserOID());
 		/*
 		String baseScope = getBaseScope();
 		param.put("baseScope", baseScope);
@@ -340,7 +345,10 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public void modTree(AdTree tree, boolean ignoreEmpty) throws Throwable {
-		AdTree oldTree = adTreeMapper.selectByPrimaryKey(tree.getAddrId());
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("addrId", tree.getAddrId());
+		query.put("userid", getUserInSession().getUserOID());
+		AdTree oldTree = adTreeMapper.selectByPrimaryKey(query);
 		if(oldTree== null){
 			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
 		}
@@ -387,7 +395,10 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public AdTree queryByKey(Integer addrId)throws Throwable{
-		return adTreeMapper.selectByPrimaryKey(addrId);
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("addrId", addrId);
+		query.put("userid", getUserInSession().getUserOID());
+		return adTreeMapper.selectByPrimaryKey(query);
 	}
 
 	public void delTree(Integer addrId) throws Throwable {
@@ -412,6 +423,12 @@ public class TreeService {
 		change.setChangeDoneCode(createDoneCode(createTime, BusiCodeConstants.DEL_ADDR));
 		change.setChangeType(AddrChangeType.MERGE_DEL.name());
 		change.setChangeOptrId(ThreadUserParamHolder.getOptr().getUserOID());
+		
+		AdCollections coll = checkCollExists(addrId, getUserInSession().getUserOID());
+		if(null != coll){
+			adCollectionsMapper.deleteByAddrAndUser(coll);
+		}
+		
 		adTreeChangeMapper.insert(change);
 	}
 

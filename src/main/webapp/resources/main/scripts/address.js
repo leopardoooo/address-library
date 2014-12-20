@@ -68,11 +68,7 @@ Address = function(){
 					Alert("已经是顶级地址了!");
 					return ;
 				}
-				common.post("tree/queryById", {
-					"addrId": addrTreeObj["addrParent"],
-				}, function(data){
-					that.doShowAddress(data);
-				});
+				that.doShowAddressById(addrTreeObj["addrParent"]);
 			}else if(event === "down"){
 				that.doShowAddress(addrTreeObj);
 			}
@@ -101,6 +97,15 @@ Address = function(){
 			that.toggleActive($items.eq(0));
 			// 加载编辑表单
 			AddressEdit.loadForm(addrTreeObj);
+		},
+		doShowAddressById: function(addrId){
+			if(!addrId) return;
+			// ajax post 
+			common.post("tree/queryById", {
+				"addrId": addrId,
+			}, function(data){
+				that.doShowAddress(data);
+			});
 		},
 		doShowAddress: function(addrTreeObj){
 			that.lastAddrTreeObj = addrTreeObj;
@@ -155,6 +160,7 @@ AddressEdit = function(){
 		$addrType = $("#editFormAddrType"),
 		$addrPurpose = $("#editFormAddrPurpose"),
 		$addrName = $("#editFormAddrName");
+	var $collectBtn = $("#editFormCollectBtn");
 	
 	// 保存最后一条记录
 	var lastAddrTreeObj = null; 
@@ -171,6 +177,14 @@ AddressEdit = function(){
 		loadForm: function(addrTreeObj, __mode){
 			mode = __mode || mode;
 			lastAddrTreeObj = addrTreeObj;
+			
+			if(lastAddrTreeObj.collected ==1){//没收藏
+				$collectBtn.attr("title", "收藏")
+					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-open");
+			}else{//已收藏
+				$collectBtn.attr("title", "取消收藏") 
+					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-close");
+			}
 			that.setValues(addrTreeObj);
 		},
 		resetForm: function(){
@@ -188,7 +202,23 @@ AddressEdit = function(){
 			$addrName.val(addrTreeObj["addrName"]);
 		},
 		doCollect: function(){
-			alert("收藏");
+			if(!lastAddrTreeObj){
+				Alert('没有选中地址');
+				return ;
+			}
+			var action = 'collectTree';
+			var confirmMessagePre = '确定要收藏';
+			if(lastAddrTreeObj.collected == 0){
+				action = 'cancelCollectTree';//取消收藏
+				confirmMessagePre = '确定要取消收藏';
+			}
+			if(confirm(String.format(confirmMessagePre + '“#{addrFullName}”?', lastAddrTreeObj))){
+				// post
+				common.post("tree/"+action, {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
+					Alert("操作成功!");
+					Collections.doRender();
+				});
+			}
 		},
 		doDelete: function(){
 			if(!lastAddrTreeObj)
@@ -198,6 +228,7 @@ AddressEdit = function(){
 				// post
 				common.post("tree/delTree", {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
 					Alert("删除成功!");
+					Collections.doRender();
 					if(mode === "detail"){ 
 						//清空表单
 						that.resetForm();
