@@ -151,7 +151,7 @@ public class TreeService {
 	 * @param addrNameSuffix	地址名 后缀.
 	 * @param start		起始位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
 	 * @param end		结束位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
-	 * @return
+	 * @return		数组,第一个 成功的个数,第二个,失败的个数.
 	 * @throws Throwable
 	 */
 	public List<Integer> addTrees(AdTree param,String addrNamePreffix, String addrNameSuffix, String start,String end) throws Throwable{
@@ -196,6 +196,9 @@ public class TreeService {
 		}
 		
 		List<Integer> result = new ArrayList<Integer>();
+		Integer succNum = 0;
+		Integer failedNum = 0;
+		
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
 		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
@@ -227,6 +230,7 @@ public class TreeService {
 				addrName = checkAddrName(tree,children.toArray(new AdTree[children.size()]));
 			} catch (Throwable e) {
 				//批量添加的时候,地址名检验不通过,直接忽略.
+				failedNum ++;
 				continue;
 			}
 			tree.setAddrName(addrName);
@@ -252,10 +256,10 @@ public class TreeService {
 			}
 			tree.setAddrPrivateName(addrPrivateName);
 			adTreeMapper.updateByPrimaryKeySelective(tree);
-			
-			result.add(addrId);
+			succNum ++;
 		}
-		
+		result.add(succNum);
+		result.add(failedNum);
 		return result;
 	}
 	
