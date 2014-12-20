@@ -33,7 +33,7 @@ Address = function(){
 		maxBlock: 9  
 	};
 	
-	var limit = 4;
+	var limit = 13;
 	var that = null;
 	var currentAddressDescTpl = " 已定位至 “#{addrFullName}”，下级地址 “#{totalCount}” 个。";
 	
@@ -140,6 +140,15 @@ Address = function(){
 			// 加载编辑表单
 			AddressEdit.loadForm(addrTreeObj);
 		},
+		doShowAddressById: function(addrId){
+			if(!addrId) return;
+			// ajax post 
+			common.post("tree/queryById", {
+				"addrId": addrId,
+			}, function(data){
+				that.doShowAddress(data);
+			});
+		},
 		doShowAddress: function(addrTreeObj, start){
 			that.lastAddrTreeObj = addrTreeObj;
 			
@@ -185,6 +194,10 @@ Address = function(){
 				total = that.data["totalCount"],
 				currentPage = start / limit + 1,
 				totalPage = Math.floor(total / limit) + (total % limit > 0 ? 1 : 0);
+			if(total == 0){
+				$("#resultPagingTool").html("");
+				return;
+			}
 			
 			var halfNum = Math.floor(pageConfig.maxBlock / 2),
 			leftBlock = currentPage - halfNum,
@@ -273,6 +286,7 @@ AddressAdd = function(){
 			
 			$isBlankInput.change(function(){
 				if($(this).val() == "T"){
+					$('#addFormTabs a[href="#singleAddInAddForm"]').tab('show');
 					$("#batchAddInAddFormLi").hide();
 				}else{
 					$("#batchAddInAddFormLi").show();
@@ -399,13 +413,7 @@ AddressEdit = function(){
 			mode = __mode || mode;
 			lastAddrTreeObj = addrTreeObj;
 			
-			if(lastAddrTreeObj.collected ==1){//没收藏
-				$collectBtn.attr("title", "收藏")
-					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-open");
-			}else{//已收藏
-				$collectBtn.attr("title", "取消收藏") 
-					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-close");
-			}
+			that.switchCollectClass();
 			that.setValues(addrTreeObj);
 		},
 		resetForm: function(){
@@ -413,6 +421,15 @@ AddressEdit = function(){
 			that.setValues({
 				addrUse: "OTHERS"
 			});
+		},
+		switchCollectClass: function(){
+			if(lastAddrTreeObj.collected == 1){//没收藏
+				$collectBtn.attr("title", "收藏")
+					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-open");
+			}else{//已收藏
+				$collectBtn.attr("title", "取消收藏") 
+					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-close");
+			}
 		},
 		setValues: function(addrTreeObj){
 			$fullLevel.text("（" + (addrTreeObj["addrLevel"] || "") + "级地址）");
@@ -437,6 +454,8 @@ AddressEdit = function(){
 				// post
 				common.post("tree/"+action, {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
 					Alert("操作成功!");
+					lastAddrTreeObj["collected"] = (lastAddrTreeObj.collected == 0 ? 1 : 0);
+					that.switchCollectClass();
 					Collections.doRender();
 				});
 			}

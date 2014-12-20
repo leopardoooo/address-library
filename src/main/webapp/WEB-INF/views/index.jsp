@@ -14,7 +14,6 @@
 	Map<String, Object> params = TreeController.getCurrentIndexParams(session);
 	List<AdTree> cityList = (List<AdTree>)params.get("cityList");
 	List<AdLevel> levelList = (List<AdLevel>)params.get("levelList");
-	List<AdTree> collections = (List<AdTree>)params.get("collections");
 	Object city = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
 	
 	UserInSession user = (UserInSession)session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
@@ -122,16 +121,7 @@
 			<div class="panel panel-default">
 				<div class="panel-heading clearfix">
 					<span class="text">地址列表</span>
-					<div class="pull-right" id="resultPagingTool">
-						<!-- 
-						<button type="button" class="btn btn-default" title="首页"> <i class="fa fa-angle-left"></i></button>
-						<button type="button" class="btn btn-default"> 2 </button>
-						<button type="button" class="btn btn-default"> 3 </button>
-						<button type="button" class="btn btn-default"> 4 </button>
-						<button type="button" class="btn btn-default"> ... </button>
-						<button type="button" class="btn btn-default" title="末页"> <i class="fa fa-angle-right"></i></button>
-						 -->
-					</div>
+					<div class="pull-right" id="resultPagingTool"></div>
 				</div>
 				<div class="panel-body" id="resultBody">
 					<p class="empty">
@@ -177,6 +167,21 @@
 	
 	<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
 		<%@ include file="/WEB-INF/views/AddForm.jsp" %>
+	</div>
+	
+	<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby=""alertModalLabel"" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title" id="alertModalLabel">提示</h4>
+				</div>
+				<div class="modal-body" id="alertBody"></div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="alertModalOkBtn">确定</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 <%@ include file="/WEB-INF/common/foot.jsp" %>

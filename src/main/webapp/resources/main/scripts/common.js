@@ -30,7 +30,13 @@ common = {
 };
 
 Alert = function(msg){
-	alert(msg);
+	var desc = "alertModal";
+	if(document.getElementById(desc)){
+		$("#alertBody").html(msg);
+		$('#' + desc).modal("show");
+	}else{
+		alert(msg);
+	}
 };
 
 /**
