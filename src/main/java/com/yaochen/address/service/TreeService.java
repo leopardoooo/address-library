@@ -316,11 +316,11 @@ public class TreeService {
 	public Pagination findChildrensAndPagingByPid(Integer parentAddrId, Integer start,
 			Integer limit) throws Throwable {
 		Map<String, Object>	param = new HashMap<String, Object>();
-//		String baseScope = getBaseScope();
-//		System.err.println(baseScope);
 		param.put("addrParent", parentAddrId);
+		/*
 		String baseScope = getBaseScope();
 		param.put("baseScope", baseScope);
+		*/
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByPid(pager);
