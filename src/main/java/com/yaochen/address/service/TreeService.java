@@ -242,7 +242,7 @@ public class TreeService {
 			String addrFullName = null;
 			if(null != parentNode){
 				str1 = parentNode.getStr1() +slash + addrName;
-				addrFullName = parentNode.getAddrFullName() + ( isBlank ? "": slash + addrName );
+				addrFullName = parentNode.getAddrFullName() + ( isBlank ? "": addrName );
 			}else{//如果没有上级,这里一定是一级地址
 				str1 = addrName;
 				addrFullName = ( isBlank ? "": addrName );
