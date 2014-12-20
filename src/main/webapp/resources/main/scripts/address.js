@@ -118,6 +118,8 @@ Address = function(){
 					totalCount: data["totalCount"]
 				}));
 				
+				$("#resultPagingTool").html("一共" + data["totalCount"] + "条.");
+				
 				that.data = data;
 				
 				// parent level tree 
@@ -304,6 +306,14 @@ AddressAdd = function(){
 					$("#addFormSaveContinue").show();
 				}
 			});
+			
+			$isBlankInput.change(function(){
+				if($(this).val() == "T"){
+					$("#batchAddInAddFormLi").hide();
+				}else{
+					$("#batchAddInAddFormLi").show();
+				}
+			}); 
 			
 			$addrNameInput.keyup(function(e){
 				var __that = $(this);

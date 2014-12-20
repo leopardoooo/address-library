@@ -144,8 +144,8 @@
 					<p class="empty">
 						<i class="glyphicon glyphicon-search"></i>
 						<span id="resultEmptyText">请使用搜索，定位上级地址！</span>
-					</p>   
-				</div> 
+					</p>
+				</div>
 			</div><!-- 搜索结果集结束 -->
 		</div>
 	</section>

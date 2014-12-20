@@ -62,7 +62,7 @@
 				<div class="form-tabs"> 
 					<ul class="nav nav-tabs" id="addFormTabs" role="tablist">
 						<li role="presentation" class="active"><a href="#singleAddInAddForm" role="tab" data-toggle="tab">单一地址</a></li>
-						<li role="presentation"><a href="#batchAddInAddForm" role="tab" data-toggle="tab">多个地址（前缀+数字+后缀）</a></li>
+						<li role="presentation" id="batchAddInAddFormLi" ><a href="#batchAddInAddForm" role="tab" data-toggle="tab">多个地址（前缀+数字+后缀）</a></li>
 					</ul> 
 					<div class="tab-content">
 						<div role="tabpanel" class="tab-pane active" id="singleAddInAddForm">

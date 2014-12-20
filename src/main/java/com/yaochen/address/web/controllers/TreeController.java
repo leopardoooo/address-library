@@ -1,5 +1,6 @@
 package com.yaochen.address.web.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,9 +110,14 @@ public class TreeController implements BeanFactoryAware{
 	@ResponseBody
 	public Root<List<AdLevel>> findAuthLevelInSession(HttpSession session)throws Throwable {
 		Object levelsRaw = session.getAttribute(BusiConstants.StringConstants.FILTERED_LEVELS_IN_SESSION);
-		@SuppressWarnings("unchecked")
-		List<AdLevel> list = (List<AdLevel>) levelsRaw;
-		return ReturnValueUtil.getJsonRoot(list);
+		if(levelsRaw == null){
+			List<AdLevel> levels = new ArrayList<AdLevel>(0);
+			return ReturnValueUtil.getJsonRoot(levels);
+		}else{
+			@SuppressWarnings("unchecked")
+			List<AdLevel> list = (List<AdLevel>) levelsRaw;
+			return ReturnValueUtil.getJsonRoot(list);
+		}
 	}
 	
 	/**
