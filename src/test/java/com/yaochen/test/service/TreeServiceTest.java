@@ -1,5 +1,7 @@
 package com.yaochen.test.service;
 
+import static org.junit.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -213,6 +215,11 @@ public class TreeServiceTest extends SpringRunTest{
 		}
 	}
 	
+	@Test
+	public void testDOQuery() throws Throwable {
+		Pagination pager = treeService.doSearchAddress(-1, "", 0, 100);
+		System.err.println(JSON.toJSONString(pager, true));
+	}
 	
 	@Test
 	public void testFindChildrensByPid() throws Throwable {
