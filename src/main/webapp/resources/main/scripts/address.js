@@ -48,6 +48,11 @@ Address = function(){
 				if($items.length > 0){ // detail
 					$parent = $items.parent();
 					event = "detail";
+				} else if(/div/i.test(e.target.tagName)){
+					if($(e.target).hasClass("item")){
+						$parent = $(e.target);
+						event = "detail";
+					}
 				} else if(/(i|b)/i.test(e.target.tagName)){
 					if($target.hasClass("up")){ // up
 						$parent = $target.parent();
@@ -57,12 +62,21 @@ Address = function(){
 						event = "down";
 					}
 				}
-
 				if(!event) return;
-				
 				var index = $parent.attr("data-addr-index");
 				that.doTriggerEvent(index, event, $parent);
+			}).scroll(function(e){
+				var $hd = $("#resultHeading");
+				if($(this).scrollTop() <= 0){
+					$hd.removeClass("scroll");
+				}else{
+					if(!$hd.hasClass("scroll")){
+						$hd.addClass("scroll");
+					}
+				}
 			});
+			
+			
 			
 			// 分页条事件注册
 			$("#resultPagingTool").click(function(e){

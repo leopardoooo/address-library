@@ -57,9 +57,9 @@
 				  <a href="#" class="dropdown-toggle admin-info" data-toggle="dropdown">
 					Hi, <%=user.getUserName() %> <i class="fa fa-angle-down"></i></a>
 				  <ul class="dropdown-menu" role="menu">
-					<li class="dropdown-header">来自 “<%=user.getCompanyName() + "/" + user.getDepartmentName() %>” 部门</li>
+					<li class="dropdown-header"><%=user.getCompanyName() + "/" + user.getDepartmentName() %></li>
 					<li class="divider"></li>
-					<li><a href="<%=ROOT %>/user/logout">退出</a></li>
+					<li><a href="<%=ROOT %>/user/logout"> <i class="glyphicon glyphicon-off"></i> 退出系统</a></li>
 				  </ul>
 			</li>
 		  </ul>
@@ -119,7 +119,7 @@
 		<div id="resultList">
 			<!-- 搜索结果集 -->
 			<div class="panel panel-default">
-				<div class="panel-heading clearfix">
+				<div class="panel-heading clearfix" id="resultHeading">
 					<span class="text">地址列表</span>
 					<div class="pull-right" id="resultPagingTool"></div>
 				</div>

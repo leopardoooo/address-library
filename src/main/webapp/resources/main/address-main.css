@@ -78,18 +78,19 @@ input:focus, textarea:focus {outline: 0;outline: thin dotted \9;}
 #resultList{margin-right: 410px; background: #fff; height: 100%; border-radius: 4px; position: relative; border: 1px solid #f2f2f2; -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05); box-shadow: 0 1px 1px rgba(0,0,0,.05);}
 #resultList .panel{border: 0; border-radius: 4px 4px 0 0; -webkit-box-shadow: none; box-shadow: none; }
 /**#resultList:before{position: absolute; right: 50%; top: 48px; bottom: 0; border: 1px dotted #dde1eb; content: '';} */
-#main .panel-heading{ background: #fff; color: #9ba0a7; border-bottom: 0;font-weight: bold;  padding: 6px 12px;}
+#main .panel-heading{ background: #fff; color: #9ba0a7; border-bottom: 0;font-weight: bold;  padding: 6px 18px 6px 12px;}
 #main .panel-heading .text, #main .panel-heading>.pull-right>span{display: block; margin: 8px 0 0 0;}
 #main .panel-heading>.pull-right>button{ color: #b5b8bd;font-weight: normal;}
+#main .panel-heading.scroll{box-shadow: 0 1px 5px rgba(0,0,0,.075); -webkit-box-shadow: 0 1px 5px rgba(0,0,0,.075);}
 
-#resultBody {margin: 0; padding: 0; position: relative;} 
-#resultBody>.item{position: relative; float: left; border-radius: 4px; font-size: 15px; border:1px solid; margin-left: 10px; margin-top: 10px;}
+#resultBody {margin: 0; padding: 0; position: absolute; left: 0; right:0; top: 75px; bottom:10px; overflow: auto;}
+#resultBody>.item{position: relative; float: left; width: 48%;border-radius: 4px; font-size: 15px; border:1px solid; margin-left: 1%; margin-top: 10px;}
 #resultBody>.item>i, #resultBody>.item>b{position: relative; border-left: 1px solid; border-color: inherit;  cursor:pointer; color: inherit; width: 36px; padding: 20px 0; text-align: center; display: block; font: normal normal normal 14px/1 'Glyphicons Halflings';}
 #resultBody>.item>i{float: right;}
 #resultBody>.item>b{float: right;}
 #resultBody>.item>i:before{content: "\e093";}
 #resultBody>.item>b:before{content: "\e094";} 
-#resultBody .item>address{padding: 5px 8px 5px 40px; width: 320px; float: left; margin: 0; cursor: pointer; display: block; position: relative;}
+#resultBody .item>address{padding: 5px 8px 5px 40px;float: left; margin: 0; cursor: default; display: block; position: relative;}
 #resultBody .item>address>label{position: absolute; top: 3px;  padding: 0 8px; border-radius: 3px; line-height: 50px; left: 4px; bottom: -2px; font-size: 24px;}
  
 #resultBody .item>address>small>i:before{padding-right:5px; font-family: 'Glyphicons Halflings';font-style: normal; font-weight: 400;  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;}
@@ -115,7 +116,7 @@ input:focus, textarea:focus {outline: 0;outline: thin dotted \9;}
 #resultBody .item.default-active{background: #428bca; color: #fff; border-color:#fff;} 
 #resultBody .item.default-active>address>label{background-color: #428bca;}
 
-#resultBody .empty{position: absolute; left: 10px; right: 0; top: 70px; bottom:0;  color: #d0cece; font-size: 17px; text-align: center;}
+#resultBody .empty{position: absolute; left: 10px; right: 0; top: 100px; bottom:0;  color: #d0cece; font-size: 17px; text-align: center;}
 #resultBody .empty>i{font-size: 160px; color: #e4e5e9;}
 #resultBody .empty>span{display: block; margin-top: 15px;} 
    
