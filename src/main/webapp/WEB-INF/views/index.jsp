@@ -119,7 +119,7 @@
 		<div id="resultList">
 			<!-- 搜索结果集 -->
 			<div class="panel panel-default">
-				<div class="panel-heading clearfix">
+				<div class="panel-heading clearfix" id="resultHeading">
 					<span class="text">地址列表</span>
 					<div class="pull-right" id="resultPagingTool"></div>
 				</div>

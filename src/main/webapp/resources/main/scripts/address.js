@@ -62,7 +62,18 @@ Address = function(){
 				
 				var index = $parent.attr("data-addr-index");
 				that.doTriggerEvent(index, event, $parent);
+			}).scroll(function(e){
+				var $hd = $("#resultHeading");
+				if($(this).scrollTop() <= 0){
+					$hd.removeClass("scroll");
+				}else{
+					if(!$hd.hasClass("scroll")){
+						$hd.addClass("scroll");
+					}
+				}
 			});
+			
+			
 			
 			// 分页条事件注册
 			$("#resultPagingTool").click(function(e){
