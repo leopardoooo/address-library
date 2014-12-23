@@ -8,9 +8,9 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.sun.istack.logging.Logger;
 import com.yaochen.address.data.domain.address.AdTree;
 
 @Component
@@ -81,9 +81,9 @@ public class AddrNameChecker {
 			script = readJs();
 			setFileLoaded(true);
 		}
-		System.err.println("加载到的JS + \n" + "---------------------------------------------");
-		System.err.println(script);
-		System.err.println("---------------------------------------------");
+		logger.debug("-------------------加载到的JS--------------------------");
+		logger.debug(script);
+		logger.debug("---------------------------------------------");
 		engine.eval(script);
 		engine.put("addr", tree);
 		Invocable inv = (Invocable) engine;
