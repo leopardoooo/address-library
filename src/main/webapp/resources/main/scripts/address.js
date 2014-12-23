@@ -336,6 +336,7 @@ AddressAdd = function(){
 		doOnlySave: function(){
 			that.doSave(function(data){
 				$win.modal('hide');
+				Address.doShowAddressById(lastAddrTreeObj.addrParent);
 			});
 		},
 		doSaveAndContinue: function(){
@@ -483,6 +484,7 @@ AddressEdit = function(){
 				common.post("tree/delTree", {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
 					Alert("删除成功!");
 					Collections.doRender();
+					Address.doShowAddressById(lastAddrTreeObj.addrParent);
 					if(mode === "detail"){ 
 						//清空表单
 						that.resetForm();
@@ -513,6 +515,7 @@ AddressEdit = function(){
 			
 			// post
 			common.post("tree/modTree", data, function(responseData){
+				Address.doShowAddressById(lastAddrTreeObj.addrParent);
 				Alert("修改成功!");
 			});
 		},

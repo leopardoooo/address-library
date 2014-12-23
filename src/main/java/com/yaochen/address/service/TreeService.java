@@ -129,7 +129,7 @@ public class TreeService {
 		}
 		addrName = literalCheckAddrName(tree, addrName);
 		String check = addrNameChecker.checkBusiRule(tree );
-		if(null!=check){
+		if(StringHelper.isNotEmpty(check)){
 			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
 		}
 		//检查同级别的有没有同名地址

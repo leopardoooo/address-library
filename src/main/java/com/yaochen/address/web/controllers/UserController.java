@@ -78,7 +78,7 @@ public class UserController {
 	@RequestMapping("/reloadRuleScript")
 	@ResponseBody
 	public Root<Void> reloadRuleScript()throws Throwable {
-		AddrNameChecker.setFileLoaded(true);
+		AddrNameChecker.setFileLoaded(false);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	

@@ -10,14 +10,56 @@ import javax.script.ScriptEngineManager;
 
 import org.springframework.stereotype.Component;
 
+import com.sun.istack.logging.Logger;
 import com.yaochen.address.data.domain.address.AdTree;
 
 @Component
 public class AddrNameChecker {
+	private Logger logger = Logger.getLogger(getClass());
 	/**
 	 * 文件是否已经被加载.
 	 */
 	private static boolean fileLoaded;
+	
+	private static enum NameCheckError{
+		/** 验证通过,0 **/
+		SUCCESS(0,""),
+		UNKNOWN_ERROR(999,"未知错误"),
+		LEV5_WITH_SHARP(5,"五级地址不能出现#号"),
+		LEV6_WITH_NUM(6,"五级地址不能出现#号");
+		private String desc;
+		private Integer code;
+		public String getDesc() {
+			return desc;
+		}
+		@SuppressWarnings("unused")
+		public void setDesc(String desc) {
+			this.desc = desc;
+		}
+		public Integer getCode() {
+			return code;
+		}
+		@SuppressWarnings("unused")
+		public void setCode(Integer code) {
+			this.code = code;
+		}
+		private NameCheckError(Integer code,String desc) {
+			this.desc = desc;
+			this.code = code;
+		}
+		
+		public static NameCheckError parseCode(Integer num){
+			if(null == num){
+				return null;
+			}
+			for (NameCheckError item : NameCheckError.values()) {
+				if(item.getCode().equals(num.intValue())){
+					return item;
+				}
+			}
+			return null;
+		}
+	}
 	
 	/**
 	 * 要执行的文件的脚本.
@@ -39,11 +81,23 @@ public class AddrNameChecker {
 			script = readJs();
 			setFileLoaded(true);
 		}
+		System.err.println("加载到的JS + \n" + "---------------------------------------------");
+		System.err.println(script);
+		System.err.println("---------------------------------------------");
 		engine.eval(script);
 		engine.put("addr", tree);
 		Invocable inv = (Invocable) engine;
-		String res = (String)inv.invokeFunction("validate", otherArgs );
-		return res;
+		Double result = null;
+		try {
+			result = (Double)inv.invokeFunction("validate", otherArgs );
+		} catch (Exception e) {
+			logger.info("执行验证的JS的时候出错,错误信息如下：\r\n " + e.getMessage() );
+		}
+		NameCheckError parseCode = NameCheckError.parseCode(result.intValue());
+		if(null == parseCode){
+			parseCode = NameCheckError.LEV5_WITH_SHARP;
+		}
+		return parseCode.getDesc();
 	}
 	
 	
@@ -53,7 +107,7 @@ public class AddrNameChecker {
 				BufferedReader reader = new BufferedReader( new InputStreamReader(resourceAsStream));) {
 			String line = null;
 			while((line = reader.readLine()) != null){
-				sb.append(line+"\n");
+				sb.append(line+"\r\n");
 			}
 		}catch (Exception e) {
 			throw e;
