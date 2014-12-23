@@ -336,7 +336,7 @@ AddressAdd = function(){
 		doOnlySave: function(){
 			that.doSave(function(data){
 				$win.modal('hide');
-				Address.doShowAddressById(lastAddrTreeObj.addrParent);
+				Address.doShowAddressById(data.addrParent);
 			});
 		},
 		doSaveAndContinue: function(){
