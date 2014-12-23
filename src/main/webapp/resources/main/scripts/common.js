@@ -16,8 +16,9 @@ common = {
 			if(responseData && responseData["code"] == 200){
 				success(responseData["data"]);
 			}else{
-				alert("Ajax Error! code: " + responseData["code"]
-						+ ", message: " + responseData["message"]);
+//				alert("Ajax Error! code: " + responseData["code"] + ", message: " + responseData["message"]);
+				Alert("Ajax Error!</br> code: " + responseData["code"]
+				+ "</br> message: " + responseData["message"]);
 			}
 		}, dataType);
 	},
