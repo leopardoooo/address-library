@@ -1,7 +1,7 @@
 Address = function(){
 	var tpl = '<div class="item default" data-type="item" data-addr-index="#{index}">'
 				+'<address>'
-					+'<label class="label">#{addrLevel}</label> #{addrFullName}'
+					+'<label class="label">#{addrLevel}</label> #{addrFullNameFormat}'
 					+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 				+'</address>'
 				+'<b class="down"></b>'
@@ -9,7 +9,7 @@ Address = function(){
 	
 	var parentTpl = '<div class="item parent" data-type="parent" data-addr-index="#{index}">'
 						+'<address>'
-							+'<label class="label">#{addrLevel}</label> #{addrFullName}'
+							+'<label class="label">#{addrLevel}</label> #{addrFullNameFormat}'
 							+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 						+'</address>'
 						+'<i class="up"></i>'
@@ -75,8 +75,6 @@ Address = function(){
 					}
 				}
 			});
-			
-			
 			
 			// 分页条事件注册
 			$("#resultPagingTool").click(function(e){
@@ -174,8 +172,10 @@ Address = function(){
 				"start": start || 0,
 				"limit": limit
 			}, function(data){
+				addrTreeObj["addrFullNameFormat"] = addrTreeObj["addrFullNameFormat"]
+						|| that.doFormatAddrName(addrTreeObj["str1"]);
 				$("#currentAddressLabel").text(String.format(currentAddressDescTpl, {
-					addrFullName: addrTreeObj["addrFullName"],
+					addrFullNameFormat: addrTreeObj["addrFullNameFormat"],
 					totalCount: data["totalCount"]
 				}));
 				
@@ -191,6 +191,8 @@ Address = function(){
 					for(var i = 0; i < data.records.length; i++){
 						var o = data.records[i];
 						o["index"] = i;
+						o["addrFullNameFormat"] = o["addrFullNameFormat"] 
+							|| that.doFormatAddrName(o["str1"]);
 						links += String.format(tpl, o);
 					}
 				}
@@ -202,6 +204,23 @@ Address = function(){
 				// 渲染分页
 				that.doRenderPaging();
 			});
+		},
+		/**
+		 * 传入带有分割线的地址完整名称
+		 */
+		doFormatAddrName: function(addrFullNameSplit){
+			if(!addrFullNameSplit) return "";
+			
+			var strs = addrFullNameSplit.split("/");
+			var formatString = "";
+			for(var i = 0; i< strs.length; i++){
+				if(i == strs.length - 1){
+					formatString += "<b>" + strs[i] +"</b>";
+				}else{
+					formatString += strs[i];
+				}
+			}
+			return formatString;
 		},
 		doRenderPaging: function(){
 			var start = that.data["offset"], 
