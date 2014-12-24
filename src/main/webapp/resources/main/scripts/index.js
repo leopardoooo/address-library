@@ -119,14 +119,14 @@ Collections = function(){
 				if(!data || data.length ==0){
 					return;
 				}
-				var cellTpl = '<div class="col-md-4"><a href="#" data-id="#{addrId}" class="btn btn-link ellipsis">#{addrFullName}</a></div>';
+				var rowTpl = '<div class="col-md-4"><a href="#" data-id="#{addrId}" class="btn btn-link ellipsis">#{addrFullName}</a></div>';
 				var links = '';
 				for(var index =0;index<data.length;index++){
 					var addr = data[index];
 					if(index % 3 == 0){
 						links += '<div class="row">';
 					}
-					links +=String.format(cellTpl, addr);
+					links +=String.format(rowTpl, addr);
 					if(index % 3 == 2 || index == data.length -1){
 						links += '</div>';
 					}
