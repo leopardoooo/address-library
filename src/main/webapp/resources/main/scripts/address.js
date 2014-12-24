@@ -172,10 +172,8 @@ Address = function(){
 				"start": start || 0,
 				"limit": limit
 			}, function(data){
-				addrTreeObj["addrFullNameFormat"] = addrTreeObj["addrFullNameFormat"]
-						|| that.doFormatAddrName(addrTreeObj["str1"]);
 				$("#currentAddressLabel").text(String.format(currentAddressDescTpl, {
-					addrFullNameFormat: addrTreeObj["addrFullNameFormat"],
+					addrFullName: addrTreeObj["addrFullName"],
 					totalCount: data["totalCount"]
 				}));
 				
@@ -183,6 +181,8 @@ Address = function(){
 				
 				// parent level tree 
 				addrTreeObj["index"] = -1;
+				addrTreeObj["addrFullNameFormat"] = addrTreeObj["addrFullNameFormat"]
+					|| that.doFormatAddrName(addrTreeObj["str1"]);
 				var links = String.format(parentTpl, addrTreeObj);
 				
 				if(data.records.length === 0){
