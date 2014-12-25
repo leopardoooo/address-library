@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.address.AdOaCountyRefMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdOaCountyRef" >
+    <id column="company_id" property="companyId" jdbcType="VARCHAR" />
+    <result column="county_id" property="countyId" jdbcType="VARCHAR" />
+    <result column="county_name" property="countyName" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    company_id, county_id, county_name, remark
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_oa_county_ref
+    where company_id = #{companyId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from ad_oa_county_ref
+    where company_id = #{companyId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
+    insert into ad_oa_county_ref (company_id, county_id, county_name, 
+      remark)
+    values (#{companyId,jdbcType=VARCHAR}, #{countyId,jdbcType=VARCHAR}, #{countyName,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
+    insert into ad_oa_county_ref
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="companyId != null" >
+        company_id,
+      </if>
+      <if test="countyId != null" >
+        county_id,
+      </if>
+      <if test="countyName != null" >
+        county_name,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="companyId != null" >
+        #{companyId,jdbcType=VARCHAR},
+      </if>
+      <if test="countyId != null" >
+        #{countyId,jdbcType=VARCHAR},
+      </if>
+      <if test="countyName != null" >
+        #{countyName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
+    update ad_oa_county_ref
+    <set >
+      <if test="countyId != null" >
+        county_id = #{countyId,jdbcType=VARCHAR},
+      </if>
+      <if test="countyName != null" >
+        county_name = #{countyName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where company_id = #{companyId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
+    update ad_oa_county_ref
+    set county_id = #{countyId,jdbcType=VARCHAR},
+      county_name = #{countyName,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where company_id = #{companyId,jdbcType=VARCHAR}
+  </update>
+</mapper>

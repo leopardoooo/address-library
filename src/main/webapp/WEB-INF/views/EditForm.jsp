@@ -19,6 +19,7 @@
 		<div class="form-group"> 
 			<label for="parentLevelAddr">地址编号</label>
 			<input type="text" class="form-control" id="editFormAddrId" readonly="readonly" placeholder="可通过编号直接搜索">
+			<input type="hidden" id="editFormCountyId">
 		</div>
 		<div class="container-fluid">
 			<div class="row">
@@ -26,7 +27,6 @@
 					<div class="form-group"> 
 						<label for="editFormAddrType">地址类型</label>
 						<select class="form-control" id="editFormAddrType">
-							<option value=""></option>
 							<option value="CITY">城市地址</option>
 							<option value="RURAL">农村地址</option>
 						</select>
@@ -50,7 +50,7 @@
 			<ul class="nav nav-tabs" role="tablist">
 				<li role="presentation" class="active"><a href="#normalEdit" role="tab" data-toggle="tab">修改名称</a></li>
 				<li role="presentation"><a href="#mergeAddress" role="tab" data-toggle="tab">地址合并</a></li>
-				<li role="presentation"><a href="#adjustLevel" role="tab" data-toggle="tab">级别调整</a></li>
+				<li role="presentation"><a href="#adjustLevel" role="tab" data-toggle="tab">变更上级</a></li>
 			</ul>
 			<div class="tab-content">
 				<div role="tabpanel" class="tab-pane active" id="normalEdit">
@@ -60,17 +60,29 @@
 				</div>
 				<div role="tabpanel" class="tab-pane" id="mergeAddress">
 					<div class="form-group">
-						<div class="input-group">
-							<input type="text" class="form-control" placeholder="搜索要合并到的地址">
+						<div class="input-group dropup">
+							<input type="text" class="form-control" id="searchInputForSingleMerge" placeholder="搜索要合并到的地址">
+							<ul id="singleMergeSearchResult" class="dropdown-menu">
+								<li class="empty">等待输入进行搜索..</li>
+							</ul>
 							<div class="input-group-btn">
-								<button type="button" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+								<button type="button" id="singleMergeSearchBtn" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
 							</div><!-- /btn-group -->
 						</div><!-- /input-group -->
 					</div>
 				</div>
 				<div role="tabpanel" class="tab-pane" id="adjustLevel">
-					<div class="form-group">
-						<input type="text" class="form-control" placeholder="选择级别数">
+					<div class="form-group dropup">
+						<div class="input-group">
+							<input type="text" class="form-control" id="searchInputForChangeLevel" placeholder="选择级别数">
+							
+							<ul id="changeLevelSearchResult" class="dropdown-menu">
+								<li class="empty">等待输入进行搜索..</li>
+							</ul>
+							<div class="input-group-btn">
+								<button type="button" id="changeLevelSearchBtn" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+							</div><!-- /btn-group -->
+						</div>
 					</div>
 				</div>
 			</div><!-- /tab-content -->

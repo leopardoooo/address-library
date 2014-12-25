@@ -33,6 +33,8 @@ public enum StatusCodeConstant {
 	TOO_MANY_BLANK_ADDR(320, "同一父级的地址下只能有一个留空地址"),
 	PARAM_MISSED_WHILE_CHECK_ADDR_NAME(321, "检查地址名的时候发现需要的属性不完整,至少需要地址名、是否留空、父级ID和当前地址级别"),
 	NON_BLANK_ADDR_WITH_NO_NAME(322, "非留空地址的名字为空"),
+	MERGE_ERROR_(323, "合并地址错误"),
+	CHANGE_LEVEL_ERROR_(324, "地址变更父级错误"),
 	
 	
 	//系统

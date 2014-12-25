@@ -30,7 +30,7 @@
 			<value>${login.url}</value>
 		</property>
 		<property name="loginMethod">
-			<value>login</value>
+			<value>${login.action}</value>
 		</property>
 	</bean>
 	<!-- 检验地址名称是否合法 -->

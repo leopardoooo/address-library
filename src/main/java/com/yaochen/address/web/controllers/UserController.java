@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.data.domain.address.AdLevel;
+import com.yaochen.address.data.domain.address.AdOaCountyRef;
 import com.yaochen.address.data.domain.address.AdTree;
+import com.yaochen.address.data.mapper.address.AdOaCountyRefMapper;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.service.TreeService;
 import com.yaochen.address.support.AddrNameChecker;
@@ -35,6 +37,8 @@ public class UserController {
 	private AddrNameChecker addrNameChecker;
 	@Autowired
 	private TreeService treeService;
+	@Autowired
+	private AdOaCountyRefMapper adOaCountyRefMapper;
 	
 	@RequestMapping("/login")
 	public String login(HttpServletRequest req)throws Throwable {
@@ -45,12 +49,21 @@ public class UserController {
 		try {
 			login = loginWebServiceClient.login(email, password);
 		} catch (Throwable e) {
-			logger.info("登录错误");
+			logger.info("登录错误: " + e.getMessage());
+			req.getSession(true).setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, e.getMessage());
 		}
-		
 		if(login == null){
 			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
 		}
+		
+		//这里要保证OA传过来的countyId 是数字型
+		AdOaCountyRef countyObj = adOaCountyRefMapper.selectByPrimaryKey(login.getCompanyOID());
+		if(null == countyObj){
+			req.getSession(true).setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, "未能找到OA系统于地址库系统的分公司对应关系");
+			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
+		}
+		login.setCompanyOID(countyObj.getCountyId());
+
 		req.getSession(true).setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
 		ThreadUserParamHolder.setUserInSession(login);
 		String success = BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
@@ -67,6 +80,9 @@ public class UserController {
 	public String logout(HttpSession session)throws Throwable {
 		session.removeAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
+		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID);
+		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
+		ThreadUserParamHolder.clearAll();
 		return BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH;
 	}
 	
@@ -103,6 +119,7 @@ public class UserController {
 		}
 		AdTree tree = treeService.queryByKey(lowestAddrId);
 		
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID, tree.getCountyId());
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, str);
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT, scopeText);
 		

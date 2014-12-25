@@ -57,7 +57,7 @@
 				  <a href="#" class="dropdown-toggle admin-info" data-toggle="dropdown">
 					Hi, <%=user.getUserName() %> <i class="fa fa-angle-down"></i></a>
 				  <ul class="dropdown-menu" role="menu">
-					<li class="dropdown-header"><%=user.getCompanyName() + "/" + user.getDepartmentName() %></li>
+					<li class="dropdown-header"><%=user.getAreaName() + "/" + user.getCompanyName() %></li>
 					<li class="divider"></li>
 					<li><a href="<%=ROOT %>/user/logout"> <i class="glyphicon glyphicon-off"></i> 退出系统</a></li>
 				  </ul>
@@ -199,6 +199,8 @@
 				Address.initialize();
 				AddressEdit.initialize();
 				AddressAdd.initialize();
+				AddressChangeLevel.initialize();
+				AddressSingleMerge.initialize();
 			}
 		};
 	}();

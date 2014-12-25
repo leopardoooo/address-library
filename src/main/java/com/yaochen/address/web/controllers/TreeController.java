@@ -141,6 +141,27 @@ public class TreeController implements BeanFactoryAware{
 	}
 	
 	/**
+	 * 根据关键字进行搜索 指定级别的 地址， 地址按照一定的规则进行排序
+	 * 搜索时需要根据用户设置的作用域并结合startLevel进行搜索
+	 * 
+	 * @param startLevel 开始级别，如果为-1则为所有
+	 * @param keyword
+	 * @return 结果集进行分页
+	 * @throws Throwable
+	 */
+	@RequestMapping("/searchParentLevelAddrs")
+	@ResponseBody
+	public Root<Pagination> searchParentLevelAddrs(@RequestParam("sl")Integer startLevel, 
+			@RequestParam("q") String keyword, 
+			@RequestParam("start") Integer start,
+			@RequestParam("currentId") Integer currentId,
+			@RequestParam("limit") Integer limit)throws Throwable {
+		
+		Pagination pager = treeService.searchParentLevelAddrs(startLevel, keyword, currentId,start, limit);
+		return ReturnValueUtil.getJsonRoot(pager);
+	}
+	
+	/**
 	 * 根据主键查询.
 	 * @param tree
 	 * @return
@@ -212,6 +233,35 @@ public class TreeController implements BeanFactoryAware{
 		treeService.delTree(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
+	
+	/**
+	 * 这对一个地址进行合并.
+	 * 
+	 * @param merger	合并后的地址.
+	 * @param mergered 被合并的地址.
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/singleMerge")
+	@ResponseBody
+	public Root<AdTree> singleMerge(@RequestParam("merger") Integer merger,@RequestParam("mergered") Integer mergered)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.saveSingleMerge(merger,mergered));
+	}
+	
+	/**
+	 * 变更地址上级.
+	 * 
+	 * @param addrId
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/changeParent")
+	@ResponseBody
+	public Root<AdTree> changeParent(@RequestParam("addrId") Integer addrId,@RequestParam("pid") Integer pid)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.saveChangeParent(addrId,pid));
+	}
+	
+	
 	
 	/**
 	 * 收藏地址（当前登录的用户）

@@ -1,9 +1,11 @@
+<%@page import="com.yaochen.address.common.BusiConstants"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
 <%@ include file="/WEB-INF/common/head.jsp"%>
+<% Object errMsgObj = session.getAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION); %>
 <style>
 	HTML,BODY{background: #fff; }
 	.body{width: 500px; height: 260px; background: #ddd; border-radius: 4px; padding-top: 50px; margin-top: 100px;}
@@ -37,5 +39,22 @@
 			<button type="submit" class="btn btn-primary">登录</button>
 		</form>
 	</div> 
+	
+	<% if(null != errMsgObj){ String errMsg = null == errMsgObj? "": errMsgObj.toString();
+			%>
+			<div style="height: 80px;" id="loginErrMsg" >
+				<span style="font-size: 32px;text-align: center;position: relative;left: 30%;">
+				<%= errMsgObj %>
+				</span>
+			</div>
+			
+			<script type="text/javascript">
+				$('#loginErrMsg').fadeOut(2000);
+			</script>
+			
+			<% 		
+		}
+	%>
+	
 </body>
 </html>

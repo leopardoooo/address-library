@@ -232,6 +232,11 @@ Search = function(W){
 			show();
 			var startLevel = $("#levelLabel").attr("data-level") || -1;
 			var q = $("#searchInput").val();
+			//过滤特殊字符
+			if(common.filterSpecialCharsIfPossible(q, $("#searchInput"))){
+				Alert('请不要使用特殊字符.');
+				return;
+			}
 			common.post("tree/search", {
 				"sl": startLevel,
 				"q": q,

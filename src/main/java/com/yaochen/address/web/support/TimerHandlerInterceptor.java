@@ -49,6 +49,10 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 		if(baseScope!=null && StringHelper.isNotEmpty(baseScope.toString().trim())){
 			ThreadUserParamHolder.setBaseQueryScope(baseScope.toString());
 		}
+		Object countyId = session.getAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID);
+		if(countyId!=null && StringHelper.isNotEmpty(countyId.toString().trim())){
+			ThreadUserParamHolder.setGlobeCountyId(countyId.toString());
+		}
 		request.setAttribute(TIMER_HANDLER_START_KEY, System.currentTimeMillis());
 		return true;
 	}

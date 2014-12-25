@@ -76,6 +76,8 @@ Address = function(){
 				}
 			});
 			
+			
+			
 			// 分页条事件注册
 			$("#resultPagingTool").click(function(e){
 				var tag = e.target.tagName, $target = null;
@@ -181,8 +183,6 @@ Address = function(){
 				
 				// parent level tree 
 				addrTreeObj["index"] = -1;
-				addrTreeObj["addrFullNameFormat"] = addrTreeObj["addrFullNameFormat"]
-					|| that.doFormatAddrName(addrTreeObj["str1"]);
 				var links = String.format(parentTpl, addrTreeObj);
 				
 				if(data.records.length === 0){
@@ -191,8 +191,6 @@ Address = function(){
 					for(var i = 0; i < data.records.length; i++){
 						var o = data.records[i];
 						o["index"] = i;
-						o["addrFullNameFormat"] = o["addrFullNameFormat"] 
-							|| that.doFormatAddrName(o["str1"]);
 						links += String.format(tpl, o);
 					}
 				}
@@ -204,23 +202,6 @@ Address = function(){
 				// 渲染分页
 				that.doRenderPaging();
 			});
-		},
-		/**
-		 * 传入带有分割线的地址完整名称
-		 */
-		doFormatAddrName: function(addrFullNameSplit){
-			if(!addrFullNameSplit) return "";
-			
-			var strs = addrFullNameSplit.split("/");
-			var formatString = "";
-			for(var i = 0; i< strs.length; i++){
-				if(i == strs.length - 1){
-					formatString += "<b>" + strs[i] +"</b>";
-				}else{
-					formatString += strs[i];
-				}
-			}
-			return formatString;
 		},
 		doRenderPaging: function(){
 			var start = that.data["offset"], 
@@ -370,7 +351,7 @@ AddressAdd = function(){
 		doOnlySave: function(){
 			that.doSave(function(data){
 				$win.modal('hide');
-				Address.doShowAddressById(parentAddressObj.addrId);
+				Address.doShowAddressById(data.addrParent);
 			});
 		},
 		doSaveAndContinue: function(){
@@ -395,13 +376,11 @@ AddressAdd = function(){
 					return;
 				}
 			}
-			
 			var data = {
 				isBlank: $isBlankInput.val(),
 				addrParent: parentAddressObj["addrId"],
 				addrLevel: parentAddressObj["addrLevel"] + 1,
 				addrType: $addTypeInput.val(),
-				countyId:$addrCountyId.val(),
 				addrUse: $addrUseInput.val()
 			}, uri = null, addrFullName = null;
 			
@@ -597,7 +576,7 @@ AddressSingleMerge = function(){
 		show = function(){ $parent.addClass("open"); };
 		
 	var limit = 11;
-	var linkTpl = '<li><a href="#" data-addr-index="#{index}" data-addr-id="#{addrId}">#{str1}</a></li>';
+	var linkTpl = '<li><a href="#" data-addr-index="#{index}" data-addr-id="#{addrId}">#{addrFullName}</a></li>';
 	var pagingHeader = '<li class="dropdown-header">共#{offset}/#{totalCount}条相关的地址，按“←”或“→”方向键显示上下页内容</li>';
 	var nopagingHeader = '<li class="dropdown-header">共#{totalCount}条相关的地址。</li>';
 	
@@ -726,14 +705,14 @@ AddressSingleMerge = function(){
 		// 选择一个结果集
 		determineSearch: function(index){
 			if(AddressSingleMerge.data && AddressSingleMerge.data.records.length > index){
-				var selected = AddressSingleMerge.data.records[index];
+				var selected = Search.data.records[index];
 				if(!selected){
 					throw new Error('未能正确的获取数据');
 				}
 				//选定的地址的 ID 和 全名
 				
 				var cid = $('#editFormCountyId').val();
-				var confirmMsg = '是否确定要将"' + lastAddrTreeObj.addrFullName + '" 合并到 "'+  selected.addrFullName +'" ? \n 此操作将会对当前第之下的所有子集都做出相应的修改!';
+				var confirmMsg = '是否确定要将"' + selected.addrFullName + '" 与 "'+ lastAddrTreeObj.addrFullName +'" 两个地址进行合并?';
 				if(confirm( confirmMsg )){
 					common.post("tree/singleMerge", {
 						"merger": selected.addrId,
@@ -760,7 +739,7 @@ AddressChangeLevel = function(){
 		show = function(){ $parent.addClass("open"); };
 		
 	var limit = 11;
-	var linkTpl = '<li><a href="#" data-addr-index="#{index}" data-addr-id="#{addrId}">#{str1}</a></li>';
+	var linkTpl = '<li><a href="#" data-addr-index="#{index}" data-addr-id="#{addrId}">#{addrFullName}</a></li>';
 	var pagingHeader = '<li class="dropdown-header">共#{offset}/#{totalCount}条相关的地址，按“←”或“→”方向键显示上下页内容</li>';
 	var nopagingHeader = '<li class="dropdown-header">共#{totalCount}条相关的地址。</li>';
 	
@@ -839,13 +818,13 @@ AddressChangeLevel = function(){
 			
 			lastAddrTreeObj = AddressEdit.getLastAddrTreeObj();
 			var startLevel = lastAddrTreeObj.addrLevel;
-			startLevel = startLevel -1;
 			if(startLevel ==1){
-				Alert('当前级别,无法变更上级.');
+				Alert('已经是最顶级,无法变更上级.');
 				hide();
 				$input.trigger("focus");
 				return;
 			}
+			startLevel = startLevel -1;
 			
 			var q = $("#searchInputForChangeLevel").val();
 			//过滤特殊字符
@@ -887,15 +866,14 @@ AddressChangeLevel = function(){
 		// 选择一个结果集
 		determineSearch: function(index){
 			if(AddressChangeLevel.data && AddressChangeLevel.data.records.length > index){
-				var selected = AddressChangeLevel.data.records[index];
+				var selected = Search.data.records[index];
 				if(!selected){
 					throw new Error('未能正确的获取数据');
 				}
 				//选定的地址的 ID 和 全名
 				
 				var cid = $('#editFormCountyId').val();
-				//是否要将
-				var confirmMsg = '是否确定要将 "' + lastAddrTreeObj.addrFullName + '" 的上级变更为 "'+ selected.addrFullName +'" ? \n 此操作将会对当前第之下的所有子集都做出相应的修改!';
+				var confirmMsg = '是否确定要将"' + selected.addrFullName + '" 与 "'+ lastAddrTreeObj.addrFullName +'" 两个地址进行合并?';
 				if(confirm( confirmMsg )){
 					common.post("tree/changeParent", {
 						"pid": selected.addrId,

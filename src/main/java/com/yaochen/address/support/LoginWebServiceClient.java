@@ -24,6 +24,7 @@ public class LoginWebServiceClient {
 		if(this.client == null){
 			client = new Client(new URL(this.wsdlUrl));
 		}
+		
 		Object[] results = client.invoke(methodName, params);
 		return results;
 	}
@@ -37,6 +38,22 @@ public class LoginWebServiceClient {
 	}
 	
 	public UserInSession login(String username,String password) throws Throwable{
+		if(this.wsdlUrl == null || this.wsdlUrl.trim().length()== 0 || 
+				this.loginMethod == null || loginMethod.trim().length() == 0){
+			throw new MessageException(StatusCodeConstant.WS_CFG_ERROR);
+		}
+		Object[] remoteInvokeRaw = this.remoteInvokeRaw(loginMethod, username,password);
+		
+		if(remoteInvokeRaw == null || remoteInvokeRaw.length ==0){
+			throw new MessageException(StatusCodeConstant.WS_REQ_FAILURE);
+		}
+		String json = remoteInvokeRaw[0].toString();
+		UserInSession parseObject = JSON.parseObject(json,UserInSession.class);
+		return parseObject;
+	}
+	
+	@Deprecated
+	public UserInSession loginOld(String username,String password) throws Throwable{
 		if(this.wsdlUrl == null || this.wsdlUrl.trim().length()== 0 || 
 				this.loginMethod == null || loginMethod.trim().length() == 0){
 			throw new MessageException(StatusCodeConstant.WS_CFG_ERROR);

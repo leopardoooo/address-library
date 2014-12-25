@@ -6,6 +6,7 @@ package com.yaochen.address.data.domain.address;
 import java.util.Date;
 
 import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.StringHelper;
 
 public class AdTree {
 	/**是否被当前操作员收藏 1(true) ,0 false**/
@@ -105,7 +106,18 @@ public class AdTree {
 
     public void setAddrType(String addrType) {
         this.addrType = addrType == null ? null : addrType.trim();
-        addrTypeText = BusiConstants.AddrType.valueOf(addrType).getDesc();
+        
+        if(StringHelper.isEmpty(addrUse)){
+        	this.addrTypeText = "";
+        }else{
+        	 try {
+     			addrTypeText = BusiConstants.AddrType.valueOf(addrType).getDesc();
+     		} catch (Exception e) {
+     			e.printStackTrace();
+     		}
+        }
+        
+       
     }
 
     public String getAddrUse() {
@@ -114,7 +126,15 @@ public class AdTree {
 
     public void setAddrUse(String addrUse) {
         this.addrUse = addrUse == null ? null : addrUse.trim();
-        this.addrUseText = BusiConstants.AddrUsage.valueOf(addrUse).getDesc();
+        if(StringHelper.isEmpty(addrUse)){
+        	this.addrUseText = "";
+        }else{
+        	try {
+        		this.addrUseText = BusiConstants.AddrUsage.valueOf(addrUse).getDesc();
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
+        }
     }
 
     public String getIsBlank() {

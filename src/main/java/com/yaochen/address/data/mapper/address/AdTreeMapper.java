@@ -48,4 +48,11 @@ public interface AdTreeMapper {
 	 * @param tree
 	 */
 	void updateFullNameAndChildren(AdTree tree);
+
+	/**
+	 * 根据关键字等条件,查询指定级别的地址.
+	 * @param pager
+	 * @return
+	 */
+	List<AdTree> selectByKeyWordLevel(Pagination pager);
 }

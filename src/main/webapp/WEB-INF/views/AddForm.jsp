@@ -13,6 +13,7 @@
 				<div class="form-group">
 					<label for="addFormParentAddrFullName">上级地址</label>
 					<input type="text" class="form-control" id="addFormParentAddrFullName" readonly="readonly" value="">
+					<input type="hidden" id="addFormCountyId">
 				</div>
 				<div class="container-fluid">
 					<div class="row">
@@ -49,6 +50,7 @@
 							<div class="form-group"> 
 								<label for="addFormAddrUse">地址用途</label>
 								<select class="form-control" id="addFormAddrUse">
+									<option value=""></option>
 									<option value="CITY">城市小区</option>
 									<option value="INDUSTRIAL_PARK">工业园厂房</option>
 									<option value="CITY_HOTEL">城市酒店</option>

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.common.BusiCodeConstants;
 import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.common.BusiConstants.AddrChangeType;
+import com.yaochen.address.common.CollectionHelper;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.common.StringHelper;
@@ -28,6 +30,7 @@ import com.yaochen.address.data.domain.address.AdTreeChange;
 import com.yaochen.address.data.mapper.address.AdCollectionsMapper;
 import com.yaochen.address.data.mapper.address.AdDoneCodeMapper;
 import com.yaochen.address.data.mapper.address.AdLevelMapper;
+import com.yaochen.address.data.mapper.address.AdOaCountyRefMapper;
 import com.yaochen.address.data.mapper.address.AdRoleResMapper;
 import com.yaochen.address.data.mapper.address.AdTreeChangeMapper;
 import com.yaochen.address.data.mapper.address.AdTreeMapper;
@@ -54,6 +57,8 @@ public class TreeService {
 	private AdCollectionsMapper adCollectionsMapper;
 	@Autowired
 	private AdTreeChangeMapper adTreeChangeMapper;
+	@Autowired
+	private AdOaCountyRefMapper adOaCountyRefMapper;
 	
 	/**
 	 * 新增地址.
@@ -67,27 +72,32 @@ public class TreeService {
 		//验证同一级下名称是否重复
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
-		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
 		
 		tree.setCreateTime(createTime);
 		tree.setCreateOptrId(optrId);
 		
-		tree.setCountyId(countyId);
 		//验证
-		String addrName = checkAddrName(tree);
 		boolean isBlank = tree.getIsBlank().equals(BusiConstants.Booleans.T.name());
+		if(isBlank){
+			tree.setAddrName(BusiConstants.StringConstants.BLANK_ADDR_NAME);
+		}
+		String addrName = checkAddrName(tree);
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR);
-		
 		tree.setAddrName(addrName);
+		
 		tree.setCreateDoneCode(createDoneCode);
 		AdTree parentNode = queryByKey(tree.getAddrParent());
+		String fullName = null;
 		String str1 = null;
 		String slash = BusiConstants.StringConstants.SLASH;
 		if(null != parentNode){
-			str1 = parentNode.getStr1() +( isBlank ? "": slash + addrName );
+			str1 = parentNode.getStr1() +( slash + addrName );
+			fullName = parentNode.getAddrFullName() + slash + addrName;
 		}else{//如果没有上级,这里一定是一级地址
-			str1 = ( isBlank ? "": addrName );
+			str1 = addrName;
+			fullName = addrName;
 		}
+		tree.setAddrFullName(fullName);
 		tree.setStr1(str1);
 		tree.setStatus(BusiConstants.StringConstants.ADDR_INIT_STATUS);
 		//新增的树的ID
@@ -100,10 +110,7 @@ public class TreeService {
 		}
 		tree.setAddrPrivateName(addrPrivateName);
 		adTreeMapper.updateByPrimaryKeySelective(tree);
-		Map<String, Object> query = new HashMap<String, Object>();
-		query.put("addrId", tree.getAddrId());
-		query.put("userid", getUserInSession().getUserOID());
-		return adTreeMapper.selectByPrimaryKey(query);
+		return queryByKey(tree.getAddrId());
 	}
 
 	/**
@@ -204,7 +211,7 @@ public class TreeService {
 		
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
-		String countyId = optr.getDepartmentOID();//TODO 是不是这个字段？？
+		String countyId = optr.getCompanyOID();//TODO 是不是这个字段？？
 		
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH);
 		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
@@ -281,11 +288,37 @@ public class TreeService {
 		String baseScope = getBaseScope();
 		param.put("baseScope", baseScope);
 		param.put("addrLevel", startLevel);
+		param.put("countyId", getGlobeCountyId());
 		param.put("userid", getUserInSession().getUserOID());
 		param.put("keyword", keyword);//全名
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByKeyWord(pager);
+		return pager;
+	}
+	
+	/**
+	 * 根据关键字进行搜索 指定级别的 地址， 地址按照一定的规则进行排序
+	 * 
+	 * @param level 指定的搜索的级别.
+	 * @param keyword
+	 * @param currentAddrId 
+	 * @return 结果集进行分页
+	 * @throws Throwable
+	 */
+	public Pagination searchParentLevelAddrs(Integer level, String keyword, Integer currentAddrId,
+			Integer start, Integer limit) throws Throwable {
+		Map<String, Object> param = new HashMap<String, Object>();
+		UserInSession user = getUserInSession();
+		param.put("countyId", user.getCompanyOID());
+		param.put("addrLevel", level);
+		param.put("currentAddrId", currentAddrId);
+		param.put("userid", user.getUserOID());
+		param.put("countyId", getGlobeCountyId());
+		param.put("keyword", keyword);//全名
+		param.put("status", BusiConstants.Status.ACTIVE.name());
+		Pagination pager = new Pagination(param,start,limit);
+		adTreeMapper.selectByKeyWordLevel(pager);
 		return pager;
 	}
 
@@ -328,10 +361,11 @@ public class TreeService {
 		Map<String, Object>	param = new HashMap<String, Object>();
 		param.put("addrParent", parentAddrId);
 		param.put("userid", getUserInSession().getUserOID());
-		/*
-		String baseScope = getBaseScope();
-		param.put("baseScope", baseScope);
-		*/
+		String countyId = getUserInSession().getCompanyOID();
+		if(!BusiConstants.StringConstants.COUNTY_ALL.equals(countyId)){
+			param.put("countyId", countyId);
+		}
+		
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		adTreeMapper.selectByPid(pager);
@@ -399,6 +433,55 @@ public class TreeService {
 		query.put("addrId", addrId);
 		query.put("userid", getUserInSession().getUserOID());
 		return adTreeMapper.selectByPrimaryKey(query);
+	}
+	
+	/**
+	 * 变更地址的父级.
+	 * @param addrId 当前地址的ID.
+	 * @param pid		新的父级ID.
+	 * @return
+	 * @throws Throwable
+	 */
+	public AdTree saveChangeParent(Integer addrId,Integer pid) throws Throwable{
+		//TODO 土鳖扛铁牛
+		Random random = new Random(47);
+		boolean success = random.nextInt() % 2 == 0;
+		if(success){
+			throw new MessageException(StatusCodeConstant.CHANGE_LEVEL_ERROR_);
+		}
+		AdTree ad = new AdTree();
+		ad.setAddrId(addrId);
+		return ad;
+	}
+	
+	/**
+	 * 合并地址.
+	 * @param targetId 合并后的地址.
+	 * @param mergeredId	被合并的地址.
+	 * @return
+	 * @throws Throwable
+	 */
+	public AdTree saveSingleMerge(Integer targetId, Integer mergeredId) throws Throwable{
+		//TODO 土鳖扛铁牛
+		AdTree target = new AdTree();
+		target.setAddrId(targetId);
+
+		/**
+		 * 步骤:
+		 * 1.列出两边所有的子集.
+		 * 2.将两边自己子集整理成树形.
+		 * 
+		 */
+		Pagination targetPager = findChildrensAndPagingByPid(targetId, 0, Integer.MAX_VALUE);
+		List<AdTree> records = targetPager.getRecords();
+		Map<String, List<AdTree>> targetMap = CollectionHelper.converToMap(records, "addrParent");
+		List<Integer> targetids = new ArrayList<Integer>();
+		Pagination mergeredPager = findChildrensAndPagingByPid(mergeredId, 0, Integer.MAX_VALUE);
+		List<AdTree> records2 = mergeredPager.getRecords();
+		Map<String, List<AdTree>> tobeMergeMap = CollectionHelper.converToMap(records2, "addrParent");
+		
+		
+		return target;
 	}
 
 	public void delTree(Integer addrId) throws Throwable {
@@ -636,6 +719,18 @@ public class TreeService {
 	 */
 	private String getBaseScope() throws MessageException{
 		String baseQueryScope = ThreadUserParamHolder.getBaseQueryScope();
+		return baseQueryScope;
+	}
+	
+	
+	/**
+	 * 获取当前操作员的地址级别.
+	 * @see UserController#setAddrScopeForCurrentUser(String, String, javax.servlet.http.HttpSession)
+	 * @return
+	 * @throws MessageException
+	 */
+	private String getGlobeCountyId() throws MessageException{
+		String baseQueryScope = ThreadUserParamHolder.getGlobeCountyId();
 		return baseQueryScope;
 	}
 	
