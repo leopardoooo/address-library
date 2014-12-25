@@ -1,7 +1,7 @@
 Address = function(){
 	var tpl = '<div class="item default" data-type="item" data-addr-index="#{index}">'
 				+'<address>'
-					+'<label class="label">#{addrLevel}</label> #{addrFullName}'
+					+'<label class="label">#{addrLevel}</label> #{addrFullNameFormat}'
 					+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 				+'</address>'
 				+'<b class="down"></b>'
@@ -9,7 +9,7 @@ Address = function(){
 	
 	var parentTpl = '<div class="item parent" data-type="parent" data-addr-index="#{index}">'
 						+'<address>'
-							+'<label class="label">#{addrLevel}</label> #{addrFullName}'
+							+'<label class="label">#{addrLevel}</label> #{addrFullNameFormat}'
 							+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 						+'</address>'
 						+'<i class="up"></i>'

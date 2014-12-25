@@ -99,6 +99,8 @@ input:focus, textarea:focus {outline: 0;outline: thin dotted \9;}
 #resultBody .item>address>small>i.type:before{content: "—";}
 #resultBody .item>address>small>i.use:before{content: "—";}
 #resultBody .item{color: #777; border-color: #DDD;}
+#resultBody .item>address>b{padding-left: 2px;}
+
 /** 父级  */
 #resultBody .item.parent>address>small{color: #aaa;}
 #resultBody .item.parent>address>label{background-color: #f0ad4e;}
