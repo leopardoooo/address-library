@@ -6,6 +6,7 @@ public class ThreadUserParamHolder {
 	private static ThreadLocal<UserInSession> base=new ThreadLocal<UserInSession>();
 	private static ThreadLocal<String> baseQueryScope = new ThreadLocal<String>();
 	private static ThreadLocal<String> globeCountyId = new ThreadLocal<String>();
+	private static ThreadLocal<Integer> maxAllowedLevel = new ThreadLocal<Integer>();
 	
 	public void finalize() {
 		base.remove();
@@ -34,11 +35,20 @@ public class ThreadUserParamHolder {
 	public static void setGlobeCountyId(String globeCountyId) {
 		ThreadUserParamHolder.globeCountyId.set(globeCountyId);;
 	}
+	
+	public static Integer getMaxAllowedLevel() {
+		return ThreadUserParamHolder.maxAllowedLevel.get();
+	}
+
+	public static void setMaxAllowedLevel(Integer maxAllowedLevel) {
+		ThreadUserParamHolder.maxAllowedLevel.set(maxAllowedLevel);
+	}
 
 	public static void clearAll() {
 		ThreadUserParamHolder.base.remove();
 		ThreadUserParamHolder.baseQueryScope.remove();
 		ThreadUserParamHolder.globeCountyId.remove();
+		ThreadUserParamHolder.maxAllowedLevel.remove();
 	}
 	
 }

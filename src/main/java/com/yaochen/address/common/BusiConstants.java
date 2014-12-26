@@ -28,6 +28,10 @@ public class BusiConstants {
 		
 		/**在设置了查询范围(user/setAddrScope)过滤之后的级别放在session**/
 		public static String FILTERED_LEVELS_IN_SESSION = "FILTERED_LEVELS_IN_SESSION";
+		/** 所有的等级 **/
+		public static String ALL_LEVELS_IN_SESSION = "ALL_LEVELS_IN_SESSION";
+		/**能操作的最高等级**/
+		public static String MAX_LEVEL_IN_SESSION = "MAX_LEVEL_IN_SESSION";
 		
 		public static String GOLBEL_QUERY_SCOPE_TEXT = "GOLBEL_QUERY_SCOPE_TEXT";
 		public static String BLANK_ADDR_NAME = "留空";

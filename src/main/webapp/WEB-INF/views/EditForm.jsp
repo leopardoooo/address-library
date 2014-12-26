@@ -14,7 +14,7 @@
 	<div class="panel-body" id="editForm">
 		<div class="form-group">
 			<label for="currentLevelAddr">分级名称<b id="editFormFullLevel"></b></label>
-			<input type="text" class="form-control" id="editFormFullAddrName" readonly="readonly" placeholder="完整的地址名称" value="">
+			<label class="form-control" id="editFormFullAddrName" placeholder="完整的地址名称"></label>
 		</div>
 		<div class="form-group"> 
 			<label for="parentLevelAddr">地址编号</label>
@@ -61,6 +61,15 @@
 				<div role="tabpanel" class="tab-pane" id="mergeAddress">
 					<div class="form-group">
 						<div class="input-group dropup">
+							<div class="input-group-btn condition">
+								<button type="button" class="btn btn-default dropdown-toggle" id="mergeParentRangeBtn" data-toggle="dropdown"><span id="mergeParentRangeLabel">范围</span> <span class="caret"></span></button>
+								<ul class="dropdown-menu" id="mergeParentRangeList" role="menu">
+									<li><a href="#" data-level="false">所有</a></li>
+									<li><a href="#" data-level="true">同父</a></li>
+									<li class="divider"></li>
+									<li class="dropdown-header">“选择范围开始搜索”</li>
+								</ul>
+							</div>
 							<input type="text" class="form-control" id="searchInputForSingleMerge" placeholder="搜索要合并到的地址">
 							<ul id="singleMergeSearchResult" class="dropdown-menu">
 								<li class="empty">等待输入进行搜索..</li>
@@ -74,6 +83,15 @@
 				<div role="tabpanel" class="tab-pane" id="adjustLevel">
 					<div class="form-group dropup">
 						<div class="input-group">
+							<div class="input-group-btn condition">
+								<button type="button" class="btn btn-default dropdown-toggle" id="clRangeBtn" data-toggle="dropdown"><span id="clRangeLabel">范围</span> <span class="caret"></span></button>
+								<ul class="dropdown-menu" id="clRangeList" role="menu">
+									<li><a href="#" data-level="false">所有</a></li>
+									<li><a href="#" data-level="true">同父</a></li>
+									<li class="divider"></li>
+									<li class="dropdown-header">“选择范围开始搜索”</li>
+								</ul>
+							</div>
 							<input type="text" class="form-control" id="searchInputForChangeLevel" placeholder="选择级别数">
 							
 							<ul id="changeLevelSearchResult" class="dropdown-menu">

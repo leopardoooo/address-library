@@ -68,8 +68,8 @@ public class TreeService {
 	 */
 	public AdTree addTree(AdTree tree) throws Throwable{
 		UserInSession optr = getUserInSession();
-		
 		//验证同一级下名称是否重复
+		checkRole(tree.getAddrLevel());
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
 		
@@ -165,6 +165,7 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public List<Integer> addTrees(AdTree param,String addrNamePreffix, String addrNameSuffix, String start,String end) throws Throwable{
+		checkRole(param.getAddrLevel());
 		UserInSession optr = getUserInSession();
 		//验证参数
 		if(StringHelper.isEmpty(end) || StringHelper.isEmpty(start)){ //提示起始位置不能为空
@@ -317,9 +318,16 @@ public class TreeService {
 	 * @return 结果集进行分页
 	 * @throws Throwable
 	 */
-	public Pagination searchParentLevelAddrs(Integer level, String keyword, Integer currentAddrId,
+	public Pagination searchParentLevelAddrs(Integer level, String keyword, Integer currentAddrId,boolean sameParent,
 			Integer start, Integer limit) throws Throwable {
 		Map<String, Object> param = new HashMap<String, Object>();
+		AdTree tree = queryByKey(currentAddrId);
+		if(sameParent){
+			Integer addrParent = tree.getAddrParent();
+			param.put("addrParent", addrParent);
+		}else{
+			
+		}
 		UserInSession user = getUserInSession();
 		param.put("countyId", user.getCompanyOID());
 		param.put("addrLevel", level);
@@ -333,11 +341,27 @@ public class TreeService {
 		return pager;
 	}
 
+	public List<AdLevel> findAllLevels() throws Throwable {
+		return adLevelMapper.selectByMaxLevel( -1 );
+	}
+	
 	/**
 	 * 查询当前用户有权访问的Level
 	 * @throws Throwable
 	 */
 	public List<AdLevel> findAuthLevelByCurrentUser() throws Throwable {
+		int maxLevel = getMaxAllowedLevel();
+		ThreadUserParamHolder.setMaxAllowedLevel(maxLevel);
+		return adLevelMapper.selectByMaxLevel(maxLevel);
+	}
+
+	/**
+	 * 获取当前用户能操作的最高的级别.
+	 * @param systemFunction
+	 * @return
+	 * @throws MessageException
+	 */
+	public int getMaxAllowedLevel() throws MessageException {
 		UserInSession optr = getUserInSession();
 		List<SystemFunction> systemFunction = optr.getSystemFunction();
 		Integer roleOID = null;
@@ -358,7 +382,7 @@ public class TreeService {
 		//TODO 不十分科学,暂时这么搞.
 		AdRoleRes rr = rrs.get(0);
 		int maxLevel = Integer.parseInt(rr.getResCode());
-		return adLevelMapper.selectByMaxLevel(maxLevel);
+		return maxLevel;
 	}
 
 	/**
@@ -417,6 +441,7 @@ public class TreeService {
 		if(oldTree== null){
 			throw new MessageException(StatusCodeConstant.ADDR_NOT_EXISTS);
 		}
+		checkRole(oldTree.getAddrLevel());
 		Date createTime = new Date();
 		String oldAddrName = oldTree.getAddrName();
 		String addrName = tree.getAddrName();
@@ -437,12 +462,12 @@ public class TreeService {
 		
 		//需要修改地址名
 		if(nameChanged){
-			AdTree parent = queryByKey(tree.getAddrParent());
+			AdTree parent = queryByKey(oldTree.getAddrParent());
 			AdTree target = new AdTree();
-			target.setAddrId(tree.getAddrId());
+			target.setAddrId(oldTree.getAddrId());
 			target.setAddrFullName(parent.getAddrFullName()+tree.getAddrName());
 			target.setAddrPrivateName(oldTree.getAddrPrivateName());
-			target.setStr1(parent.getStr1()+tree.getAddrId()+BusiConstants.StringConstants.SLASH);
+			target.setStr1(parent.getStr1() + BusiConstants.StringConstants.SLASH +tree.getAddrName());
 			
 			updateAllChildrensFullNamePrivateNameAndStr1(target, oldTree);
 			
@@ -482,6 +507,7 @@ public class TreeService {
 	public AdTree saveChangeParent(Integer addrId,Integer pid) throws Throwable{
 		//准备参数、校验
 		AdTree sourceChild = queryByKey(addrId);
+		checkRole(sourceChild.getAddrLevel());
 		AdTree parent = queryByKey(pid);
 		if(parent.getAddrLevel() +1 != sourceChild.getAddrLevel() ){
 			throw new MessageException(StatusCodeConstant.CHANGE_LEVEL_PARENT_LEVEL_WRONG);
@@ -527,6 +553,7 @@ public class TreeService {
 		//TODO 土鳖扛铁牛
 		AddrDto target = queryAndBuildTree(targetId);
 		AddrDto source = queryAndBuildTree(sourceId);
+		checkRole(source.getAddrLevel());
 		if(!target.getAddrLevel().equals(source.getAddrLevel())){
 			throw new MessageException(StatusCodeConstant.MERGE_ERROR_LEVEL_DISMATCH);
 		}
@@ -651,6 +678,7 @@ public class TreeService {
 	private void delTree(Integer addrId,  int doneCode, boolean force) throws Throwable, MessageException {
 		Date createTime = new Date();
 		AdTree tree = checkTreeExists(addrId);
+		checkRole(tree.getAddrLevel());
 		//TODO 判断有没有被BOSS系统引用
 		//TODO 判断有没有被光站系统引用   
 		this.addrNameChecker.usedByOtherSystem(tree);
@@ -897,4 +925,10 @@ public class TreeService {
 		return baseQueryScope;
 	}
 	
+	private void checkRole(Integer level)throws MessageException{
+		Integer maxAllowedLevel = ThreadUserParamHolder.getMaxAllowedLevel();
+		if(maxAllowedLevel > level){
+			throw new MessageException(StatusCodeConstant.USER_INSUFFICIENT_AUTHORIZED);
+		}
+	}
 }

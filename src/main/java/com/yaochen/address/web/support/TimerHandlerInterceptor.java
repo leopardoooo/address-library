@@ -53,6 +53,11 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 		if(countyId!=null && StringHelper.isNotEmpty(countyId.toString().trim())){
 			ThreadUserParamHolder.setGlobeCountyId(countyId.toString());
 		}
+		Object maxLevel = session.getAttribute(BusiConstants.StringConstants.MAX_LEVEL_IN_SESSION);
+		if(null != maxLevel){
+			Integer maxAllowedLevel = Integer.parseInt(maxLevel.toString());
+			ThreadUserParamHolder.setMaxAllowedLevel(maxAllowedLevel);
+		}
 		request.setAttribute(TIMER_HANDLER_START_KEY, System.currentTimeMillis());
 		return true;
 	}

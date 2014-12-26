@@ -11,6 +11,7 @@ package com.yaochen.address.common;
 public enum StatusCodeConstant {
 	RESPONSE_SUCCESS(200, "业务正常被执行，并成功响应完成"),
 	//登录相关
+	USER_INSUFFICIENT_AUTHORIZED(301, "权限不够,无法操作当前级别的地址"),
 	LOGIN_FAILED(303, "未能成功登录"),
 	WS_REQ_FAILURE(304, "webservice请求异常"),
 	WS_CFG_ERROR(305, "webservice请求地址或需要调用的方法名配置错误"),

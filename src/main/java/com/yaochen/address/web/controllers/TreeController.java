@@ -121,6 +121,23 @@ public class TreeController implements BeanFactoryAware{
 	}
 	
 	/**
+	 * 获取所有的level.
+	 */
+	@RequestMapping("/findAllLevelInSession")
+	@ResponseBody
+	public Root<List<AdLevel>> findAllLevelInSession(HttpSession session)throws Throwable {
+		Object levelsRaw = session.getAttribute(BusiConstants.StringConstants.ALL_LEVELS_IN_SESSION);
+		if(levelsRaw == null){
+			List<AdLevel> levels = new ArrayList<AdLevel>(0);
+			return ReturnValueUtil.getJsonRoot(levels);
+		}else{
+			@SuppressWarnings("unchecked")
+			List<AdLevel> list = (List<AdLevel>) levelsRaw;
+			return ReturnValueUtil.getJsonRoot(list);
+		}
+	}
+	
+	/**
 	 * 根据关键字进行搜索地址， 地址按照一定的规则进行排序
 	 * 搜索时需要根据用户设置的作用域并结合startLevel进行搜索
 	 * 
@@ -152,12 +169,13 @@ public class TreeController implements BeanFactoryAware{
 	@RequestMapping("/searchParentLevelAddrs")
 	@ResponseBody
 	public Root<Pagination> searchParentLevelAddrs(@RequestParam("sl")Integer startLevel, 
-			@RequestParam("q") String keyword, 
+			@RequestParam("q") String keyword,
+			@RequestParam("sameParent") boolean sameParent,
 			@RequestParam("start") Integer start,
 			@RequestParam("currentId") Integer currentId,
 			@RequestParam("limit") Integer limit)throws Throwable {
 		
-		Pagination pager = treeService.searchParentLevelAddrs(startLevel, keyword, currentId,start, limit);
+		Pagination pager = treeService.searchParentLevelAddrs(startLevel, keyword, currentId,sameParent,start, limit);
 		return ReturnValueUtil.getJsonRoot(pager);
 	}
 	
@@ -310,8 +328,9 @@ public class TreeController implements BeanFactoryAware{
 		params.put("cityList", tc.findTopTreesByCurrentUser().getData());
 		
 		// 当前用户能访问的级别级别
-		params.put("levelList", tc.findAuthLevelInSession(session).getData());
-		
+//		params.put("levelList", tc.findAuthLevelInSession(session).getData());
+		//查询不要限制,增删改才需要
+		params.put("levelList", tc.findAllLevelInSession(session).getData());
 		return params;
 	}
 

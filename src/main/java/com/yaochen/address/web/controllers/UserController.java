@@ -46,11 +46,12 @@ public class UserController {
 		String password = req.getParameter("password");
 		
 		UserInSession login = null;
+		HttpSession session = req.getSession(true);
 		try {
 			login = loginWebServiceClient.login(email, password);
 		} catch (Throwable e) {
 			logger.info("登录错误: " + e.getMessage());
-			req.getSession(true).setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, e.getMessage());
+			session.setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, e.getMessage());
 		}
 		if(login == null){
 			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
@@ -59,13 +60,17 @@ public class UserController {
 		//这里要保证OA传过来的countyId 是数字型
 		AdOaCountyRef countyObj = adOaCountyRefMapper.selectByPrimaryKey(login.getCompanyOID());
 		if(null == countyObj){
-			req.getSession(true).setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, "未能找到OA系统于地址库系统的分公司对应关系");
+			session.setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, "未能找到OA系统于地址库系统的分公司对应关系");
 			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
 		}
 		login.setCompanyOID(countyObj.getCountyId());
-
-		req.getSession(true).setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
+		
+		//登录的用户放到session和线程变量里
+		session.setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
 		ThreadUserParamHolder.setUserInSession(login);
+		int maxLevel = treeService.getMaxAllowedLevel();
+		ThreadUserParamHolder.setMaxAllowedLevel(maxLevel);
+		session.setAttribute(BusiConstants.StringConstants.MAX_LEVEL_IN_SESSION, maxLevel);
 		String success = BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
 		return success;
 	}
@@ -82,6 +87,8 @@ public class UserController {
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID);
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
+		session.removeAttribute(BusiConstants.StringConstants.ALL_LEVELS_IN_SESSION);
+		session.removeAttribute(BusiConstants.StringConstants.MAX_LEVEL_IN_SESSION);
 		ThreadUserParamHolder.clearAll();
 		return BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH;
 	}
@@ -134,6 +141,9 @@ public class UserController {
 		}
 		//设置了这个属性之后,  把 操作员的 权限级别  放入到session
 		session.setAttribute(BusiConstants.StringConstants.FILTERED_LEVELS_IN_SESSION, levels);
+		List<AdLevel> allLevels = treeService.findAllLevels();
+		session.setAttribute(BusiConstants.StringConstants.ALL_LEVELS_IN_SESSION, allLevels);
+		
 		return ReturnValueUtil.getVoidRoot();
 	}
 	

@@ -35,7 +35,7 @@ Address = function(){
 	
 	var limit = 13;
 	var that = null;
-	var currentAddressDescTpl = " 已定位至 “#{addrFullName}”，下级地址 “#{totalCount}” 个。";
+	var currentAddressDescTpl = " 已定位至 “#{str1}”，下级地址 “#{totalCount}” 个。";
 	
 	return {
 		initialize: function(){
@@ -174,6 +174,7 @@ Address = function(){
 			}, function(data){
 				$("#currentAddressLabel").text(String.format(currentAddressDescTpl, {
 					addrFullName: addrTreeObj["addrFullName"],
+					str1: addrTreeObj["str1"],
 					totalCount: data["totalCount"]
 				}));
 				
@@ -442,7 +443,7 @@ AddressAdd = function(){
 AddressEdit = function(){
 	
 	var $fullLevel = $("#editFormFullLevel"),
-		$fullAddrName = $("#editFormFullAddrName"),
+		$fullAddrName = $("#editFormFullAddrName"),desc = ">li>a",
 		$addrId = $("#editFormAddrId"),
 		$addrType = $("#editFormAddrType"),
 		$addrPurpose = $("#editFormAddrPurpose"),
@@ -459,6 +460,13 @@ AddressEdit = function(){
 	return {
 		initialize: function(){
 			that = AddressEdit;
+			
+			$fullAddrName.click(function(e){
+				if(!/a/i.test(e.target.tagName)) return ;
+				var addrId = $(e.target).attr("addr-id");
+				Address.doShowAddressById(addrId);
+			});
+			
 			$("#editFormSaveBtn").click(that.doUpdate);
 			$("#editFormDeleteBtn").click(that.doDelete);
 			$("#editFormCollectBtn").click(that.doCollect);
@@ -493,7 +501,33 @@ AddressEdit = function(){
 		},
 		setValues: function(addrTreeObj){
 			$fullLevel.text("（" + (addrTreeObj["addrLevel"] || "") + "级地址）");
-			$fullAddrName.val(addrTreeObj["str1"]);
+//			$fullAddrName.val(addrTreeObj["str1"]);
+			var str1 = addrTreeObj["str1"];
+			var names = str1.split('/');
+			var privateName = addrTreeObj["addrPrivateName"];
+			var ids= privateName.split('/');
+			var arr = [];
+			for (var index = 1; index < ids.length-1; index++) {
+				var id = ids[index];
+				var obj = {id:id,name:names[index-1],slash:false};
+				arr.push(obj);
+				if(index < ids.length -2){
+					var slash = {slash:true};
+					arr.push(slash);
+				}
+			}
+			var html = '';
+			var eachLink = '<a addr-id="#{id}" title="#{name}" style="cursor:pointer;color:blue;" > #{name}</a>';
+			for (var idx = 0; idx < arr.length; idx++) {
+				var item = arr[idx];
+				if(item.slash){
+					html += ' / ';
+				}else{
+					html += String.format(eachLink,item);
+				}
+			}
+			
+			$fullAddrName.html(html);
 			$addrId.val(addrTreeObj["addrId"]);
 			$addrType.val(addrTreeObj["addrType"]);
 			$addrPurpose.val(addrTreeObj["addrUse"]);
@@ -610,6 +644,12 @@ AddressSingleMerge = function(){
 		initialize: function(){
 			that = AddressSingleMerge;
 			
+			//范围
+			$('#mergeParentRangeList' + desc).click(function(){
+				$('#mergeParentRangeLabel').text($(this).text())
+					.attr("data-level", $(this).attr("data-level"));
+			});
+			
 			$itemParent.keydown(function(e){
 				if (!/(37|38|39|40)/.test(e.which)) return;
 				var $items = $(this).find(desc);
@@ -676,10 +716,12 @@ AddressSingleMerge = function(){
 			AddressSingleMerge.doSearch(start);
 		},
 		doSearch: function(start){
+			lastAddrTreeObj = AddressEdit.getLastAddrTreeObj();
+			if(!lastAddrTreeObj){
+				return false;
+			}
 			AddressSingleMerge.empty();
 			show();
-			
-			lastAddrTreeObj = AddressEdit.getLastAddrTreeObj();
 			var startLevel = lastAddrTreeObj.addrLevel;
 			if(startLevel ==1){
 				Alert('已经是最顶级,无法合并.');
@@ -693,8 +735,10 @@ AddressSingleMerge = function(){
 				Alert('请不要使用特殊字符.');
 				return;
 			}
+			var sameParent = $("#mergeParentRangeLabel").attr("data-level") || true;
 			common.post("tree/searchParentLevelAddrs", {
 				"sl": startLevel,
+				"sameParent": sameParent,
 				"q": q,
 				"currentId": lastAddrTreeObj.addrId,
 				"start": start,
@@ -773,6 +817,11 @@ AddressChangeLevel = function(){
 		initialize: function(){
 			that = AddressChangeLevel;
 			
+			$('#clRangeList' + desc).click(function(){
+				$('#clRangeLabel').text($(this).text())
+					.attr("data-level", $(this).attr("data-level"));
+			});
+			
 			$itemParent.keydown(function(e){
 				if (!/(37|38|39|40)/.test(e.which)) return;
 				var $items = $(this).find(desc);
@@ -835,10 +884,12 @@ AddressChangeLevel = function(){
 			AddressChangeLevel.doSearch(start);
 		},
 		doSearch: function(start){
-			AddressChangeLevel.empty();
-			show();
-			
 			lastAddrTreeObj = AddressEdit.getLastAddrTreeObj();
+			if(!lastAddrTreeObj){
+				return false;
+			}
+			AddressSingleMerge.empty();
+			show();
 			var startLevel = lastAddrTreeObj.addrLevel;
 			startLevel = startLevel -1;
 			if(startLevel ==1){
@@ -854,8 +905,10 @@ AddressChangeLevel = function(){
 				Alert('请不要使用特殊字符.');
 				return;
 			}
+			var sameParent = $("#clRangeLabel").attr("data-level") || true;
 			common.post("tree/searchParentLevelAddrs", {
 				"sl": startLevel,
+				"sameParent": sameParent,
 				"q": q,
 				"currentId": lastAddrTreeObj.addrParent,
 				"start": start,
