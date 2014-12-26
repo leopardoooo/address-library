@@ -1,7 +1,5 @@
 package com.yaochen.test.service;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

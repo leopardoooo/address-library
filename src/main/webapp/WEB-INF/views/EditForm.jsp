@@ -13,7 +13,7 @@
 	</div>
 	<div class="panel-body" id="editForm">
 		<div class="form-group">
-			<label for="currentLevelAddr">完整名称<b id="editFormFullLevel"></b></label>
+			<label for="currentLevelAddr">分级名称<b id="editFormFullLevel"></b></label>
 			<input type="text" class="form-control" id="editFormFullAddrName" readonly="readonly" placeholder="完整的地址名称" value="">
 		</div>
 		<div class="form-group"> 

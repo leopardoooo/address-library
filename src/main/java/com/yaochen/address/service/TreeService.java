@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,7 @@ import com.yaochen.address.data.mapper.address.AdOaCountyRefMapper;
 import com.yaochen.address.data.mapper.address.AdRoleResMapper;
 import com.yaochen.address.data.mapper.address.AdTreeChangeMapper;
 import com.yaochen.address.data.mapper.address.AdTreeMapper;
+import com.yaochen.address.dto.AddrDto;
 import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.support.AddrNameChecker;
@@ -92,7 +92,7 @@ public class TreeService {
 		String slash = BusiConstants.StringConstants.SLASH;
 		if(null != parentNode){
 			str1 = parentNode.getStr1() +( slash + addrName );
-			fullName = parentNode.getAddrFullName() + slash + addrName;
+			fullName = parentNode.getAddrFullName() + addrName;
 		}else{//如果没有上级,这里一定是一级地址
 			str1 = addrName;
 			fullName = addrName;
@@ -211,7 +211,6 @@ public class TreeService {
 		
 		Date createTime = new Date();
 		String optrId = optr.getUserOID();
-		String countyId = optr.getCompanyOID();//TODO 是不是这个字段？？
 		
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH);
 		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
@@ -226,7 +225,6 @@ public class TreeService {
 			CglibUtil.copy(param, tree);
 			tree.setCreateDoneCode(createDoneCode);
 			tree.setCreateTime(createTime);
-			tree.setCountyId(countyId);
 			tree.setCreateOptrId(optrId);
 			
 			String addrName = addrNamePreffix;
@@ -293,7 +291,20 @@ public class TreeService {
 		param.put("keyword", keyword);//全名
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
-		adTreeMapper.selectByKeyWord(pager);
+		
+		List<AdTree> selectByKeyWord = adTreeMapper.selectByKeyWord(pager);
+		AdCollections coll = new AdCollections();
+		coll.setUserid(getUserInSession().getUserOID());
+		List<AdCollections> colls = adCollectionsMapper.selectByExample(coll);
+		Map<String, List<AdCollections>> map = CollectionHelper.converToMap(colls, "addrId");
+		for (AdTree tree : selectByKeyWord) {
+			List<AdCollections> list = map.get(tree.getAddrId().toString());
+			Integer collected = 0;
+			if(CollectionHelper.isEmpty(list)){
+				collected = 1;
+			}
+			tree.setCollected(collected);
+		}
 		return pager;
 	}
 	
@@ -371,6 +382,26 @@ public class TreeService {
 		adTreeMapper.selectByPid(pager);
 		return pager;
 	}
+	
+	/**
+	 * 查询所有的直接下级子节点.
+	 * @param parentAddrId 父级地址编号
+	 * @return 并且分页
+	 */
+	public List<AdTree> findDirectChildren(Integer parentAddrId) throws Throwable {
+		AdTree param = queryByKey(parentAddrId);
+		return findDirectChildrenByCurrentAddr(param);
+	}
+
+	private List<AdTree> findDirectChildrenByCurrentAddr(AdTree parent) {
+		Integer addrLevel = parent.getAddrLevel();
+		AdTree param =new AdTree();//新建一个对象,避免传入的参数收到污染，影响到在后续的操作中
+		CglibUtil.copy(parent, param);
+		param.setAddrLevel(addrLevel + 1);//为后续的查询做准备
+		param.setStatus(BusiConstants.Status.ACTIVE.name());
+		List<AdTree> selectChildrenByPid = adTreeMapper.selectDirectChildrenByPid(param);
+		return selectChildrenByPid;
+	}
 
 	/**
 	 * 编辑地址.
@@ -389,7 +420,8 @@ public class TreeService {
 		Date createTime = new Date();
 		String oldAddrName = oldTree.getAddrName();
 		String addrName = tree.getAddrName();
-		if(StringHelper.isNotEmpty(addrName) && !StringHelper.bothEmptyOrEquals(oldAddrName,addrName)){
+		boolean nameChanged = StringHelper.isNotEmpty(addrName) && !StringHelper.bothEmptyOrEquals(oldAddrName,addrName);
+		if(nameChanged){
 			AdTree checker = new AdTree();
 			CglibUtil.copy(oldTree, checker);
 			checker.setAddrName(addrName);
@@ -404,11 +436,16 @@ public class TreeService {
 		}
 		
 		//需要修改地址名
-		if(StringHelper.isNotEmpty(addrName) && !StringHelper.bothEmptyOrEquals(oldAddrName,addrName)){
-			//这里只是为了方便传参数
-			tree.setStr1(oldAddrName);
-			tree.setAddrPrivateName(oldTree.getAddrPrivateName());
-			adTreeMapper.updateFullNameAndChildren(tree);
+		if(nameChanged){
+			AdTree parent = queryByKey(tree.getAddrParent());
+			AdTree target = new AdTree();
+			target.setAddrId(tree.getAddrId());
+			target.setAddrFullName(parent.getAddrFullName()+tree.getAddrName());
+			target.setAddrPrivateName(oldTree.getAddrPrivateName());
+			target.setStr1(parent.getStr1()+tree.getAddrId()+BusiConstants.StringConstants.SLASH);
+			
+			updateAllChildrensFullNamePrivateNameAndStr1(target, oldTree);
+			
 		}
 		
 		AdTreeChange change = new AdTreeChange();
@@ -436,56 +473,183 @@ public class TreeService {
 	}
 	
 	/**
-	 * 变更地址的父级.
+	 * 变更地址的父级. 变更上级的时候允许重名,因此不做额外的事情,直接修改父级ID，批量修改所有子集的三个属性.
 	 * @param addrId 当前地址的ID.
 	 * @param pid		新的父级ID.
 	 * @return
 	 * @throws Throwable
 	 */
 	public AdTree saveChangeParent(Integer addrId,Integer pid) throws Throwable{
-		//TODO 土鳖扛铁牛
-		Random random = new Random(47);
-		boolean success = random.nextInt() % 2 == 0;
-		if(success){
-			throw new MessageException(StatusCodeConstant.CHANGE_LEVEL_ERROR_);
+		//准备参数、校验
+		AdTree sourceChild = queryByKey(addrId);
+		AdTree parent = queryByKey(pid);
+		if(parent.getAddrLevel() +1 != sourceChild.getAddrLevel() ){
+			throw new MessageException(StatusCodeConstant.CHANGE_LEVEL_PARENT_LEVEL_WRONG);
 		}
-		AdTree ad = new AdTree();
-		ad.setAddrId(addrId);
-		return ad;
+		Date createTime = new Date();
+		createDoneCode(createTime, BusiCodeConstants.CHANGE_PARENT);
+		//干活
+		changeParent(sourceChild, parent);
+		return sourceChild;
+	}
+	
+	private void changeParent(AdTree sourceChild,AdTree parent) throws Throwable{
+		if(parent.getAddrLevel() +1  != sourceChild.getAddrLevel()){
+			throw new MessageException(StatusCodeConstant.CHANGE_LEVEL_PARENT_LEVEL_WRONG);
+		}
+		//准备参数
+		String newFullNamePrefix = parent.getAddrFullName();
+		String newPnPrefix = parent.getAddrPrivateName();
+		String newStr1Prefix = parent.getStr1();
+		
+		AdTree newValue = new AdTree();
+		newValue.setAddrFullName(newFullNamePrefix + sourceChild.getAddrName());//州市龙圩区广平镇大地
+		String slash = BusiConstants.StringConstants.SLASH;
+		newValue.setAddrPrivateName(newPnPrefix + sourceChild.getAddrId() + slash );//0/4/47040/
+		newValue.setStr1(newStr1Prefix +slash+ sourceChild.getAddrName() );//梧州市/龙圩区/广平镇/留空/留空/大地
+		newValue.setAddrId(sourceChild.getAddrId());
+		newValue.setAddrParent(parent.getAddrId());
+		
+		//修改父ID，
+		adTreeMapper.updateByPrimaryKeySelective(newValue);
+		//修改其他三个属性
+		updateAllChildrensFullNamePrivateNameAndStr1(newValue, sourceChild);;
 	}
 	
 	/**
 	 * 合并地址.
 	 * @param targetId 合并后的地址.
-	 * @param mergeredId	被合并的地址.
+	 * @param sourceId	被合并的地址.
 	 * @return
 	 * @throws Throwable
 	 */
-	public AdTree saveSingleMerge(Integer targetId, Integer mergeredId) throws Throwable{
+	public AdTree saveSingleMerge(Integer targetId, Integer sourceId) throws Throwable{
 		//TODO 土鳖扛铁牛
-		AdTree target = new AdTree();
-		target.setAddrId(targetId);
-
-		/**
-		 * 步骤:
-		 * 1.列出两边所有的子集.
-		 * 2.将两边自己子集整理成树形.
-		 * 
-		 */
-		Pagination targetPager = findChildrensAndPagingByPid(targetId, 0, Integer.MAX_VALUE);
-		List<AdTree> records = targetPager.getRecords();
-		Map<String, List<AdTree>> targetMap = CollectionHelper.converToMap(records, "addrParent");
-		List<Integer> targetids = new ArrayList<Integer>();
-		Pagination mergeredPager = findChildrensAndPagingByPid(mergeredId, 0, Integer.MAX_VALUE);
-		List<AdTree> records2 = mergeredPager.getRecords();
-		Map<String, List<AdTree>> tobeMergeMap = CollectionHelper.converToMap(records2, "addrParent");
-		
-		
+		AddrDto target = queryAndBuildTree(targetId);
+		AddrDto source = queryAndBuildTree(sourceId);
+		if(!target.getAddrLevel().equals(source.getAddrLevel())){
+			throw new MessageException(StatusCodeConstant.MERGE_ERROR_LEVEL_DISMATCH);
+		}
+		AdTree targetParent = queryByKey(target.getAddrParent());
+		int createDoneCode = createDoneCode(new Date(), BusiCodeConstants.MERGE);
+		List<Integer> ids2beDelete = new ArrayList<Integer>();
+		ids2beDelete.add(sourceId);
+		mergeAddress(source, target, targetParent, ids2beDelete);
+		if(CollectionHelper.isNotEmpty(ids2beDelete)){
+			for (Integer addrid : ids2beDelete) {
+				//删除被删除的东西
+				delTree(addrid, createDoneCode,true);
+			}
+		}
 		return target;
 	}
+	
+	/**
+	 * source和targe同级.合并的对象.
+	 * @param source
+	 * @param target
+	 * @param parent 
+	 * @param ids2beDelete
+	 * @throws Throwable
+	 */
+	private void mergeAddress(AddrDto source, AddrDto target, AdTree parent, List<Integer> ids2beDelete)throws Throwable {
+		List<AddrDto> srcSons = source.getChildren();
+		srcSons = CollectionHelper.isEmpty(srcSons) ? new ArrayList<AddrDto>():srcSons;
+		List<AddrDto> tarSons = target.getChildren();
+		if(CollectionHelper.isEmpty(tarSons) ){//target 子节点为空,直接把srouce的子节点更改父级.到 target
+			for (AddrDto srcSon : srcSons) {
+				changeParent(srcSon, target);
+			}
+		}else{//target 子节点不为空 
+			/**
+			 * 如果 target 的子节点不为空,比较是否有重名的.
+			 * 如果不重名,把子节点直接变更父级为 target.
+			 * 如果有重名,递归调用这个方法.
+			 */
+			Map<String, AddrDto> tarMapById = CollectionHelper.converToMapSingle(tarSons, "addrName");
+			for (AddrDto scSon : srcSons) {
+				String addrName = scSon.getAddrName();
+				AddrDto tarSon = tarMapById.get(addrName);
+				if(null != tarSon){//如果有重名
+					ids2beDelete.add(scSon.getAddrId());
+					mergeAddress(scSon, tarSon, target, ids2beDelete);
+				}else{
+					changeParent(scSon, target);
+				}
+			}
+			
+		}
+		
+	}
+	
+	/**
+	 * 查询地址以及它的子节点,并构建成树.
+	 * @param addrId
+	 * @return
+	 * @throws Throwable
+	 */
+	private AddrDto queryAndBuildTree(Integer addrId) throws Throwable{
+		AdTree addr = adTreeMapper.selectByPK(addrId);
+		if(null == addr){
+			throw new MessageException(StatusCodeConstant.MERGE_ERROR_SOME_ADDR_NOT_EXISTS);
+		}
+		List<AddrDto> children = adTreeMapper.selectAllPosterityForMerge(addr);
+		children = CollectionHelper.isEmpty(children)? new ArrayList<AddrDto>():children;
+		Map<String, List<AddrDto>> map = CollectionHelper.converToMap(children , "addrParent");
+		AddrDto dto = new AddrDto();
+		CglibUtil.copy(addr, dto);
+		CollectionHelper.buildTree(dto, map);
+		return dto;
+	}
+	
+	/**
+	 * 变更所有子节点的 三个属性.
+	 * @param target
+	 * @param source
+	 */
+	private void updateAllChildrensFullNamePrivateNameAndStr1(AdTree target, AdTree source) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		String oldStr1 = source.getStr1();
+		String oldFullName = source.getAddrFullName();
+		String oldAddrPrivateName = source.getAddrPrivateName();
+		
+		String newStr1 = target.getStr1();
+		String newAddrFullName = target.getAddrFullName();
+		String newAddrPrivateName = target.getAddrPrivateName();
+		
+		//fullname
+		param.put("oldStr1", oldStr1);
+		param.put("newStr1", newStr1);
+		//privateName
+		param.put("oldFullName", oldFullName);
+		param.put("newAddrFullName", newAddrFullName);
+		//str1
+		param.put("oldAddrPrivateName", oldAddrPrivateName);
+		param.put("newAddrPrivateName", newAddrPrivateName);
+		
+		adTreeMapper.updateDirectChildrensOtherField(param);
+	}
 
+	/**
+	 * 删除地址.
+	 * @param addrId
+	 * @throws Throwable
+	 */
 	public void delTree(Integer addrId) throws Throwable {
+		int createDoneCode = createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR);
 		//以上留 空的接口
+		delTree(addrId, createDoneCode,false);
+	}
+
+	/**
+	 * @param addrId 要删除的ID.
+	 * @param doneCode 
+	 * @param force 是否强制删除(合并的时候,需要强制删除.因为加入数组的顺序问题.其实子节点也在删除的列表里,但是放在了后面导致会抛错)
+	 * @throws Throwable
+	 * @throws MessageException
+	 */
+	private void delTree(Integer addrId,  int doneCode, boolean force) throws Throwable, MessageException {
+		Date createTime = new Date();
 		AdTree tree = checkTreeExists(addrId);
 		//TODO 判断有没有被BOSS系统引用
 		//TODO 判断有没有被光站系统引用   
@@ -493,17 +657,16 @@ public class TreeService {
 		//只要有一个子节点都不给删除
 		Pagination pager = findChildrensAndPagingByPid(addrId, 0, 1);
 		List<Object> children = pager.getRecords();
-		if(children != null && children.size() > 0){
+		if(children != null && children.size() > 0 && ! force){
 			throw new MessageException(StatusCodeConstant.ADDR_HAS_CHILDREN);
 		}
 		tree.setStatus(BusiConstants.Status.INVALID.name());
-		Date createTime = new Date();
 		adTreeMapper.deleteByPrimaryKey(tree.getAddrId());
 		AdTreeChange change = new AdTreeChange();
 		CglibUtil.copy(tree, change);
 		change.setChangeTime(createTime);
 		change.setChangeCause("删除");
-		change.setChangeDoneCode(createDoneCode(createTime, BusiCodeConstants.DEL_ADDR));
+		change.setChangeDoneCode(doneCode);
 		change.setChangeType(AddrChangeType.MERGE_DEL.name());
 		change.setChangeOptrId(ThreadUserParamHolder.getOptr().getUserOID());
 		

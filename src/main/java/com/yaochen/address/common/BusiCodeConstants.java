@@ -7,7 +7,8 @@ public enum BusiCodeConstants {
 	DEL_ADDR("删除地址"),
 	COLLECT_ADDR("收藏地址"),
 	DE_COLLECT_ADDR("取消收藏地址"),
-	
+	MERGE("合并地址"),
+	CHANGE_PARENT("变更上级"),
 	EMPTY("无业务");
 	
 	private String desc;

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.easyooo.framework.common.util.CglibUtil;
+import com.yaochen.address.dto.AddrDto;
 
 /**
  * 集合辅助类，包含Java三大集合的处理
@@ -282,6 +283,24 @@ public class CollectionHelper {
 			result += item + spliter;
 		}
 		return result.substring(0,result.length()-1);
+	}
+	
+	/**
+	 * 构建一棵树.
+	 * @param dto
+	 * @param mapByPid
+	 * @throws Throwable
+	 */
+	public static void buildTree(AddrDto dto ,Map<String, List<AddrDto>> mapByPid ) throws Throwable{
+		List<AddrDto> children = mapByPid.get(dto.getAddrId().toString());
+		children = CollectionHelper.isEmpty(children) ? new ArrayList<AddrDto>():children;
+		for (AddrDto child : children) {
+			List<AddrDto> subChildren = mapByPid.get(child.getAddrId().toString());
+			if(CollectionHelper.isNotEmpty(subChildren)){
+				buildTree(child, mapByPid);
+			}
+		}
+		dto.setChildren(children);
 	}
 	
 }

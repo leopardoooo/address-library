@@ -107,11 +107,11 @@ public class AdTree {
     public void setAddrType(String addrType) {
         this.addrType = addrType == null ? null : addrType.trim();
         
-        if(StringHelper.isEmpty(addrUse)){
+        if(StringHelper.isEmpty(addrType)){
         	this.addrTypeText = "";
         }else{
         	 try {
-     			addrTypeText = BusiConstants.AddrType.valueOf(addrType).getDesc();
+     			this.addrTypeText = BusiConstants.AddrType.valueOf(addrType).getDesc();
      		} catch (Exception e) {
      			e.printStackTrace();
      		}
@@ -126,7 +126,7 @@ public class AdTree {
 
     public void setAddrUse(String addrUse) {
         this.addrUse = addrUse == null ? null : addrUse.trim();
-        if(StringHelper.isEmpty(addrUse)){
+        if(StringHelper.isEmpty(this.addrUse)){
         	this.addrUseText = "";
         }else{
         	try {
@@ -265,14 +265,6 @@ public class AdTree {
 		return addrUseText;
 	}
 
-	public void setAddrTypeText(String addrTypeText) {
-		this.addrTypeText = addrTypeText;
-	}
-
-	public void setAddrUseText(String addrUseText) {
-		this.addrUseText = addrUseText;
-	}
-
 	public Integer getCollected() {
 		return collected;
 	}
@@ -280,5 +272,12 @@ public class AdTree {
 	public void setCollected(Integer collected) {
 		this.collected = collected;
 	}
-	
+
+	public void setAddrTypeText(String addrTypeText) {
+		this.addrTypeText = addrTypeText;
+	}
+
+	public void setAddrUseText(String addrUseText) {
+		this.addrUseText = addrUseText;
+	}
 }

@@ -35,7 +35,10 @@ public enum StatusCodeConstant {
 	NON_BLANK_ADDR_WITH_NO_NAME(322, "非留空地址的名字为空"),
 	MERGE_ERROR_(323, "合并地址错误"),
 	CHANGE_LEVEL_ERROR_(324, "地址变更父级错误"),
-	
+	MERGE_ERROR_DATA_FAULT(325, "合并地址的时候发现地址有断层"),
+	MERGE_ERROR_SOME_ADDR_NOT_EXISTS(326, "要合并的两个地址必须都存在"),
+	MERGE_ERROR_LEVEL_DISMATCH(327, "要合并的两个地址必须同级"),
+	CHANGE_LEVEL_PARENT_LEVEL_WRONG(328, "更改上级时,上级地址的级别只能比当前地址级别高上一级"),
 	
 	//系统
 	SYSTEM_UNKNOW_EXCEPTION(500, "系统未知异常，不可预料的异常，发生该类异常标志着一个BUG"),

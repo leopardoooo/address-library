@@ -1,7 +1,7 @@
 Address = function(){
 	var tpl = '<div class="item default" data-type="item" data-addr-index="#{index}">'
 				+'<address>'
-					+'<label class="label">#{addrLevel}</label> #{addrFullNameFormat}'
+					+'<label class="label">#{addrLevel}</label> #{addrFullName}'
 					+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 				+'</address>'
 				+'<b class="down"></b>'
@@ -9,7 +9,7 @@ Address = function(){
 	
 	var parentTpl = '<div class="item parent" data-type="parent" data-addr-index="#{index}">'
 						+'<address>'
-							+'<label class="label">#{addrLevel}</label> #{addrFullNameFormat}'
+							+'<label class="label">#{addrLevel}</label> #{addrFullName}'
 							+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 						+'</address>'
 						+'<i class="up"></i>'
@@ -191,6 +191,7 @@ Address = function(){
 					for(var i = 0; i < data.records.length; i++){
 						var o = data.records[i];
 						o["index"] = i;
+						o['addrUseText'] = (!o.addrUseText) ? '' : o.addrUseText;
 						o["addrFullNameFormat"] = o["addrFullNameFormat"] 
 							|| that.doFormatAddrName(o["str1"]);
 						links += String.format(tpl, o);

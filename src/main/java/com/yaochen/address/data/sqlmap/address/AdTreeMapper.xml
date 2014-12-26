@@ -28,6 +28,9 @@
   	<result column="collected" property="collected" jdbcType="INTEGER" />
   </resultMap>
   
+  <resultMap id="AddrDto" type="com.yaochen.address.dto.AddrDto" extends="BaseResultMap" >
+  </resultMap>
+  
   <sql id="Base_Column_List" >
     addr_id, addr_name, addr_level, addr_type, addr_use, is_blank, addr_parent, addr_private_name, 
     addr_full_name, addr_code, county_id, create_time, create_optr_id, create_done_code, 
@@ -40,6 +43,14 @@
     from ad_tree t
     left join ad_collections c on c.addr_id = t.addr_id and c.userid = #{userid,jdbcType=VARCHAR}
     where t.addr_id = #{addrId,jdbcType=INTEGER}
+  </select>
+  
+  <!-- selectByPK -->
+   <select id="selectByPK" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree
+    where addr_id = #{addrId,jdbcType=INTEGER}
   </select>
   
   <!-- selectByKeyWordLevel -->
@@ -68,13 +79,32 @@
      order by t.addr_level 
   </select>
   
+  <!-- selectDirectChildrenByPid 传入的是父级地址,查子集需要根据当前传入的addrId 查 addr_parent -->
+  <select id="selectDirectChildrenByPid" resultMap="BaseResultMap" parameterType="com.yaochen.address.data.domain.address.AdTree" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree
+    where county_id = #{countyId,jdbcType=VARCHAR} and status = #{status,jdbcType=VARCHAR}
+    and addr_parent = #{addrId,jdbcType=INTEGER}
+  </select>
+  <!-- selectAllPosterityForMerge 查询所有的子集 -->
+  <select id="selectAllPosterityForMerge" resultMap="AddrDto" parameterType="com.yaochen.address.data.domain.address.AdTree" >
+    select 
+    addr_id, addr_name, addr_level, addr_parent, addr_private_name, 
+    addr_full_name,  county_id, status, str1
+    from ad_tree
+    where county_id = #{countyId,jdbcType=VARCHAR} and status = #{status,jdbcType=VARCHAR}
+    and addr_id &lt;> #{addrId,jdbcType=INTEGER}
+    and addr_private_name like '${addrPrivateName}%'
+    
+  </select>
+  
   <!-- selectByKeyWord -->
   <select id="selectByKeyWord" resultMap="BaseResultMapWithCollectInfo" parameterType="map" >
-   select isnull(c.userid) collected ,t.addr_id,t.addr_name,t.addr_level,t.addr_type,t.addr_use,t.is_blank,t.addr_parent,t.addr_private_name,
+   select t.addr_id,t.addr_name,t.addr_level,t.addr_type,t.addr_use,t.is_blank,t.addr_parent,t.addr_private_name,
     t.addr_full_name,t.addr_code,t.county_id,t.create_time,t.create_optr_id,t.create_done_code,
     t.status,t.str1,t.str2,t.str3,t.str4,t.str5
     from ad_tree t
-    left join ad_collections c on c.addr_id = t.addr_id and c.userid = #{userid,jdbcType=VARCHAR}
     <if test="startLevel > -1">
     	where t.addr_level >= #{addrLevel,jdbcType=INTEGER} 
     </if>
@@ -371,8 +401,16 @@
   <update id="updateFullNameAndChildren" parameterType="com.yaochen.address.data.domain.address.AdTree" >
     update ad_tree
     set addr_full_name = replace(addr_full_name,'${str1}', '${addrName}'),
-    str1 = replace(str1,'${str1}', '${addrName}')
+    addr_private_name = #{addrPrivateName,jdbcType=VARCHAR},
     where addr_private_name like '${addrPrivateName}%'
   </update>
   
+  <!-- updateDirectChildrensOtherField -->
+  <update id="updateDirectChildrensOtherField" parameterType="map" >
+    update ad_tree
+    set addr_full_name = replace(addr_full_name,'${oldFullName}', '${newAddrFullName}'),
+    addr_private_name = replace(addr_private_name,'${oldAddrPrivateName}', '${newAddrPrivateName}'),
+    str1 = replace(str1,'${oldStr1}', '${newStr1}')
+    where addr_private_name like '${oldAddrPrivateName}%'
+  </update>
 </mapper>

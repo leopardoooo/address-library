@@ -10,6 +10,7 @@ import com.easyooo.framework.sharding.annotation.Table;
 import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdTree;
+import com.yaochen.address.dto.AddrDto;
 import com.yaochen.address.support.Repository;
 
 @Repository
@@ -22,6 +23,13 @@ public interface AdTreeMapper {
     int insertSelective(AdTree record);
 
     AdTree selectByPrimaryKey(Map<String, Object> map);
+    
+    /**
+	 * 根据主键查询.
+	 * @param sourceId
+	 * @return
+	 */
+	AdTree selectByPK(Integer sourceId);
 
     int updateByPrimaryKeySelective(AdTree record);
 
@@ -44,15 +52,36 @@ public interface AdTreeMapper {
 	List<AdLevel> selectUserCollection(Pagination pager);
 
 	/**
-	 * 更新地址全名,同时更新所有的下级.
-	 * @param tree
-	 */
-	void updateFullNameAndChildren(AdTree tree);
-
-	/**
 	 * 根据关键字等条件,查询指定级别的地址.
 	 * @param pager
 	 * @return
 	 */
 	List<AdTree> selectByKeyWordLevel(Pagination pager);
+
+	/**
+	 * 查询直接下级的子节点.
+	 * @param pager
+	 * @return
+	 */
+	List<AdTree> selectDirectChildrenByPid(AdTree param);
+
+	/**
+	 * 变更直接子节点的父级.
+	 * @param target
+	 */
+	void updateDirectChildrensParent(Map<String, Object> param);
+
+	/**
+	 * 更新其他属性.
+	 * @param param
+	 */
+	void updateDirectChildrensOtherField(Map<String, Object> param);
+
+	/**
+	 * 查询指定ID的所有后代.只返回部分属性.
+	 * @param sourceId
+	 * @return
+	 */
+	List<AddrDto> selectAllPosterityForMerge(AdTree param);
+
 }
