@@ -1,3 +1,4 @@
+<%@page import="com.alibaba.fastjson.JSON"%>
 <%@page import="com.sun.tools.xjc.reader.dtd.TDTDReader"%>
 <%@page import="com.yaochen.address.dto.UserInSession"%>
 <%@page import="com.yaochen.address.common.BusiConstants"%>
@@ -21,6 +22,9 @@
 <html>
 <head> 
 	<%@ include file="/WEB-INF/common/head.jsp" %>
+	<script type="text/javascript">
+		var selectableCompanies = <%=JSON.toJSONString(cityList) %>;
+	</script>
 </head>
 <body>
 	<nav id="topNav" class="navbar navbar-static-top" role="navigation">
@@ -144,11 +148,34 @@
 				<div class="modal-body">
 					<div class="switch-city-body">
 						<div class="item-list city">
-							<p>可选城市列表，已选 “<label></label>”</p>
-							<div id="cityList" class="buttons">
-								<%  for (AdTree tree : cityList){ %>
-								<button class="btn" data-addr-id="<%=tree.getAddrId() %>" ><%=tree.getAddrName() %></button>
-								<% } %>
+							<%int count = cityList.size();int totalPage = count / 11 + (( count % 11 ==0 ) ? 0 : 1); %>
+							<p>分公司列表,共 <%=totalPage %>页，当前已选中 “<label></label>” 
+								&nbsp;&nbsp;&nbsp;&nbsp;<input id="companyFilter" value="" placeholder="输入关键字，敲回车过滤">
+							</p>
+								<div id="companyPagerToolBar">
+									<ol class="breadcrumb">
+									<%for(int index = 1;index<=totalPage;index++){ %>
+									<li current-page="<%=index %>" style="color: blue;"><a current-page="<%=index %>" href="#">第<%=index %>页</a></li>
+									<%} %>
+									</ol>
+								</div>
+							<div id="cityList" class="buttons" total-page="<%=totalPage %>">
+								<%
+									int rows = 0;
+									int cells = 0;
+									for (AdTree tree : cityList) {
+										String addrName = tree.getAddrName();
+										String nameSub = addrName.length() > 3 ? 
+												addrName.substring(0,3) + ".." : addrName;
+										cells ++;
+										boolean dataShow = rows < 2;
+								%>
+								<button class="btn" data-show="<%=dataShow %>" title="<%=addrName %>" data-addr-id="<%=tree.getAddrId() %>" ><%=nameSub %></button>
+								<%
+									if(cells % 6 ==0){
+										rows ++;
+									}
+								} %>
 							</div>
 						</div>
 						<div class="item-list country">

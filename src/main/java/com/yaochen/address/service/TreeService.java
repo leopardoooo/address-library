@@ -413,7 +413,14 @@ public class TreeService {
 	 * @return 并且分页
 	 */
 	public List<AdTree> findDirectChildren(Integer parentAddrId) throws Throwable {
-		AdTree param = queryByKey(parentAddrId);
+		AdTree param = new AdTree();
+		if(parentAddrId !=0){
+			param = queryByKey(parentAddrId);
+		}else{
+			param.setAddrLevel(0);
+			param.setAddrId(parentAddrId);
+			param.setCountyId(ThreadUserParamHolder.getGlobeCountyId());
+		}
 		return findDirectChildrenByCurrentAddr(param);
 	}
 

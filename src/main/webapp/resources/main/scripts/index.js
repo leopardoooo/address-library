@@ -4,8 +4,9 @@
  */
 SwitchCityModal = function(w){
 	var lastActiveAddrId = null, F = {};
-	var countryTpl = '<button class="btn" data-addr-id="#{addrId}" >#{addrName}</button>';
-	var addrIdDesc = "data-addr-id",
+	var countryTpl = '<button class="btn" title="#{addrName}" data-addr-id="#{addrId}" >#{addrName}</button>';
+	var addrIdDesc = "data-addr-id",$companyPagerToolBar = $('#companyPagerToolBar'),
+	$companyFilter=$('#companyFilter'),$cityListDiv=$('#cityList'),
 		scopeText = null;
 	
 	F = {
@@ -31,11 +32,11 @@ SwitchCityModal = function(w){
 				activeBtn.removeClass(desc);
 				$(e.target).addClass(desc);
 				// text
-				$(this).find("p>label").text($(e.target).text());
+				$(this).find("p>label").text($(e.target).attr('title'));
 			});
 			
 			//点击城市
-			$("#cityList").find("button").click(function(){
+			$cityListDiv.find("button").click(function(){
 				var addrId = $(this).attr("data-addr-id");
 				if(lastActiveAddrId === addrId){
 					return;
@@ -43,7 +44,20 @@ SwitchCityModal = function(w){
 				lastActiveAddrId = addrId;
 				F.doSubAddrList(lastActiveAddrId);
 			});
-			
+			//分公司搜索栏
+			$companyFilter.keydown(function(e){
+				if (!/(13)/.test(e.which)) return;
+				if(e.which === 13){
+					//TODO 回车 过滤分公司
+					var val = $companyFilter.val();
+					SwitchCityModal.filterCities(val);
+				}
+			});
+			$companyPagerToolBar.find('ol>li').click(function(e){
+				var a = $(e.target);
+				var page = a.attr('current-page');
+				SwitchCityModal.pagingCities(page);
+			});
 			//确定按钮
 			$('#switchCityModalOkBtn').click(function(){
 				var $cityItems = $("#cityList").find('.' + desc);
@@ -62,9 +76,45 @@ SwitchCityModal = function(w){
 					alert("只能选择一个城区或县");
 					return ;
 				}
-				F.doSubmit($cityItems.attr(addrIdDesc), $cityItems
-						.text(), $countryItems.attr(addrIdDesc), $countryItems.text());
+				F.doSubmit($cityItems.attr(addrIdDesc), $cityItems.attr('title'),
+						$countryItems.attr(addrIdDesc), $countryItems.attr('title') || '');
 			});
+			SwitchCityModal.reRenderCities();
+		},
+		pagingCities:function(page){
+			var pageSize = 12;
+			var end = pageSize * page;
+			var start = end  - pageSize;
+			var arr = $cityListDiv.find("button");
+			for (var index = 0; index < arr.length; index++) {
+				var btn = $(arr[index]);
+				var show = start <= index && end > index; 
+				btn.attr('data-show',show);
+			}
+			this.reRenderCities();
+		},
+		filterCities:function(filter,page){
+			var arr = $cityListDiv.find("button");
+			for (var index = 0; index < arr.length; index++) {
+				var btn = $(arr[index]);
+				if(!filter || btn.attr('title').indexOf(filter) > -1){
+					btn.attr('data-show',true);
+				}else{
+					btn.attr('data-show',false);
+				}
+			}
+			this.reRenderCities();
+		},
+		reRenderCities:function(){//渲染分公司
+			var arr = $cityListDiv.find("button");
+			for (var index = 0; index < arr.length; index++) {
+				var btn = $(arr[index]);
+				if(btn.attr('data-show') != "true"){
+					btn.hide();
+				}else{
+					btn.show();
+				}
+			}
 		},
 		doSubmit: function(pid, pidText, subId, subIdText){
 			var scopeText = pidText + "/" + subIdText;
@@ -77,14 +127,16 @@ SwitchCityModal = function(w){
 			});
 		},
 		doSubAddrList: function(parentAddrId){
-			common.post("tree/findChildrens", {
+			common.post("tree/findDirectChildrens", {
 				"pid": parentAddrId
 			}, function(data){
 				$('#countyListLabel').text('');
-				
 				var links = "";
 				for(var i = 0 ;i < data.length; i++){
 					links += String.format(countryTpl, (data[i]));
+					if(i == 17){
+						break;
+					}
 				}
 				if(!links){
 					links = '<p class="empty">（没有数据）</p>';

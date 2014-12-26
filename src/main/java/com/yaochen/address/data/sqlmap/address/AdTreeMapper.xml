@@ -87,8 +87,10 @@
     select 
     <include refid="Base_Column_List" />
     from ad_tree
-    where county_id = #{countyId,jdbcType=VARCHAR} and status = #{status,jdbcType=VARCHAR}
-    and addr_parent = #{addrId,jdbcType=INTEGER}
+    where addr_parent = #{addrId,jdbcType=INTEGER} and status = #{status,jdbcType=VARCHAR}
+    <if test="countyId!=null">
+	    and county_id = #{countyId,jdbcType=VARCHAR}
+    </if>
   </select>
   <!-- selectAllPosterityForMerge 查询所有的子集 -->
   <select id="selectAllPosterityForMerge" resultMap="AddrDto" parameterType="com.yaochen.address.data.domain.address.AdTree" >

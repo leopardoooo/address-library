@@ -65,6 +65,7 @@ public class TreeController implements BeanFactoryAware{
 	
 	/**
 	 * 查找子节点根据当前节点编号
+	 * @see #findDirectChildrens(Integer)
 	 * 
 	 * @param parentAddrId 父级地址编号
 	 * @return 
@@ -72,11 +73,26 @@ public class TreeController implements BeanFactoryAware{
 	 */
 	@RequestMapping("/findChildrens")
 	@ResponseBody
+	@Deprecated
 	public Root<List<AdTree>> findChildrensByPid(@RequestParam("pid") Integer parentAddrId) throws Throwable{
 		Pagination pager = treeService.findChildrensAndPagingByPid(parentAddrId, 0, 1000);
 		List<AdTree> records = pager.getRecords();
 		return ReturnValueUtil.getJsonRoot(records);
 	}
+	
+	/**
+	 * 查找子节点根据当前节点编号
+	 * 
+	 * @param parentAddrId 父级地址编号
+	 * @return 
+	 * @throws Throwable 
+	 */
+	@RequestMapping("/findDirectChildrens")
+	@ResponseBody
+	public Root<List<AdTree>> findDirectChildrens(@RequestParam("pid") Integer parentAddrId) throws Throwable{
+		return ReturnValueUtil.getJsonRoot(treeService.findDirectChildren(parentAddrId));
+	}
+	
 	
 	/**
 	 * @see #findChildrensByPid(Integer)
