@@ -24,6 +24,8 @@ public class UserInSession {
 	private String OfficeTelphone;
 	private String Signature;
 	private String ImgUrl;
+	/**允许操作的最高级别**/
+	private Integer maxLevelAllowed;
 	
 	public List<SystemFunction> getSystemFunction() {
 		return SystemFunction;
@@ -151,4 +153,11 @@ public class UserInSession {
 	public void setImgUrl(String imgUrl) {
 		ImgUrl = imgUrl;
 	}
+	public Integer getMaxLevelAllowed() {
+		return maxLevelAllowed;
+	}
+	public void setMaxLevelAllowed(Integer maxLevelAllowed) {
+		this.maxLevelAllowed = maxLevelAllowed;
+	}
+	
 }

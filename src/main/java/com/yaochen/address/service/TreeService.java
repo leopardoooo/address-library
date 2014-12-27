@@ -323,7 +323,12 @@ public class TreeService {
 		Map<String, Object> param = new HashMap<String, Object>();
 		AdTree tree = queryByKey(currentAddrId);
 		if(sameParent){
-			Integer addrParent = tree.getAddrParent();
+			Integer addrParent = null;
+			try {
+				addrParent = tree.getAddrParent();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			param.put("addrParent", addrParent);
 		}else{
 			
@@ -350,19 +355,19 @@ public class TreeService {
 	 * @throws Throwable
 	 */
 	public List<AdLevel> findAuthLevelByCurrentUser() throws Throwable {
-		int maxLevel = getMaxAllowedLevel();
-		ThreadUserParamHolder.setMaxAllowedLevel(maxLevel);
+		int maxLevel = getUserInSession().getMaxLevelAllowed();
 		return adLevelMapper.selectByMaxLevel(maxLevel);
 	}
 
 	/**
 	 * 获取当前用户能操作的最高的级别.
+	 * @param userInSession 
 	 * @param systemFunction
 	 * @return
 	 * @throws MessageException
 	 */
-	public int getMaxAllowedLevel() throws MessageException {
-		UserInSession optr = getUserInSession();
+	public int getMaxAllowedLevel(UserInSession optr) throws MessageException {
+		
 		List<SystemFunction> systemFunction = optr.getSystemFunction();
 		Integer roleOID = null;
 		for (SystemFunction fun : systemFunction) {
@@ -947,7 +952,7 @@ public class TreeService {
 	}
 	
 	private void checkRole(Integer level)throws MessageException{
-		Integer maxAllowedLevel = ThreadUserParamHolder.getMaxAllowedLevel();
+		Integer maxAllowedLevel = getUserInSession().getMaxLevelAllowed();
 		if(maxAllowedLevel > level){
 			throw new MessageException(StatusCodeConstant.USER_INSUFFICIENT_AUTHORIZED);
 		}

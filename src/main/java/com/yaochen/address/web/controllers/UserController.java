@@ -66,11 +66,10 @@ public class UserController {
 		login.setCompanyOID(countyObj.getCountyId());
 		
 		//登录的用户放到session和线程变量里
-		session.setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
+		int maxLevel = treeService.getMaxAllowedLevel(login);
+		login.setMaxLevelAllowed(maxLevel);
 		ThreadUserParamHolder.setUserInSession(login);
-		int maxLevel = treeService.getMaxAllowedLevel();
-		ThreadUserParamHolder.setMaxAllowedLevel(maxLevel);
-		session.setAttribute(BusiConstants.StringConstants.MAX_LEVEL_IN_SESSION, maxLevel);
+		session.setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
 		String success = BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
 		return success;
 	}
@@ -88,7 +87,6 @@ public class UserController {
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID);
 		session.removeAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
 		session.removeAttribute(BusiConstants.StringConstants.ALL_LEVELS_IN_SESSION);
-		session.removeAttribute(BusiConstants.StringConstants.MAX_LEVEL_IN_SESSION);
 		ThreadUserParamHolder.clearAll();
 		return BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH;
 	}
@@ -139,8 +137,10 @@ public class UserController {
 				levels.add(level);
 			}
 		}
+		
 		//设置了这个属性之后,  把 操作员的 权限级别  放入到session
 		session.setAttribute(BusiConstants.StringConstants.FILTERED_LEVELS_IN_SESSION, levels);
+		
 		List<AdLevel> allLevels = treeService.findAllLevels();
 		session.setAttribute(BusiConstants.StringConstants.ALL_LEVELS_IN_SESSION, allLevels);
 		

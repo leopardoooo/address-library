@@ -95,18 +95,22 @@ public class TreeController implements BeanFactoryAware{
 	
 	/**
 	 * 查询当前用户有权访问的Level
+	 * 现在不用这个了,因为查询的时候不要限制了.
 	 */
 	@RequestMapping("/findAuthLevel")
 	@ResponseBody
+	@Deprecated
 	public Root<List<AdLevel>> findAuthLevelByCurrentUser()throws Throwable {
 		return ReturnValueUtil.getJsonRoot(treeService.findAuthLevelByCurrentUser());
 	}
 	
 	/**
 	 * 查询当前用户有权访问的Level,从session里取。并且是过滤过的.
+	 * 查询不需要级别的权限,操作的时候有另外的方法,这个回头会删掉.
 	 */
 	@RequestMapping("/findAuthLevelInSession")
 	@ResponseBody
+	@Deprecated
 	public Root<List<AdLevel>> findAuthLevelInSession(HttpSession session)throws Throwable {
 		Object levelsRaw = session.getAttribute(BusiConstants.StringConstants.FILTERED_LEVELS_IN_SESSION);
 		if(levelsRaw == null){

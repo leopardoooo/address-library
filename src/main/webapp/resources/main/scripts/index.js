@@ -204,7 +204,7 @@ Search = function(W){
 		
 	var limit = 11;
 	var linkTpl = '<li><a href="#" data-addr-index="#{index}">#{addrFullName}</a></li>';
-	var pagingHeader = '<li class="dropdown-header">共#{offset}/#{totalCount}条相关的地址，按“←”或“→”方向键显示上下页内容</li>';
+	var pagingHeader = '<li class="dropdown-header">共#{viewedCount}/#{totalCount}条相关的地址，按“←”或“→”方向键显示上下页内容</li>';
 	var nopagingHeader = '<li class="dropdown-header">共#{totalCount}条相关的地址。</li>';
 	
 	return {
@@ -274,7 +274,7 @@ Search = function(W){
 			var start = Search.data.offset, total = Search.data.totalCount;
 			if(total <= limit) return;
 			if(d < 0 && start - limit < 0) return; // pre
-			if(d > 0 && start + limit > total) return;  // next
+			if(d > 0 && start + limit >= total) return;  // next
 			start += d > 0 ? limit : -limit;
 			
 			Search.doSearch(start);
@@ -305,6 +305,8 @@ Search = function(W){
 						links += String.format(linkTpl, data.records[i]);
 					}
 					links += '<li class="divider"></li>';
+					var viewedCount = data.offset + data.records.length;
+					data.viewedCount = viewedCount;
 					links += String.format(data.totalCount > limit ? pagingHeader : nopagingHeader, data);
 					$("#matchingResult").html(links);
 					Search.doSelectEqFirst();
