@@ -160,7 +160,34 @@ Collections = function(){
 			$parent.click(function(e){
 				if(!/a/i.test(e.target.tagName)) return ;
 				var addrId = $(e.target).attr("data-id");
-				Address.doShowAddressById(addrId);
+				var clean = AddressEdit.isClear();//编辑框没有变更
+				var msgUnSavedField = null;
+				if(!clean) msgUnSavedField = '尚有正在编辑的地址没有保存\n';
+				//有未保存的编辑
+				var notTheSameCompany = null;
+				if (GlobalCountyId != $(e.target).attr('countyId')){
+					notTheSameCompany = '收藏的地址与当前登录时候已选中的分公司不一致,继续执行将会直接切换分公司\n';
+				}
+				var confirmMsg = '';
+				if(! msgUnSavedField && !notTheSameCompany){
+					Address.doShowAddressById(addrId);
+					return;
+				}
+				debugger;
+				var confirmMsg = (notTheSameCompany || '') + (msgUnSavedField || '') 
+					+ '是否要切换到 "' +  $(e.target).text() + '" ?' ;
+				if(confirm(confirmMsg)){
+					if(notTheSameCompany){
+						//切换分公司
+						common.post("user/reSetAddrScopeForCurrentUser", {
+							"pid": addrId
+						}, function(data){
+							GlobalCountyId = data.countyId;
+							$('#switchCityModalTargetlabel').text(data.str1);
+						});
+					}
+					Address.doShowAddressById(addrId);
+				}
 			});
 			Collections.doRender();
 		},
@@ -171,7 +198,7 @@ Collections = function(){
 				if(!data || data.length ==0){
 					return;
 				}
-				var rowTpl = '<div class="col-md-4"><a href="#" data-id="#{addrId}" class="btn btn-link ellipsis">#{addrFullName}</a></div>';
+				var rowTpl = '<div class="col-md-4"><a href="#" countyId="#{countyId}" data-id="#{addrId}" class="btn btn-link ellipsis">#{addrFullName}</a></div>';
 				var links = '';
 				for(var index =0;index<data.length;index++){
 					var addr = data[index];
@@ -214,6 +241,10 @@ Search = function(W){
 				$('#levelLabel').text($(this).text())
 					.attr("data-level", $(this).attr("data-level"));
 			});
+			//点开级别选择框的时候,搜索结果隐藏
+			$('#searchLevelBtn').click(function(){
+				hide();
+			});
 		
 			$itemParent.keydown(function(e){
 				if (!/(37|38|39|40)/.test(e.which)) return;
@@ -241,7 +272,7 @@ Search = function(W){
 				if (!$items.length) return;
 
 				var index = $items.index(e.target);
-				
+				if(!AddressEdit.isClear() && !confirm("尚有正在编辑的地址没有保存，是否放弃保存？")) return;
 				e.preventDefault();
 				e.stopPropagation();
 				

@@ -17,13 +17,13 @@ var validator={
 		},
 		lev5:function(addrName){
 			if(addrName.indexOf('#')>=0){
-				return 5;
+				return 1005;
 			};
 			return 0;
 		},
 		lev6:function(addrName){
 			if(reg.test(addrName)){
-				return 6;
+				return 1006;
 			};
 			return 0;
 		},

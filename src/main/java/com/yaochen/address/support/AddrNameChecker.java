@@ -26,7 +26,7 @@ public class AddrNameChecker {
 		SUCCESS(0,""),
 		UNKNOWN_ERROR(999,"未知错误"),
 		LEV5_WITH_SHARP(5,"五级地址不能出现#号"),
-		LEV6_WITH_NUM(6,"五级地址不能出现#号");
+		LEV6_WITH_NUM(6,"六级地址不能出现数字");
 		private String desc;
 		private Integer code;
 		public String getDesc() {
@@ -74,7 +74,7 @@ public class AddrNameChecker {
 	 * @param otherArgs
 	 * @return
 	 */
-	public String checkBusiRule(AdTree tree,Object... otherArgs)throws Exception{
+	public Integer checkBusiRule(AdTree tree,Object... otherArgs)throws Exception{
 		ScriptEngineManager factory = new ScriptEngineManager();//初始化引擎工厂
 		ScriptEngine engine = factory.getEngineByName("JavaScript");//取得JS引擎
 		if(!fileLoaded){
@@ -97,7 +97,7 @@ public class AddrNameChecker {
 		if(null == parseCode){
 			parseCode = NameCheckError.LEV5_WITH_SHARP;
 		}
-		return parseCode.getDesc();
+		return parseCode.getCode();
 	}
 	
 	

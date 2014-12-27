@@ -15,6 +15,12 @@
 	Map<String, Object> params = TreeController.getCurrentIndexParams(session);
 	List<AdTree> cityList = (List<AdTree>)params.get("cityList");
 	List<AdLevel> levelList = (List<AdLevel>)params.get("levelList");
+	int maxLevel = 0;
+	for(AdLevel lev:levelList){
+		if(lev.getLevelNum() > maxLevel){
+			maxLevel = lev.getLevelNum();
+		}
+	}
 	Object city = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
 	
 	UserInSession user = (UserInSession)session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
@@ -24,6 +30,9 @@
 	<%@ include file="/WEB-INF/common/head.jsp" %>
 	<script type="text/javascript">
 		var selectableCompanies = <%=JSON.toJSONString(cityList) %>;
+		//允许操作的最低级的地址级别
+		var GlobalMaxLevelAllowed = <%=maxLevel%>;
+		var GlobalCountyId = '<%=session.getAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID)%>';
 	</script>
 </head>
 <body>

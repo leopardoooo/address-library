@@ -20,8 +20,8 @@ common = {
 				debugger;
 			}else{
 //				alert("Ajax Error! code: " + responseData["code"] + ", message: " + responseData["message"]);
-				Alert("Ajax Error!</br> code: " + responseData["code"]
-				+ "</br> message: " + responseData["message"]);
+//				Alert("Ajax Error!</br> code: " + responseData["code"] + "</br> message: " + responseData["message"]);
+				Alert(responseData["message"]);
 			}
 		}, dataType);
 	},

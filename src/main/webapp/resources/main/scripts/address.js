@@ -108,6 +108,8 @@ Address = function(){
 			});
 		},
 		doTriggerEvent: function(index, event, $parent){
+			//检查是否有正在编辑且没有保存的地址.
+			if(!AddressEdit.isClear() && !confirm("尚有正在编辑的地址没有保存，是否放弃保存？")) return;
 			var addrTreeObj = (index == -1) ? that.lastAddrTreeObj : that.data.records[index];
 			// 查看明细
 			if(event === "detail"){
@@ -162,6 +164,8 @@ Address = function(){
 			});
 		},
 		doShowAddress: function(addrTreeObj, start){
+			addrTreeObj['addrUseText'] = (!addrTreeObj.addrUseText) ? '' : addrTreeObj.addrUseText;
+			addrTreeObj['addrTypeText'] = (!addrTreeObj.addrTypeText) ? '' : addrTreeObj.addrTypeText;
 			that.lastAddrTreeObj = addrTreeObj;
 			
 			// show loading
@@ -193,6 +197,7 @@ Address = function(){
 						var o = data.records[i];
 						o["index"] = i;
 						o['addrUseText'] = (!o.addrUseText) ? '' : o.addrUseText;
+						o['addrTypeText'] = (!o.addrTypeText) ? '' : o.addrTypeText;
 						o["addrFullNameFormat"] = o["addrFullNameFormat"] 
 							|| that.doFormatAddrName(o["str1"]);
 						links += String.format(tpl, o);
@@ -308,6 +313,14 @@ AddressAdd = function(){
 					that.loadForm(treeObj);
 				}
 			});
+			//关闭模态窗口的时候，刷新地址
+			$win.on("hide.bs.modal", function(e){
+				var treeObj = AddressEdit.getLastAddrTreeObj();
+				if($win.attr('someDataChanged') == 'true'){
+					Address.doShowAddressById(treeObj.addrId);
+					$win.attr('someDataChanged',false);
+				}
+			});
 			
 			$('#addFormTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 				toggleMode();
@@ -356,6 +369,14 @@ AddressAdd = function(){
 		loadForm: function(treeObj){
 			parentAddressObj = treeObj;
 			
+			var level =treeObj.addrLevel;
+			if(treeObj.addrLevel == GlobalMaxLevelAllowed ){
+				Alert('当前要添加的地址级别超过了已配置的最低级别的范围,无法继续添加.');
+				$win.modal('hide');
+				$win.attr('someDataChanged',false);
+				return ;
+			}
+			
 			$parentFullNameInput.val(treeObj["addrFullName"]);
 			$addrLevelInput.val(treeObj["addrLevel"] + 1);
 			$addTypeInput.val(treeObj["addrType"]);
@@ -372,15 +393,18 @@ AddressAdd = function(){
 		doOnlySave: function(){
 			that.doSave(function(data){
 				$win.modal('hide');
+				$win.attr('someDataChanged',false);
 				Address.doShowAddressById(parentAddressObj.addrId);
 			});
 		},
 		doSaveAndContinue: function(){
+			$win.attr('someDataChanged',true);
 			that.doSave(function(data){
 				that.loadForm(parentAddressObj);
 			});
 		},
 		doSaveAndToNext: function(){
+			$win.attr('someDataChanged',true);
 			that.doSave(function(data){
 				that.loadForm(data);
 			});
@@ -464,12 +488,21 @@ AddressEdit = function(){
 			$fullAddrName.click(function(e){
 				if(!/a/i.test(e.target.tagName)) return ;
 				var addrId = $(e.target).attr("addr-id");
-				Address.doShowAddressById(addrId);
+				if(!addrId){ return; }
+				//提示一下
+				var msgPlus = '\n 尚有正在编辑的地址没有保存，是否放弃保存？直接跳转?';
+				if(confirm('是否要切换到 "' + $(e.target).attr("title") + '" ?' + (AddressEdit.isClear() ? '': msgPlus  ) )  ){
+					Address.doShowAddressById(addrId);
+				}
 			});
 			
 			$("#editFormSaveBtn").click(that.doUpdate);
 			$("#editFormDeleteBtn").click(that.doDelete);
 			$("#editFormCollectBtn").click(that.doCollect);
+		},
+		isClear:function(){
+			var arr = this.compareChange();
+			return arr.length == 0;
 		},
 		loadForm: function(addrTreeObj, __mode){
 			mode = __mode || mode;
@@ -503,21 +536,30 @@ AddressEdit = function(){
 			$fullLevel.text("（" + (addrTreeObj["addrLevel"] || "") + "级地址）");
 //			$fullAddrName.val(addrTreeObj["str1"]);
 			var str1 = addrTreeObj["str1"];
-			var names = str1.split('/');
 			var privateName = addrTreeObj["addrPrivateName"];
+			var names = str1.split('/');
 			var ids= privateName.split('/');
 			var arr = [];
+			
+			var fullName = '';
 			for (var index = 1; index < ids.length-1; index++) {
 				var id = ids[index];
-				var obj = {id:id,name:names[index-1],slash:false};
+				var name = names[index-1];
+				if('' == fullName){
+					fullName = name;
+				}else{
+					fullName += '/' + name ;
+				}
+				var obj = {id:id,name:name,fullName:fullName};
 				arr.push(obj);
 				if(index < ids.length -2){
 					var slash = {slash:true};
 					arr.push(slash);
 				}
 			}
+			
 			var html = '';
-			var eachLink = '<a addr-id="#{id}" title="#{name}" style="cursor:pointer;color:blue;" > #{name}</a>';
+			var eachLink = '<a addr-id="#{id}" title="#{fullName}" style="cursor:pointer;color:blue;" > #{name}</a>';
 			for (var idx = 0; idx < arr.length; idx++) {
 				var item = arr[idx];
 				if(item.slash){
@@ -602,16 +644,20 @@ AddressEdit = function(){
 		},
 		compareChange: function(){
 			var changeProps = new Array();
+			if(!AddressEdit.getLastAddrTreeObj()){
+				return changeProps;
+			}
 			if($addrType.val() != lastAddrTreeObj["addrType"]){
 				changeProps.push({name: 'addrType', input: $addrType});
 			}
-			if($addrPurpose.val() != lastAddrTreeObj["addrUse"]){
+			var addrPurpose = $addrPurpose.val();
+			var addrUse = lastAddrTreeObj["addrUse"];
+			if((addrPurpose || '') != (addrUse || '')){
 				changeProps.push({name: 'addrUse', input: $addrPurpose});
 			}
 			if($addrName.val() != lastAddrTreeObj["addrName"]){
 				changeProps.push({name: 'addrName', input: $addrName});
 			}
-			
 			return changeProps;
 		},
 		getLastAddrTreeObj: function(){
@@ -646,10 +692,13 @@ AddressSingleMerge = function(){
 			
 			//范围
 			$('#mergeParentRangeList' + desc).click(function(){
+				hide();
 				$('#mergeParentRangeLabel').text($(this).text())
 					.attr("data-level", $(this).attr("data-level"));
 			});
-			
+			$('#mergeParentRangeBtn').click(function(){
+				hide();
+			});
 			$itemParent.keydown(function(e){
 				if (!/(37|38|39|40)/.test(e.which)) return;
 				var $items = $(this).find(desc);
@@ -824,6 +873,10 @@ AddressChangeLevel = function(){
 					.attr("data-level", $(this).attr("data-level"));
 			});
 			
+			$('#clRangeBtn').click(function(){
+				hide();
+			});
+			
 			$itemParent.keydown(function(e){
 				if (!/(37|38|39|40)/.test(e.which)) return;
 				var $items = $(this).find(desc);
@@ -953,7 +1006,7 @@ AddressChangeLevel = function(){
 				
 				var cid = $('#editFormCountyId').val();
 				//是否要将
-				var confirmMsg = '是否确定要将 "' + lastAddrTreeObj.addrFullName + '" 的上级变更为 "'+ selected.addrFullName +'" ? \n 此操作将会对当前第之下的所有子集都做出相应的修改!';
+				var confirmMsg = '是否确定要将 "' + lastAddrTreeObj.addrFullName + '" 的上级变更为 "'+ selected.addrFullName +'" ? \n 此操作将会对上述两个地址的名字相同的子集合并!';
 				if(confirm( confirmMsg )){
 					common.post("tree/changeParent", {
 						"pid": selected.addrId,

@@ -80,8 +80,14 @@ public class TreeService {
 		boolean isBlank = tree.getIsBlank().equals(BusiConstants.Booleans.T.name());
 		if(isBlank){
 			tree.setAddrName(BusiConstants.StringConstants.BLANK_ADDR_NAME);
+		}else{
+			String addrName = tree.getAddrName();
+			if(!isBlank && BusiConstants.StringConstants.BLANK_ADDR_NAME.equals(addrName)){
+				throw new MessageException(StatusCodeConstant.NONE_BLANK_ADDRESS_WRONG_NAME);
+			}
 		}
 		String addrName = checkAddrName(tree);
+		
 		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR);
 		tree.setAddrName(addrName);
 		
@@ -92,7 +98,7 @@ public class TreeService {
 		String slash = BusiConstants.StringConstants.SLASH;
 		if(null != parentNode){
 			str1 = parentNode.getStr1() +( slash + addrName );
-			fullName = parentNode.getAddrFullName() + addrName;
+			fullName = parentNode.getAddrFullName() + (isBlank ? "":addrName);
 		}else{//如果没有上级,这里一定是一级地址
 			str1 = addrName;
 			fullName = addrName;
@@ -135,9 +141,10 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.NON_BLANK_ADDR_WITH_NO_NAME);
 		}
 		addrName = literalCheckAddrName(tree, addrName);
-		String check = addrNameChecker.checkBusiRule(tree );
-		if(StringHelper.isNotEmpty(check)){
-			throw new MessageException(StatusCodeConstant.ADDR_NAME_INVALID);
+		Integer check = addrNameChecker.checkBusiRule(tree );
+		if(check != null && 0 != check){
+			StatusCodeConstant code = StatusCodeConstant.parseCode(check);
+			throw new MessageException(code);
 		}
 		//检查同级别的有没有同名地址
 		boolean exists = false;
@@ -276,17 +283,19 @@ public class TreeService {
 	 * 根据关键字进行搜索地址， 地址按照一定的规则进行排序
 	 * 搜索时需要根据用户设置的作用域并结合startLevel进行搜索
 	 * 
-	 * @param startLevel 开始级别，如果为-1则为所有
+	 * @param targetLevel 开始级别，如果为-1则为所有
 	 * @param keyword
 	 * @return 结果集进行分页
 	 * @throws Throwable
 	 */
-	public Pagination doSearchAddress(Integer startLevel, String keyword,
+	public Pagination doSearchAddress(Integer targetLevel, String keyword,
 			Integer start, Integer limit) throws Throwable {
 		Map<String, Object> param = new HashMap<String, Object>();
 		String baseScope = getBaseScope();
 		param.put("baseScope", baseScope);
-		param.put("addrLevel", startLevel);
+		if(targetLevel > 0){
+			param.put("addrLevel", targetLevel);
+		}
 		param.put("countyId", getGlobeCountyId());
 		param.put("userid", getUserInSession().getUserOID());
 		param.put("keyword", keyword);//全名
@@ -533,15 +542,26 @@ public class TreeService {
 	public AdTree saveChangeParent(Integer addrId,Integer pid) throws Throwable{
 		//准备参数、校验
 		AdTree sourceChild = queryByKey(addrId);
+		AdTree sourceCopy = new AdTree();
+		CglibUtil.copy(sourceChild, sourceCopy);
+		
 		checkRole(sourceChild.getAddrLevel());
 		AdTree parent = queryByKey(pid);
 		if(parent.getAddrLevel() +1 != sourceChild.getAddrLevel() ){
 			throw new MessageException(StatusCodeConstant.CHANGE_LEVEL_PARENT_LEVEL_WRONG);
 		}
 		Date createTime = new Date();
-		createDoneCode(createTime, BusiCodeConstants.CHANGE_PARENT);
 		//干活
 		changeParent(sourceChild, parent);
+		
+		AdTreeChange change = new AdTreeChange();
+		CglibUtil.copy(sourceCopy, change);
+		change.setChangeTime(new Date());
+		change.setChangeDoneCode(createDoneCode(createTime, BusiCodeConstants.CHANGE_PARENT));
+		change.setChangeOptrId(getUserInSession().getUserOID());
+		change.setChangeCause("变更父级 => " + parent.getStr1() + "( " + pid + " )"   );
+		change.setChangeType(AddrChangeType.CHANGE_PARENT.name());
+		adTreeChangeMapper.insert(change);
 		return sourceChild;
 	}
 	
@@ -585,18 +605,57 @@ public class TreeService {
 		}
 		AdTree targetParent = queryByKey(target.getAddrParent());
 		int createDoneCode = createDoneCode(new Date(), BusiCodeConstants.MERGE);
-		List<Integer> ids2beDelete = new ArrayList<Integer>();
-		ids2beDelete.add(sourceId);
+		List<Map<Boolean, Integer>> ids2beDelete = new ArrayList<Map<Boolean,Integer>>();
+		//true : source false : target
+		Map<Boolean, Integer> map = new HashMap<Boolean, Integer>();
+		map.put(true, sourceId);
+		map.put(false, targetId);
+		ids2beDelete.add(map);
 		mergeAddress(source, target, targetParent, ids2beDelete);
-		if(CollectionHelper.isNotEmpty(ids2beDelete)){
-			for (Integer addrid : ids2beDelete) {
-				//删除被删除的东西
-				delTree(addrid, createDoneCode,true);
-			}
-		}
+		delMergeredTree(ids2beDelete,createDoneCode);
 		return target;
 	}
 	
+	/**
+	 * 删除被合并掉的地址.
+	 * @param list
+	 * @param doneCode 
+	 */
+	private void delMergeredTree(List<Map<Boolean, Integer>> list, Integer doneCode)throws Throwable {
+		if(CollectionHelper.isEmpty(list)){
+			return;
+		}
+		Date createTime = new Date();
+		String userOID = ThreadUserParamHolder.getOptr().getUserOID();
+		String status = BusiConstants.Status.INVALID.name();
+		for (Map<Boolean, Integer> map : list) {
+			Integer addrId = map.get(true);
+			
+			AdTree tree = checkTreeExists(addrId);
+			checkRole(tree.getAddrLevel());
+			//TODO 判断有没有被BOSS系统引用，有没有被光站系统引用   
+			this.addrNameChecker.usedByOtherSystem(tree);
+			
+			tree.setStatus(status);
+			adTreeMapper.deleteByPrimaryKey(tree.getAddrId());
+			AdTreeChange change = new AdTreeChange();
+			CglibUtil.copy(tree, change);
+			change.setChangeTime(createTime);
+			change.setChangeCause("合并删除");
+			change.setMergeAddrId(map.get(false));
+			change.setChangeDoneCode(doneCode);
+			change.setChangeType(AddrChangeType.MERGE_DEL.name());
+			change.setChangeOptrId(userOID);
+			
+			List<AdCollections> colls = checkAddressIsCollected(addrId);
+			colls = CollectionHelper.isEmpty(colls) ? new ArrayList<AdCollections>():colls;
+			for (AdCollections coll : colls) {
+				adCollectionsMapper.deleteByAddrAndUser(coll);
+			}
+			adTreeChangeMapper.insert(change);
+		}
+	}
+
 	/**
 	 * source和targe同级.合并的对象.
 	 * @param source
@@ -605,7 +664,7 @@ public class TreeService {
 	 * @param ids2beDelete
 	 * @throws Throwable
 	 */
-	private void mergeAddress(AddrDto source, AddrDto target, AdTree parent, List<Integer> ids2beDelete)throws Throwable {
+	private void mergeAddress(AddrDto source, AddrDto target, AdTree parent, List<Map<Boolean, Integer>> ids2beDelete)throws Throwable {
 		List<AddrDto> srcSons = source.getChildren();
 		srcSons = CollectionHelper.isEmpty(srcSons) ? new ArrayList<AddrDto>():srcSons;
 		List<AddrDto> tarSons = target.getChildren();
@@ -624,7 +683,11 @@ public class TreeService {
 				String addrName = scSon.getAddrName();
 				AddrDto tarSon = tarMapById.get(addrName);
 				if(null != tarSon){//如果有重名
-					ids2beDelete.add(scSon.getAddrId());
+					Map<Boolean, Integer> map = new HashMap<Boolean, Integer>();
+					map.put(true, scSon.getAddrId());
+					map.put(false, tarSon.getAddrId());
+					ids2beDelete.add(map);
+					
 					mergeAddress(scSon, tarSon, target, ids2beDelete);
 				}else{
 					changeParent(scSon, target);
@@ -806,7 +869,7 @@ public class TreeService {
 		}
 		return tree;
 	}
-	
+
 	/**
 	 * 检查地址是否已经被收藏.
 	 * @param addrId
@@ -828,6 +891,21 @@ public class TreeService {
 			}
 		}
 		return null;
+	}
+	
+
+	/**
+	 * 检查地址是否已经被收藏.
+	 * @param addrId
+	 * @param userId
+	 * @return
+	 * @throws MessageException
+	 */
+	private List<AdCollections> checkAddressIsCollected(Integer addrId){
+		AdCollections coll = new AdCollections();
+		coll.setAddrId(addrId);
+		List<AdCollections> colls = adCollectionsMapper.selectByExample(coll);
+		return colls;
 	}
 
 	

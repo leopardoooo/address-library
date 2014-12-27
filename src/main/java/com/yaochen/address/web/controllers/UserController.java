@@ -103,6 +103,53 @@ public class UserController {
 		return ReturnValueUtil.getVoidRoot();
 	}
 	
+	/**
+	 * 重新设置当前操作员的地址级别
+	 * 用于在点击收藏的时候,当被点击的收藏地址与已经选中的分公司不一致的情况下调用.
+	 * 
+	 * @param levelPath 如：1/2/3
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/reSetAddrScopeForCurrentUser")
+	@ResponseBody
+	public Root<AdTree> reSetAddrScopeForCurrentUser(@RequestParam("pid") Integer pid,HttpSession session)throws Throwable {
+		AdTree tree = treeService.queryByKey(pid);
+		String countyId = tree.getCountyId();
+		String addrPrivateName = tree.getAddrPrivateName();
+		String str1 = tree.getStr1();
+		String slash = BusiConstants.StringConstants.SLASH;
+		
+		if(tree.getAddrLevel() > 2){
+			String [] names = str1.split("/");
+			String[] codes = addrPrivateName.split("/");
+			str1 = names[0] + slash + names[1];
+			addrPrivateName = codes[0] + slash + codes[1];
+		}
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID, countyId);
+		ThreadUserParamHolder.setGlobeCountyId(countyId);
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, addrPrivateName);
+		ThreadUserParamHolder.setBaseQueryScope(addrPrivateName);
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT, str1);
+		
+		List<AdLevel> levelRaw = treeService.findAuthLevelByCurrentUser();
+		List<AdLevel> levels = new ArrayList<AdLevel>();
+		Integer addrLevel = tree.getAddrLevel();
+		for (AdLevel level : levelRaw) {
+			boolean ok = level.getLevelNum()>addrLevel;
+			if(ok){
+				levels.add(level);
+			}
+		}
+		
+		//设置了这个属性之后,  把 操作员的 权限级别  放入到session
+		session.setAttribute(BusiConstants.StringConstants.FILTERED_LEVELS_IN_SESSION, levels);
+		List<AdLevel> allLevels = treeService.findAllLevels();
+		session.setAttribute(BusiConstants.StringConstants.ALL_LEVELS_IN_SESSION, allLevels);
+		//传递给前台使用
+		tree.setStr1(str1);
+		return ReturnValueUtil.getJsonRoot(tree);
+	}
 	
 	/**
 	 * 设置当前操作员的地址级别
@@ -115,18 +162,15 @@ public class UserController {
 	@ResponseBody
 	public Root<Void> setAddrScopeForCurrentUser(@RequestParam("pid") Integer pid,@RequestParam("subId") Integer subId, 
 			@RequestParam("scopeText") String scopeText, HttpSession session)throws Throwable {
-		String slash = BusiConstants.StringConstants.SLASH;
-		String str = BusiConstants.StringConstants.TOP_PID + slash + pid + slash;
 		Integer lowestAddrId = pid;
 		if(null != subId ){
 			lowestAddrId = subId;
-			str += subId + slash;
 		}
 		AdTree tree = treeService.queryByKey(lowestAddrId);
 		
 		session.setAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID, tree.getCountyId());
-		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, str);
-		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT, scopeText);
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND, tree.getAddrPrivateName());
+		session.setAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT, tree.getStr1());
 		
 		List<AdLevel> levelRaw = treeService.findAuthLevelByCurrentUser();
 		List<AdLevel> levels = new ArrayList<AdLevel>();

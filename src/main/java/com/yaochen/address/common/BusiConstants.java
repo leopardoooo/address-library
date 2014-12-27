@@ -104,7 +104,9 @@ public class BusiConstants {
 	 */
 	public static enum AddrChangeType{
 		/**编辑 */
-		EDIT, 
+		EDIT,
+		/**变更父级**/
+		CHANGE_PARENT,
 		/** 合并删除 */
 		MERGE_DEL, 
 		/** 审核失败 */

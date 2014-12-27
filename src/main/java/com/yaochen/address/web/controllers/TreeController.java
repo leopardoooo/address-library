@@ -144,19 +144,19 @@ public class TreeController implements BeanFactoryAware{
 	 * 根据关键字进行搜索地址， 地址按照一定的规则进行排序
 	 * 搜索时需要根据用户设置的作用域并结合startLevel进行搜索
 	 * 
-	 * @param startLevel 开始级别，如果为-1则为所有
+	 * @param targetLevel 开始级别，如果为-1则为所有
 	 * @param keyword
 	 * @return 结果集进行分页
 	 * @throws Throwable
 	 */
 	@RequestMapping("/search")
 	@ResponseBody
-	public Root<Pagination> doSearchAddress(@RequestParam("sl")Integer startLevel, 
+	public Root<Pagination> doSearchAddress(@RequestParam("sl")Integer targetLevel, 
 			@RequestParam("q") String keyword, 
 			@RequestParam("start") Integer start, 
 			@RequestParam("limit") Integer limit)throws Throwable {
 		
-		Pagination pager = treeService.doSearchAddress(startLevel, keyword, start, limit);
+		Pagination pager = treeService.doSearchAddress(targetLevel, keyword, start, limit);
 		return ReturnValueUtil.getJsonRoot(pager);
 	}
 	

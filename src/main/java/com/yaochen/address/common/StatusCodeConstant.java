@@ -3,6 +3,7 @@
  */
 package com.yaochen.address.common;
 
+
 /**
  * 业务响应状态码
  *
@@ -40,7 +41,13 @@ public enum StatusCodeConstant {
 	MERGE_ERROR_SOME_ADDR_NOT_EXISTS(326, "要合并的两个地址必须都存在"),
 	MERGE_ERROR_LEVEL_DISMATCH(327, "要合并的两个地址必须同级"),
 	CHANGE_LEVEL_PARENT_LEVEL_WRONG(328, "更改上级时,上级地址的级别只能比当前地址级别高上一级"),
+	NONE_BLANK_ADDRESS_WRONG_NAME(329, "非留空地址,名字不能使用“留空”"),
 	
+	
+	//名字校验返回的错误 1005
+	ADDR_NAME_CHECK_1005(1005,"五级地址不能出现#号"),
+	ADDR_NAME_CHECK_1006(1005,"六级地址不能出现数字"),
+	UNKNOWN_ERROR(999,"未知错误"),
 	//系统
 	SYSTEM_UNKNOW_EXCEPTION(500, "系统未知异常，不可预料的异常，发生该类异常标志着一个BUG"),
 	SESSION_NOT_EXIST_OR_INVALID(501, "Session不存在或已失效"),
@@ -63,5 +70,15 @@ public enum StatusCodeConstant {
 
 	public String getDesc() {
 		return desc;
+	}
+	
+	public static StatusCodeConstant parseCode(int code){
+		StatusCodeConstant[] values = StatusCodeConstant.values();
+		for(StatusCodeConstant scs: values){
+			if(code == scs.getCode().intValue()){
+				return scs;
+			}
+		}
+		return null;
 	}
 }
