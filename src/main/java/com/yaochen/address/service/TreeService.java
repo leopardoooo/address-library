@@ -403,7 +403,21 @@ public class TreeService {
 		
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
-		adTreeMapper.selectByPid(pager);
+		List<AdTree> selectByKeyWord = adTreeMapper.selectByPid(pager);
+		
+		AdCollections coll = new AdCollections();
+		coll.setUserid(getUserInSession().getUserOID());
+		List<AdCollections> colls = adCollectionsMapper.selectByExample(coll);
+		Map<String, List<AdCollections>> map = CollectionHelper.converToMap(colls, "addrId");
+		for (AdTree tree : selectByKeyWord) {
+			List<AdCollections> list = map.get(tree.getAddrId().toString());
+			Integer collected = 0;
+			if(CollectionHelper.isEmpty(list)){
+				collected = 1;
+			}
+			tree.setCollected(collected);
+		}
+		pager.setRecords(selectByKeyWord);
 		return pager;
 	}
 	
