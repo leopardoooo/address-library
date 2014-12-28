@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <!-- 编辑区 -->
-<div id="edit" class="panel panel-default">
+<div id="edit" class="panel panel-default" data-changed-flag="false" onmouseleave="$(this).trigger('mouseoutChain')">
 	<div class="panel-heading clearfix">
 		<span class="text">地址信息</span>
 		<div class="pull-right">
@@ -16,19 +16,33 @@
 			<label for="currentLevelAddr">分级名称<b id="editFormFullLevel"></b></label>
 			<label class="form-control" id="editFormFullAddrName" placeholder="完整的地址名称"></label>
 		</div>
-		<div class="form-group"> 
-			<label for="parentLevelAddr">地址编号</label>
-			<input type="text" class="form-control" id="editFormAddrId" readonly="readonly" placeholder="可通过编号直接搜索">
-			<input type="hidden" id="editFormCountyId">
+		
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-6">
+					<div class="form-group"> 
+						<label for="parentLevelAddr">地址编号</label>
+						<input type="text" class="form-control" id="editFormAddrId" readonly="readonly" placeholder="可通过编号直接搜索">
+					</div>
+				</div>
+				<div class="col-xs-6">
+					<div class="form-group"> 
+						<label for="parentLevelAddr">是否留空</label>
+						<input type="text" class="form-control" id="editFormIsBlank" readonly="readonly">
+						<input type="hidden" id="editFormCountyId">
+					</div>
+				</div>
+			</div> 
 		</div>
+		
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-6">
 					<div class="form-group"> 
 						<label for="editFormAddrType">地址类型</label>
 						<select class="form-control" id="editFormAddrType">
-							<option value="CITY">城市地址</option>
-							<option value="RURAL">农村地址</option>
+							<option value="CITY">城镇</option>
+							<option value="RURAL">农村</option>
 						</select>
 					</div>
 				</div>

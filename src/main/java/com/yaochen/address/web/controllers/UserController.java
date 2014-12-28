@@ -63,8 +63,9 @@ public class UserController {
 			session.setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, "未能找到OA系统于地址库系统的分公司对应关系");
 			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
 		}
-		login.setCompanyOID(countyObj.getCountyId());
-		
+		String countyId = countyObj.getCountyId();
+		login.setCompanyOID(countyId);
+		logger.info("当前登录用户  " + login.getUserName() + " 分公司 " + login.getCompanyName() + " countyId : " + login.getCompanyOID());
 		//登录的用户放到session和线程变量里
 		int maxLevel = treeService.getMaxAllowedLevel(login);
 		login.setMaxLevelAllowed(maxLevel);

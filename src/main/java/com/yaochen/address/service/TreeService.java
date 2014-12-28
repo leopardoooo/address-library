@@ -293,18 +293,40 @@ public class TreeService {
 		Map<String, Object> param = new HashMap<String, Object>();
 		String baseScope = getBaseScope();
 		param.put("baseScope", baseScope);
+		UserInSession userInSession = getUserInSession();
+		String globeCountyId = getGlobeCountyId();
+		int total = 0;
 		if(targetLevel > 0){
 			param.put("addrLevel", targetLevel);
+		}else if(targetLevel == 0){//等于0的时候,直接根据ID查询
+			Pagination pager = new Pagination(param,0,total);
+			List<AdTree> list = new ArrayList<AdTree>();
+			int targetId = 0;
+			try {
+				targetId = Integer.parseInt(keyword);
+			} catch (Exception e) {
+				throw new MessageException(StatusCodeConstant.PARAM_ERROR_WHEN_QUERY_BY_ID);
+			}
+			
+			AdTree addr = queryByKey(targetId);
+			boolean countyAll = userInSession.getCompanyOID().equals(BusiConstants.StringConstants.COUNTY_ALL);
+			if(countyAll || globeCountyId.equals(addr.getCountyId())){
+				list.add(addr);
+				total = 1;
+			}
+			pager.setTotalCount(total);
+			pager.setRecords(list);
+			return pager;
 		}
-		param.put("countyId", getGlobeCountyId());
-		param.put("userid", getUserInSession().getUserOID());
+		param.put("countyId", globeCountyId);
+		param.put("userid", userInSession.getUserOID());
 		param.put("keyword", keyword);//全名
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
 		
 		List<AdTree> selectByKeyWord = adTreeMapper.selectByKeyWord(pager);
 		AdCollections coll = new AdCollections();
-		coll.setUserid(getUserInSession().getUserOID());
+		coll.setUserid(userInSession.getUserOID());
 		List<AdCollections> colls = adCollectionsMapper.selectByExample(coll);
 		Map<String, List<AdCollections>> map = CollectionHelper.converToMap(colls, "addrId");
 		for (AdTree tree : selectByKeyWord) {

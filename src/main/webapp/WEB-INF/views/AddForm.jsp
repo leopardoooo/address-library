@@ -41,8 +41,8 @@
 								<label for="addFormAddrType">地址类型</label>
 								<select class="form-control" id="addFormAddrType">
 									<option value=""></option>
-									<option value="CITY">城市地址</option>
-									<option value="RURAL">农村地址</option>
+									<option value="CITY">城镇</option>
+									<option value="RURAL">农村</option>
 								</select>
 							</div>
 						</div>

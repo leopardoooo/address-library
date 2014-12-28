@@ -42,6 +42,7 @@ public enum StatusCodeConstant {
 	MERGE_ERROR_LEVEL_DISMATCH(327, "要合并的两个地址必须同级"),
 	CHANGE_LEVEL_PARENT_LEVEL_WRONG(328, "更改上级时,上级地址的级别只能比当前地址级别高上一级"),
 	NONE_BLANK_ADDRESS_WRONG_NAME(329, "非留空地址,名字不能使用“留空”"),
+	PARAM_ERROR_WHEN_QUERY_BY_ID(330, "根据ID查询地址的时候,传入的参数错误,应为数字"),
 	
 	
 	//名字校验返回的错误 1005

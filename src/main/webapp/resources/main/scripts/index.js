@@ -97,6 +97,11 @@ SwitchCityModal = function(w){
 			var arr = $cityListDiv.find("button");
 			for (var index = 0; index < arr.length; index++) {
 				var btn = $(arr[index]);
+				if(!filter){
+					this.pagingCities(1);
+					return;
+				}
+				//TODO 如果关键字过滤之后,仍然很多，将来考虑继续处理，暂时放下
 				if(!filter || btn.attr('title').indexOf(filter) > -1){
 					btn.attr('data-show',true);
 				}else{
@@ -160,22 +165,17 @@ Collections = function(){
 			$parent.click(function(e){
 				if(!/a/i.test(e.target.tagName)) return ;
 				var addrId = $(e.target).attr("data-id");
-				var clean = AddressEdit.isClear();//编辑框没有变更
-				var msgUnSavedField = null;
-				if(!clean) msgUnSavedField = '尚有正在编辑的地址没有保存\n';
 				//有未保存的编辑
 				var notTheSameCompany = null;
 				if (GlobalCountyId != $(e.target).attr('countyId')){
 					notTheSameCompany = '收藏的地址与当前登录时候已选中的分公司不一致,继续执行将会直接切换分公司\n';
 				}
 				var confirmMsg = '';
-				if(! msgUnSavedField && !notTheSameCompany){
+				if(!notTheSameCompany){
 					Address.doShowAddressById(addrId);
 					return;
 				}
-				debugger;
-				var confirmMsg = (notTheSameCompany || '') + (msgUnSavedField || '') 
-					+ '是否要切换到 "' +  $(e.target).text() + '" ?' ;
+				var confirmMsg = (notTheSameCompany || '') + '是否要切换到 "' +  $(e.target).text() + '" ?' ;
 				if(confirm(confirmMsg)){
 					if(notTheSameCompany){
 						//切换分公司
@@ -272,7 +272,6 @@ Search = function(W){
 				if (!$items.length) return;
 
 				var index = $items.index(e.target);
-				if(!AddressEdit.isClear() && !confirm("尚有正在编辑的地址没有保存，是否放弃保存？")) return;
 				e.preventDefault();
 				e.stopPropagation();
 				

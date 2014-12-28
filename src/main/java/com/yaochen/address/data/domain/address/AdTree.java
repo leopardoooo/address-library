@@ -33,6 +33,8 @@ public class AdTree {
 
     /** 是否留空 */
     private String isBlank;
+    
+    private String isBlankText;
 
     /** 上级地址ID */
     private Integer addrParent;
@@ -143,6 +145,15 @@ public class AdTree {
 
     public void setIsBlank(String isBlank) {
         this.isBlank = isBlank == null ? null : isBlank.trim();
+        if(StringHelper.isEmpty(this.isBlank)) {
+        	setIsBlankText("");
+        	return;
+        }
+        if(BusiConstants.Booleans.T.name().equals(this.isBlank)){
+        	setIsBlankText("是");
+        }else if(BusiConstants.Booleans.F.name().equals(this.isBlank)){
+        	setIsBlankText("否");
+        }
     }
 
     public Integer getAddrParent() {
@@ -280,4 +291,13 @@ public class AdTree {
 	public void setAddrUseText(String addrUseText) {
 		this.addrUseText = addrUseText;
 	}
+
+	public String getIsBlankText() {
+		return isBlankText;
+	}
+
+	public void setIsBlankText(String isBlankText) {
+		this.isBlankText = isBlankText;
+	}
+	
 }

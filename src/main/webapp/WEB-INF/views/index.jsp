@@ -95,6 +95,8 @@
 							<%} %>
 							<li class="divider"></li>
 							<li class="dropdown-header">“选择一个级别开始搜索”</li>
+							<li class="divider"></li>
+							<li><a href="#" data-level="0">根据ID查询</a>
 						</ul>
 					</div><!-- /btn-group -->
 					<div class="input-container">
@@ -219,6 +221,28 @@
 			</div>
 		</div>
 	</div>
+	
+	<!-- 模态框（Modal） -->
+	<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog"
+		data-backdrop="static" aria-labelledby="confirmModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="confirmModalLabel">模态框（Modal）标题</h4>
+				</div>
+				<div id="confirmBody" class="modal-body">在这里添加一些文本</div>
+				<div class="modal-footer">
+					<button type="button" id="confirmCancelBtn" class="btn btn-default" data-dismiss="modal">关闭
+					</button>
+					<button type="button" id="confirmYesBtn" class="btn btn-primary">提交更改</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal -->
 </body>
 <%@ include file="/WEB-INF/common/foot.jsp" %>
 <script src="<%=RES %>/main/scripts/common.js"></script>

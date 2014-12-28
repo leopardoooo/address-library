@@ -108,8 +108,6 @@ Address = function(){
 			});
 		},
 		doTriggerEvent: function(index, event, $parent){
-			//检查是否有正在编辑且没有保存的地址.
-			if(!AddressEdit.isClear() && !confirm("尚有正在编辑的地址没有保存，是否放弃保存？")) return;
 			var addrTreeObj = (index == -1) ? that.lastAddrTreeObj : that.data.records[index];
 			// 查看明细
 			if(event === "detail"){
@@ -469,10 +467,12 @@ AddressEdit = function(){
 	var $fullLevel = $("#editFormFullLevel"),
 		$fullAddrName = $("#editFormFullAddrName"),desc = ">li>a",
 		$addrId = $("#editFormAddrId"),
+		$isBlank=$('#editFormIsBlank'),
 		$addrType = $("#editFormAddrType"),
 		$addrPurpose = $("#editFormAddrPurpose"),
 		$addrParent = $('#editFormAddrPid'),
 		$addrCountyId = $('#editFormCountyId'),
+		$editPanel=$('#edit'),
 		$addrName = $("#editFormAddrName");
 	var $collectBtn = $("#editFormCollectBtn");
 	
@@ -485,11 +485,23 @@ AddressEdit = function(){
 		initialize: function(){
 			that = AddressEdit;
 			
+			$editPanel.bind('mouseoutChain',function(){
+				var clean = AddressEdit.isClear();
+				if(!clean){
+					//TODO 离开事件 
+					var scope = {};
+					var cfg = {title:'提醒',yesTxt:'确定',cancelTxt:'取消'};
+					Confirm('有正在编辑的地址信息没有保存,是否保存',{},function(){
+						$("#editFormSaveBtn").trigger('click');
+					},scope)
+				}
+			});
+			
 			$fullAddrName.click(function(e){
 				if(!/a/i.test(e.target.tagName)) return ;
 				var addrId = $(e.target).attr("addr-id");
 				if(!addrId){ return; }
-				//提示一下
+				//这个在编辑的panel内部,要特别提示一下
 				var msgPlus = '\n 尚有正在编辑的地址没有保存，是否放弃保存？直接跳转?';
 				if(confirm('是否要切换到 "' + $(e.target).attr("title") + '" ?' + (AddressEdit.isClear() ? '': msgPlus  ) )  ){
 					Address.doShowAddressById(addrId);
@@ -571,6 +583,7 @@ AddressEdit = function(){
 			
 			$fullAddrName.html(html);
 			$addrId.val(addrTreeObj["addrId"]);
+			$isBlank.val(addrTreeObj['isBlankText']),
 			$addrType.val(addrTreeObj["addrType"]);
 			$addrPurpose.val(addrTreeObj["addrUse"]);
 			$addrName.val(addrTreeObj["addrName"]);
@@ -583,20 +596,21 @@ AddressEdit = function(){
 				return ;
 			}
 			var action = 'collectTree';
-			var confirmMessagePre = '确定要收藏';
+			
+			var confirmMessagePre = '收藏';
 			if(lastAddrTreeObj.collected == 0){
 				action = 'cancelCollectTree';//取消收藏
-				confirmMessagePre = '确定要取消收藏';
+				confirmMessagePre = '取消收藏';
 			}
-			if(confirm(String.format(confirmMessagePre + '“#{addrFullName}”?', lastAddrTreeObj))){
-				// post
+			var message = String.format(confirmMessagePre + '“#{addrFullName}”?', lastAddrTreeObj);
+			Confirm(message, {title:confirmMessagePre,yesTxt:confirmMessagePre}, function(){
 				common.post("tree/"+action, {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
 					Alert("操作成功!");
 					lastAddrTreeObj["collected"] = (lastAddrTreeObj.collected == 0 ? 1 : 0);
 					that.switchCollectClass();
 					Collections.doRender();
 				});
-			}
+			});
 		},
 		doDelete: function(){
 			if(!lastAddrTreeObj)
@@ -638,7 +652,7 @@ AddressEdit = function(){
 			
 			// post
 			common.post("tree/modTree", data, function(responseData){
-				Address.doShowAddressById(lastAddrTreeObj.addrParent);
+				Address.doShowAddressById(lastAddrTreeObj.addrId);
 				Alert("修改成功!");
 			});
 		},
