@@ -369,9 +369,10 @@ AddressAdd = function(){
 			
 			var level =treeObj.addrLevel;
 			if(treeObj.addrLevel == GlobalMaxLevelAllowed ){
-				Alert('当前要添加的地址级别超过了已配置的最低级别的范围,无法继续添加.');
-				$win.modal('hide');
-				$win.attr('someDataChanged',false);
+				Alert('提示','当前要添加的地址级别低于已配置的最低级别,无法继续添加.',function(){
+					$win.modal('hide');
+					$win.attr('someDataChanged',false);
+				});
 				return ;
 			}
 			
@@ -444,16 +445,14 @@ AddressAdd = function(){
 				uri = "tree/addTree";
 				addrFullName = data["addrFullName"];
 			}
-			
-			if(!confirm(String.format('确定要为添加下级地址 "#{0}"吗', addrFullName))){
-				return ;
-			}
-			
-			//post
-			common.post(uri, data, function(responseData){
-				Alert("添加成功!");
-				$addrNameInput.val();
-				callback(responseData);
+			var message = String.format('确定要添加下级地址 "#{0}"吗', addrFullName);
+			Confirm(message, {}, function(){
+				//post
+				common.post(uri, data, function(responseData){
+					Alert("添加成功!");
+					$addrNameInput.val();
+					callback(responseData);
+				});
 			});
 		}
 	};
@@ -615,9 +614,8 @@ AddressEdit = function(){
 		doDelete: function(){
 			if(!lastAddrTreeObj)
 				return ;
-			
-			if(confirm(String.format('确定要删除“#{addrFullName}”?', lastAddrTreeObj))){
-				// post
+			var message = String.format('确定要删除“#{addrFullName}”?', lastAddrTreeObj);
+			Confirm(message, {title:'提示',yesTxt:'确认删除',calcelTxt:'取消'}, function(){
 				common.post("tree/delTree", {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
 					Alert("删除成功!");
 					Collections.doRender();
@@ -629,7 +627,7 @@ AddressEdit = function(){
 						Address.reloadAddress();
 					}
 				});
-			}
+			});
 		},
 		doUpdate: function(){
 			if(!lastAddrTreeObj){
@@ -844,7 +842,7 @@ AddressSingleMerge = function(){
 				
 				var cid = $('#editFormCountyId').val();
 				var confirmMsg = '是否确定要将"' + lastAddrTreeObj.addrFullName + '" 合并到 "'+  selected.addrFullName +'" ? \n 此操作将会对当前第之下的所有子集都做出相应的修改!';
-				if(confirm( confirmMsg )){
+				Confirm(confirmMsg, {yesTxt:'合并'}, function(){
 					common.post("tree/singleMerge", {
 						"merger": selected.addrId,
 						"mergered": lastAddrTreeObj.addrId,
@@ -853,7 +851,7 @@ AddressSingleMerge = function(){
 							Address.doShowAddressById(data.addrId);
 						}
 					})
-				}
+				});
 			}
 		}
 	};
@@ -1021,7 +1019,7 @@ AddressChangeLevel = function(){
 				var cid = $('#editFormCountyId').val();
 				//是否要将
 				var confirmMsg = '是否确定要将 "' + lastAddrTreeObj.addrFullName + '" 的上级变更为 "'+ selected.addrFullName +'" ? \n 此操作将会对上述两个地址的名字相同的子集合并!';
-				if(confirm( confirmMsg )){
+				Confirm(confirmMsg, {yesTxt:'确认合并'}, function(){
 					common.post("tree/changeParent", {
 						"pid": selected.addrId,
 						"addrId": lastAddrTreeObj.addrId,
@@ -1030,7 +1028,7 @@ AddressChangeLevel = function(){
 							Address.doShowAddressById(data.addrId);
 						}
 					})
-				}
+				});
 			}
 		}
 	};

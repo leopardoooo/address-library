@@ -176,7 +176,8 @@ Collections = function(){
 					return;
 				}
 				var confirmMsg = (notTheSameCompany || '') + '是否要切换到 "' +  $(e.target).text() + '" ?' ;
-				if(confirm(confirmMsg)){
+				
+				Confirm(confirmMsg, {}, function(){
 					if(notTheSameCompany){
 						//切换分公司
 						common.post("user/reSetAddrScopeForCurrentUser", {
@@ -187,7 +188,7 @@ Collections = function(){
 						});
 					}
 					Address.doShowAddressById(addrId);
-				}
+				});
 			});
 			Collections.doRender();
 		},

@@ -12,10 +12,15 @@ common = {
 			url = common.settings.path + "/" + url;
 		}
 		dataType = dataType || "json";
+		if(!data.$ajaxRequestWiredFlagName){
+			data.$ajaxRequestWiredFlagName = true;//配合后台过滤器,标记是ajax请求
+		}
 		return $.post(url, data, function(responseData){
 			if(responseData && responseData["code"] == 200){
 				success(responseData["data"]);
-			}else if(responseData.code == '307'){//没有  登录
+			}else if(responseData.code == '307'){//没有  授权
+				common.href('');
+			}else if(responseData.code == '311'){//没有登录
 				common.href('');
 			}else{
 //				alert("Ajax Error! code: " + responseData["code"] + ", message: " + responseData["message"]);
@@ -255,7 +260,7 @@ Alert = function(){
 		alert(msg);
 	}
 	if(callback){
-		callback.call( callbackScope || {},callBackArgs );
+		callback.defer(500, callbackScope || {},callBackArgs );
 	}
 };
 

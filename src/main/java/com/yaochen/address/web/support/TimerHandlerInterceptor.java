@@ -1,5 +1,7 @@
 package com.yaochen.address.web.support;
 
+import java.io.PrintWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -10,6 +12,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.common.StringHelper;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.support.ThreadUserParamHolder;
@@ -40,8 +43,19 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 		}else{
 			//这里多做了点事情,不用重新搞个filter
 			if(!"/user/login".equals(servletPath) && ! login.equals(servletPath)){
-				response.sendRedirect(contextPath );
-				return false;
+				String ajaxFlag = request.getParameter("$ajaxRequestWiredFlagName");
+				if(!Boolean.parseBoolean(ajaxFlag)){
+					response.sendRedirect(contextPath );
+					return false;
+				}else{//如果不是AJAX请求
+					String msg = "{\"code\":%d,\"message\":\"%s\",\"data\":null}";
+					StatusCodeConstant code = StatusCodeConstant.USER_NOT_LOGGED;
+					response.setCharacterEncoding("UTF-8");
+					PrintWriter writer = response.getWriter();
+					writer.write(String.format(msg, code.getCode(),code.getDesc()));
+					writer.flush();
+					return true;
+				}
 			}
 			
 		}
