@@ -2,19 +2,25 @@ package com.yaochen.address.support;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.xerces.dom.DocumentImpl;
 import org.codehaus.xfire.client.Client;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.alibaba.fastjson.JSON;
+import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.CollectionHelper;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
-import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
 
 public class LoginWebServiceClient {
+	private Logger logger = Logger.getLogger(getClass());
 	private Client client;
 	private String wsdlUrl;
 	String loginMethod ;
@@ -49,6 +55,22 @@ public class LoginWebServiceClient {
 		}
 		String json = remoteInvokeRaw[0].toString();
 		UserInSession parseObject = JSON.parseObject(json,UserInSession.class);
+		List<SystemFunction> sysFuns = parseObject.getSystemFunction();
+		List<SystemFunction> funs = new ArrayList<SystemFunction>();
+		String code = System.getProperty(BusiConstants.StringConstants.ADDR_SYS_FUN_CODE);
+		logger.info("系统配置的functionId " + code );
+		for (SystemFunction fun : sysFuns) {
+			if(fun.getFunctionOID().toString().equals(code)){
+				funs.add(fun);
+				break;
+			}
+		}
+		logger.debug("webservice获得登录用户数据: \n "  + json);
+		if(CollectionHelper.isEmpty(funs)){
+			throw new Exception("当前用户未被授权登录地址库系统(FunctionOID [" + code + "])");
+		}
+			
+		parseObject.setSystemFunction(funs);
 		return parseObject;
 	}
 	
@@ -110,8 +132,6 @@ public class LoginWebServiceClient {
 		
 		UserInSession parseObject = JSON.parseObject(json,UserInSession.class);
 		
-		System.err.println(JSON.toJSONString(parseObject, true));
-		
 	}
 	
 	public static Node extractTarget(NodeList childNodes,String nodeName) {
@@ -132,12 +152,10 @@ public class LoginWebServiceClient {
 			}
 		}
 		
-		
 		return null;
 	}
 
 	public void setLoginMethod(String loginMethod) {
 		this.loginMethod = loginMethod;
 	}
-	
 }

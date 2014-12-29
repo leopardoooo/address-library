@@ -36,16 +36,12 @@ public class BusiConstants {
 		/**新增的地址的初始状态,如果以后需要审核,修改这里**/
 		public static String ADDR_INIT_STATUS = Status.ACTIVE.name();
 		
+		public static String ADDR_SYS_FUN_CODE = "ADDR_SYS_FUN_CODE";
 	}
 	
 	public static enum Booleans{
 		T,F
 	}
-	
-	/**
-	 * 操作地址库的功能代码.这里做测试设置为  123....
-	 */
-	public static String ADDR_SYS_FUN_CODE = "123";
 	
 	public static enum AddrType{
 		//城镇

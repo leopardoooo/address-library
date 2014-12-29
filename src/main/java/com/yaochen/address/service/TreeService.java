@@ -403,7 +403,8 @@ public class TreeService {
 		Integer roleOID = null;
 		for (SystemFunction fun : systemFunction) {
 			Integer functionOID = fun.getFunctionOID();
-			if(BusiConstants.ADDR_SYS_FUN_CODE.equals(""+functionOID)){
+			String code = System.getProperty(BusiConstants.StringConstants.ADDR_SYS_FUN_CODE);
+			if(code.equals(""+functionOID)){
 				roleOID = fun.getRoleOID();
 				break;
 			}
