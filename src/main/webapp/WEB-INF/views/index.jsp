@@ -63,6 +63,7 @@
 				<i class="fa fa-angle-down"></i></a> </li>
 		  </ul>
 		  <ul class="nav navbar-nav navbar-right">
+		  <li><a href="resources/help.doc" target="_blank" title="帮助文档"><i class="glyphicon glyphicon-book" ></i></a></li>
 			<li><a href="#" title="地址库"><i class="glyphicon glyphicon-map-marker" ></i></a></li>
 			<li><a href="#" title="光纤管理"><i class="glyphicon glyphicon-send"></i></a></li>
 			<li><a href="#" class="admin-pic"> <img alt="" class="img-circle" src="<%=RES %>/main/t2.jpg"> </a></li>
