@@ -1019,7 +1019,7 @@ AddressChangeLevel = function(){
 				var cid = $('#editFormCountyId').val();
 				//是否要将
 				var confirmMsg = '是否确定要将 "' + lastAddrTreeObj.addrFullName + '" 的上级变更为 "'+ selected.addrFullName +'" ? \n 此操作将会对上述两个地址的名字相同的子集合并!';
-				Confirm(confirmMsg, {yesTxt:'确认合并'}, function(){
+				Confirm(confirmMsg, {yesTxt:'确认变更'}, function(){
 					common.post("tree/changeParent", {
 						"pid": selected.addrId,
 						"addrId": lastAddrTreeObj.addrId,
