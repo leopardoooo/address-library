@@ -42,7 +42,7 @@ SwitchCityModal = function(w){
 					return;
 				}
 				lastActiveAddrId = addrId;
-				F.doSubAddrList(lastActiveAddrId);
+//				F.doSubAddrList(lastActiveAddrId);
 			});
 			//分公司搜索栏
 			$companyFilter.keydown(function(e){
@@ -131,7 +131,9 @@ SwitchCityModal = function(w){
 				common.href("index");
 			});
 		},
+		//放弃这个了
 		doSubAddrList: function(parentAddrId){
+			//TODO ...待删除
 			common.post("tree/findDirectChildrens", {
 				"pid": parentAddrId
 			}, function(data){
@@ -177,7 +179,7 @@ Collections = function(){
 				}
 				var confirmMsg = (notTheSameCompany || '') + '是否要切换到 "' +  $(e.target).text() + '" ?' ;
 				
-				Confirm(confirmMsg, {}, function(){
+				Confirm(confirmMsg, {yesTxt:'确定'}, function(){
 					if(notTheSameCompany){
 						//切换分公司
 						common.post("user/reSetAddrScopeForCurrentUser", {

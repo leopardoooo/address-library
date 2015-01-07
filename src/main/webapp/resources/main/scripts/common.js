@@ -278,7 +278,7 @@ Alert = function(){
  * @param callbackScope:object	回调函数的作用域.
  */
 Confirm=function(message,cfg,callback,callbackScope){
-	var defaultCfg = {title:'提醒',yesTxt:'确定',cancelTxt:'取消',backdrop:'static'};
+	var defaultCfg = {title:'提醒',yesTxt:'保存',cancelTxt:'取消',backdrop:'static'};
 	cfg = cfg ||{};
 	CommonUtil.ApplyIf(cfg,defaultCfg);
 	var el = $('#confirmModal'), $confirmModalLabel = $('#confirmModalLabel'), $confirmBody = $('#confirmBody'), $confirmCancelBtn = $('#confirmCancelBtn'), $confirmYesBtn = $('#confirmYesBtn');

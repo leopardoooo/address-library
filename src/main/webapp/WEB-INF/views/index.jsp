@@ -131,7 +131,7 @@
 	
 	<!--搜索内容 -->
 	<section id="main" class="absolute">
-		<%@ include file="/WEB-INF/views/EditForm.jsp" %>
+		<%@ include file="/WEB-INF/views/DisplayPanel.jsp" %>
 		<div id="resultList">
 			<!-- 搜索结果集 -->
 			<div class="panel panel-default">
@@ -190,11 +190,6 @@
 								} %>
 							</div>
 						</div>
-						<div class="item-list country">
-							<p>可选城区、县，已选 “<label id="countyListLabel"></label>”</p>
-							<div id="countyList" class="buttons">
-							</div>
-						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -208,7 +203,12 @@
 		<%@ include file="/WEB-INF/views/AddForm.jsp" %>
 	</div>
 	
-	<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby=""alertModalLabel"" aria-hidden="true">
+	<div class="modal fade" id="modAddressModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modModalLabel" aria-hidden="true">
+		<%@ include file="/WEB-INF/views/ModForm.jsp" %>
+	</div>
+	
+	
+	<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -248,6 +248,7 @@
 <%@ include file="/WEB-INF/common/foot.jsp" %>
 <script src="<%=RES %>/main/scripts/common.js"></script>
 <script src="<%=RES %>/main/scripts/address.js"></script>
+<script src="<%=RES %>/main/scripts/addressEdit.js"></script>
 <script src="<%=RES %>/main/scripts/index.js"></script>
 <script>
 	/** 首页初始化函数 */
@@ -258,6 +259,7 @@
 				Search.initialize();
 				Collections.initialize();
 				Address.initialize();
+				AddressDisplay.initialize();
 				AddressEdit.initialize();
 				AddressAdd.initialize();
 				AddressChangeLevel.initialize();
