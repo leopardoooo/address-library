@@ -6,6 +6,7 @@ AddressEdit = function(){
 		$editTypeInput = $("#editFormAddrType"),
 		$addrUseInput = $("#editFormAddrUse"),
 		$editFormAddrName = $("#editFormAddrName"),
+		$editFormAddrFullName=$('#editFormAddrFullName'),
 		$editFullNameInput = $('#editFormFullAddrName');
 		$addrCountyId = $('#editFormCountyId');
 	
@@ -44,6 +45,20 @@ AddressEdit = function(){
 				}
 			});
 			
+			$editFormAddrName.keyup(function(e){
+				var __that = $(this);
+				setTimeout(function(){
+					var str1 = lastAddrTreeObj.str1;
+					var arr = str1.split('/');
+					var array = [];
+					for (var index = 0; index < arr.length-1; index++) {
+						var array_element = arr[index];
+						array.push(array_element);
+					}
+					$editFormAddrFullName.html(array.join('') + "" + __that.val());
+				}, 100);
+			});
+			
 			$isBlankInput.change(function(){
 				if($(this).val() == "T"){
 					//留空禁用地址名
@@ -67,8 +82,9 @@ AddressEdit = function(){
 			$addrCountyId.val(treeObj.countyId);
 			$editFormAddrId.val(treeObj.addrId);
 			$isBlankInput.val(treeObj.isBlankText);
+			debugger;
 			$editFormAddrName.val(treeObj.addrName);
-			
+			$editFormAddrFullName.html(treeObj.addrFullName);
 			$('#editFormFullAddrNameLabel').html('分级名称'+"（" + (treeObj["addrLevel"] || "") + "级地址）");
 			
 			var str1 = treeObj["str1"];
@@ -113,18 +129,14 @@ AddressEdit = function(){
 			});
 		},
 		doSave: function(callback){
-			
-
 			if(!lastAddrTreeObj){
 				return ;
 			}
-			
 			var changeItems = that.compareChange();
 			if(that.compareChange().length == 0){
 				Alert("修改前与修改后的内容一致，无需提交！");
 				return ;
 			}
-			
 			var data = {
 				ignoreEmpty: true,
 				addrId: lastAddrTreeObj["addrId"]
@@ -132,7 +144,10 @@ AddressEdit = function(){
 			for (var i = 0; i < changeItems.length; i++) {
 				data[changeItems[i].name] = changeItems[i].input.val();
 			}
-			
+			if(!data.addrName || data.addrName.trim() ==''){
+				Alert('地址名字不能为空!');
+				return ;
+			}
 			// post
 			common.post("tree/modTree", data, function(responseData){
 				Address.doShowAddressById(lastAddrTreeObj.addrId);

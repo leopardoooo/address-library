@@ -61,6 +61,7 @@
 		<div class="form-group"> 
 			<label for="editFormAddrPurpose22">修改名称</label>
 			<input type="text" class="form-control" id="editFormAddrName" placeholder="同时修改下级地址的完整名称">
+			<label class="help-block" id="editFormAddrFullName"></label>
 		</div>
 		
 	</div>
