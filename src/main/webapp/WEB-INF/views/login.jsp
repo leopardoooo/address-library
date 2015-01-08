@@ -49,7 +49,7 @@
 			</div>
 			
 			<script type="text/javascript">
-				$('#loginErrMsg').fadeOut(2000);
+				$('#loginErrMsg').fadeOut(5000);
 			</script>
 			
 			<% 		
