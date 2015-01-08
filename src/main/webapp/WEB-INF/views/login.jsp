@@ -5,7 +5,9 @@
 <html>
 <head>
 <%@ include file="/WEB-INF/common/head.jsp"%>
-<% Object errMsgObj = session.getAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION); %>
+<% Object errMsgObj = session.getAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION); 
+	String env = System.getProperty("runEnv");
+%>
 <style>
 	HTML,BODY{background: #fff; }
 	.body{width: 500px; height: 260px; background: #ddd; border-radius: 4px; padding-top: 50px; margin-top: 100px;}
@@ -21,7 +23,7 @@
 <body>
 	<div class="header">
 		<div class="container">
-			<p>广西广电网络公司</p>
+			<p>广西广电网络公司<%=env != null ? "(" + env  +")": ""  %></p>
 		</div>
 	</div>
 	<div class="container">

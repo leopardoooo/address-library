@@ -24,6 +24,7 @@
 	Object city = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
 	
 	UserInSession user = (UserInSession)session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
+	String env = System.getProperty("runEnv");
 %>
 <html>
 <head> 
@@ -46,7 +47,12 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		  </button>
-		  <a class="navbar-brand" href="#">GuangXi LOGO</a>
+		  <% if(null != env){ %>
+		  <a class="navbar-brand" style="color: #FF2D2D;" href="#"><%=env %></a>
+		  <% }else{ %>
+		  <a class="navbar-brand" href="#">地址库系统</a>
+		  <% } %>
+		  
 		</div>
 
 		<!-- Collect the nav links, forms, and other content for toggling -->
