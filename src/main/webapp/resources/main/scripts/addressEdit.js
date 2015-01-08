@@ -50,12 +50,9 @@ AddressEdit = function(){
 				setTimeout(function(){
 					var str1 = lastAddrTreeObj.str1;
 					var arr = str1.split('/');
-					var array = [];
-					for (var index = 0; index < arr.length-1; index++) {
-						var array_element = arr[index];
-						array.push(array_element);
-					}
-					$editFormAddrFullName.html(array.join('') + "" + __that.val());
+					arr.reverse().shift();
+					arr.reverse();
+					$editFormAddrFullName.html(arr.join('') + "" + __that.val());
 				}, 100);
 			});
 			
@@ -82,7 +79,7 @@ AddressEdit = function(){
 			$addrCountyId.val(treeObj.countyId);
 			$editFormAddrId.val(treeObj.addrId);
 			$isBlankInput.val(treeObj.isBlankText);
-			debugger;
+			
 			$editFormAddrName.val(treeObj.addrName);
 			$editFormAddrFullName.html(treeObj.addrFullName);
 			$('#editFormFullAddrNameLabel').html('分级名称'+"（" + (treeObj["addrLevel"] || "") + "级地址）");
