@@ -297,6 +297,10 @@ Confirm=function(message,cfg,callback,callbackScope){
 		backdrop:cfg.backdrop
 	});//渲染
 }
+/**trim**/
+String.prototype.trim = String.prototype.trim || function(){
+    return this.replace(/(^\s*)|(\s*$)/g, "");
+}
 
 
 /**
