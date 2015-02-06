@@ -2,7 +2,6 @@ Address = function(){
 	var tpl = '<div class="item default" data-type="item" data-addr-index="#{index}">'
 				+'<address>'
 					+'<label class="label">#{addrLevel}</label> #{addrFullName}'
-					+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 				+'</address>'
 				+'<b class="down"></b>'
 			+'</div>';
@@ -10,7 +9,6 @@ Address = function(){
 	var parentTpl = '<div class="item parent" data-type="parent" data-addr-index="#{index}">'
 						+'<address>'
 							+'<label class="label">#{addrLevel}</label> #{addrFullName}'
-							+'<small><i class="type">#{addrTypeText}</i><i class="use">#{addrUseText}</i></small>'
 						+'</address>'
 						+'<i class="up"></i>'
 					+'</div>';
@@ -33,9 +31,11 @@ Address = function(){
 		maxBlock: 9  
 	};
 	
-	var limit = 13;
+	var limit = 14;
 	var that = null;
 	var currentAddressDescTpl = " 已定位至 “#{str1}”，下级地址 “#{totalCount}” 个。";
+	var $addrChildrenFilterTxt = $('#addrChildrenFilterTxt'),
+	$addrChildrenFilterBtn = $('#addrChildrenFilterBtn');
 	
 	return {
 		initialize: function(){
@@ -106,6 +106,23 @@ Address = function(){
 					that.doShowAddress(that.lastAddrTreeObj, start);
 				}
 			});
+			//结果过滤
+			$addrChildrenFilterBtn.click(function(e){
+				if(!that.data){
+					return;
+				}
+				var start = that.data["offset"],total = that.data["totalCount"],
+				totalPage = Math.floor(total / limit) + (total % limit > 0 ? 1 : 0);
+				if(totalPage == 1 && $addrChildrenFilterBtn.attr('data-filtered') != 'false'){//取过滤标记
+					Alert('数据无需过滤.');
+					return;
+				}
+				
+				var filter = $addrChildrenFilterTxt.val();
+				var emptyFilter = !filter || filter.trim().length == 0;
+				$addrChildrenFilterBtn.attr('data-filtered',emptyFilter);
+				that.doShowAddress(that.lastAddrTreeObj, 0);
+			});
 		},
 		doTriggerEvent: function(index, event, $parent){
 			var addrTreeObj = (index == -1) ? that.lastAddrTreeObj : that.data.records[index];
@@ -165,15 +182,18 @@ Address = function(){
 			addrTreeObj['addrUseText'] = (!addrTreeObj.addrUseText) ? '' : addrTreeObj.addrUseText;
 			addrTreeObj['addrTypeText'] = (!addrTreeObj.addrTypeText) ? '' : addrTreeObj.addrTypeText;
 			that.lastAddrTreeObj = addrTreeObj;
-			
+			start = start || 0;
+			var filter = $addrChildrenFilterTxt.val();
 			// show loading
 			$("#resultBody").html(loadingTpl);
 			// loading subtree
-			common.post("tree/findChildrensAndPaging", {
-				"pid": addrTreeObj["addrId"],
-				"start": start || 0,
-				"limit": limit
-			}, function(data){
+			var reqParam = {
+					"pid": addrTreeObj["addrId"],
+					"start": start,
+					"filter":filter,
+					"limit": limit
+				};
+			common.post("tree/findChildrensAndPaging", reqParam, function(data){
 				$("#currentAddressLabel").text(String.format(currentAddressDescTpl, {
 					addrFullName: addrTreeObj["addrFullName"],
 					str1: addrTreeObj["str1"],

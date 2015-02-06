@@ -109,8 +109,10 @@
     t.addr_full_name,t.addr_code,t.county_id,t.create_time,t.create_optr_id,t.create_done_code,
     t.status,t.str1,t.str2,t.str3,t.str4,t.str5
     from ad_tree t where 1=1
+    <!-- 如果指定了查询的级别的时候,忽略留空地址 -->
     <if test="addrLevel !=null">
-    	and t.addr_level = #{addrLevel,jdbcType=INTEGER} 
+    	and t.addr_level = #{addrLevel,jdbcType=INTEGER}
+    	and t.is_blank = 'F' 
     </if>
      <if test="baseScope !=null">
      	and t.addr_private_name like '${baseScope}%' 
@@ -156,6 +158,9 @@
      </if>
      <if test="countyId != null">
      	and t.county_id = #{countyId,jdbcType=VARCHAR}
+     </if>
+     <if test="filter != null">
+     	and t.addr_name like '${filter}%' 
      </if>
      <if test="baseScope !=null">
      	and t.addr_private_name like '${baseScope}%' 

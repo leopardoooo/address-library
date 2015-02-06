@@ -36,6 +36,9 @@ var validator={
 		},
 		lev9:function(addrName){
 			return 0;
+		},
+		lev10:function(addrName){
+			return 0;
 		}
 		
 };
@@ -46,5 +49,10 @@ var validator={
 function validate(args) {
 	var level = addr.getAddrLevel();
 	var addrName = addr.getAddrName();
-	return validator['lev'+level].call(this,addrName);
+	if(validator['lev'+level]){
+		return validator['lev'+level].call(this,addrName);
+	}else{
+		/**暂时没有设置的验证函数都返回为真.有其他要求再做修改.**/
+		return 0;
+	}
 };

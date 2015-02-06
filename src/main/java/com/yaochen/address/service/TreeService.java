@@ -426,16 +426,23 @@ public class TreeService {
 	 * @see #findChildrensByPid(Integer)
 	 * 
 	 * @param parentAddrId 父级地址编号
+	 * @param filter 
 	 * @return 并且分页
 	 */
 	public Pagination findChildrensAndPagingByPid(Integer parentAddrId, Integer start,
-			Integer limit) throws Throwable {
+			Integer limit, String... filter) throws Throwable {
 		Map<String, Object>	param = new HashMap<String, Object>();
 		param.put("addrParent", parentAddrId);
 		param.put("userid", getUserInSession().getUserOID());
 		String countyId = getUserInSession().getCompanyOID();
 		if(!BusiConstants.StringConstants.COUNTY_ALL.equals(countyId)){
 			param.put("countyId", countyId);
+		}
+		if(null != filter && filter.length ==1){//可变参数只是为了其他地方调用方便,实际上只允许一个元素
+			String value = filter[0];
+			if(StringHelper.isNotEmpty(value)){
+				param.put("filter", value);
+			}
 		}
 		
 		param.put("status", BusiConstants.Status.ACTIVE.name());

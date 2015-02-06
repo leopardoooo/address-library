@@ -1,3 +1,4 @@
+<%@page import="com.yaochen.address.common.StringHelper"%>
 <%@page import="com.yaochen.address.common.BusiConstants"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -23,7 +24,7 @@
 <body>
 	<div class="header">
 		<div class="container">
-			<p>广西广电网络公司<%=env != null ? "(" + env  +")": ""  %></p>
+			<p>广西广电网络公司<%="test".equals(env) ? "(测试系统)": ""  %></p>
 		</div>
 	</div>
 	<div class="container">

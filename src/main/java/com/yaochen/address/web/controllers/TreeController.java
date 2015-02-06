@@ -88,9 +88,10 @@ public class TreeController implements BeanFactoryAware{
 	@ResponseBody
 	public Root<Pagination> findChildrensAndPagingByPid(
 			@RequestParam("pid") Integer parentAddrId,
+			@RequestParam("filter") String filter,
 			@RequestParam("start") Integer start,
 			@RequestParam("limit") Integer limit) throws Throwable{
-		return ReturnValueUtil.getJsonRoot(treeService.findChildrensAndPagingByPid(parentAddrId, start, limit));
+		return ReturnValueUtil.getJsonRoot(treeService.findChildrensAndPagingByPid(parentAddrId, start, limit,filter));
 	}
 	
 	/**

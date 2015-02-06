@@ -47,8 +47,8 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		  </button>
-		  <% if(null != env){ %>
-		  <a class="navbar-brand" style="color: #FF2D2D;" href="#"><%=env %></a>
+		  <% if("test".equals(env) ){ %>
+		  <a class="navbar-brand" style="color: #FF2D2D;" href="#">地址库测试系统</a>
 		  <% }else{ %>
 		  <a class="navbar-brand" href="#">地址库系统</a>
 		  <% } %>
@@ -96,9 +96,14 @@
 						<ul class="dropdown-menu" id="searchLevelList" role="menu">
 							<li><a href="#" data-level="-1">所有</a></li>
 							<li class="divider"></li>
-							<% for(AdLevel level: levelList){ %>
-								<li><a href="#" data-level="<%=level.getLevelNum() %>">
-									<%=level.getLevelName() %> (<%=level.getLevelNum() %>)</a></li>
+							<% for(AdLevel level: levelList){
+								String levelName = level.getLevelName();
+								if(levelName.length() > 4){
+									levelName = levelName.substring(0, 4) + "..";
+								}
+							%>
+								<li><a title="<%=level.getLevelDesc() %>" href="#" data-level="<%=level.getLevelNum() %>">
+									<%=levelName %> (<%=level.getLevelNum() %>)</a></li>
 							<%} %>
 							<li class="divider"></li>
 							<li class="dropdown-header">“选择一个级别开始搜索”</li>
@@ -122,17 +127,7 @@
 				<!--  -->
 			</div>
 		</div>
-		<div class="row search-footer">
-			<!-- Collect the nav links, forms, and other content for toggling -->
-			<p id="resultDesc" class="pull-left">
-				<i class="glyphicon glyphicon-map-marker"></i>
-				<label id="currentAddressLabel">（无）</label>
-			</p>
-			<ul class="nav navbar-nav navbar-right" id="tools">
-				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-import"></i></a></li>
-				<li><a href="#" data-toggle="modal" data-target="#fileImportModal"><i class="glyphicon glyphicon-cog"></i></a></li>
-			</ul>
-		</div>
+		
 	</div>
 	
 	<!--搜索内容 -->
@@ -142,7 +137,19 @@
 			<!-- 搜索结果集 -->
 			<div class="panel panel-default">
 				<div class="panel-heading clearfix" id="resultHeading">
-					<span class="text">地址列表</span>
+					
+					<div id="resultDesc" class="" style="width: 98%;" >
+						<i class="glyphicon glyphicon-map-marker"></i>
+						<label id="currentAddressLabel">（无）</label>
+					</div>
+					<div id="addrChildrenFilterDiv" class="pull-left" style="padding-left: 20px;">
+						<input id="addrChildrenFilterTxt" placeholder="输入关键字过滤" style="height: 31px;">
+						<button id="addrChildrenFilterBtn" class="btn btn-default" title="过滤结果">
+							<b class="glyphicon glyphicon-search" ></b>
+						</button>
+						
+						
+					</div>
 					<div class="pull-right" id="resultPagingTool"></div>
 				</div>
 				<div class="panel-body" id="resultBody">
