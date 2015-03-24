@@ -24,6 +24,8 @@ public class UserInSession {
 	private String OfficeTelphone;
 	private String Signature;
 	private String ImgUrl;
+	/** 用户在本系统的角色 **/
+	private Integer roleIdInSys;
 	/**允许操作的最高级别**/
 	private Integer maxLevelAllowed;
 	
@@ -158,6 +160,12 @@ public class UserInSession {
 	}
 	public void setMaxLevelAllowed(Integer maxLevelAllowed) {
 		this.maxLevelAllowed = maxLevelAllowed;
+	}
+	public Integer getRoleIdInSys() {
+		return roleIdInSys;
+	}
+	public void setRoleIdInSys(Integer roleIdInSys) {
+		this.roleIdInSys = roleIdInSys;
 	}
 	
 }

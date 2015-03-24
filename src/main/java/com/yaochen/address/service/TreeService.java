@@ -162,6 +162,84 @@ public class TreeService {
 	}
 	
 	/**
+	 * 批量在一个节点下增加子节点.
+	 * @param param
+	 * @param batchNames
+	 * @return
+	 * @throws Throwable
+	 */
+	public List<Integer> addTrees(AdTree param, String batchNames) throws Throwable{
+		//批量添加的时候,不允许批量留空地址
+		if(BusiConstants.Booleans.T.name().equals(param.getIsBlank())){
+			throw new MessageException(StatusCodeConstant.TOO_MANY_BLANK_ADDR);
+		}
+		checkRole(param.getAddrLevel());
+		UserInSession optr = getUserInSession();
+		List<Integer> result = new ArrayList<Integer>();
+		Integer succNum = 0;
+		Integer failedNum = 0;
+		
+		Date createTime = new Date();
+		String optrId = optr.getUserOID();
+		
+		int createDoneCode = createDoneCode(createTime, BusiCodeConstants.ADD_ADDR_BATCH);
+		Pagination childrenPager = findChildrensAndPagingByPid(param.getAddrParent(), 0, Integer.MAX_VALUE);
+		List<AdTree> children = childrenPager.getRecords();
+		AdTree parentNode = queryByKey(param.getAddrParent());
+		String slash = BusiConstants.StringConstants.SLASH;
+		
+		String[] names = null;
+		if(batchNames.indexOf(",") >=0){
+			names = batchNames.split(",");
+		}else if(batchNames.indexOf("，") >=0){
+			names = batchNames.split("，");
+		}
+		for (String addrName : names) {
+			AdTree tree = new AdTree();
+			CglibUtil.copy(param, tree);
+			tree.setCreateDoneCode(createDoneCode);
+			tree.setCreateTime(createTime);
+			tree.setCreateOptrId(optrId);
+			
+			tree.setAddrName(addrName);
+			try {
+				addrName = checkAddrName(tree,children.toArray(new AdTree[children.size()]));
+			} catch (Throwable e) {
+				//批量添加的时候,地址名检验不通过,直接忽略.
+				failedNum ++;
+				continue;
+			}
+			tree.setAddrName(addrName);
+			boolean isBlank = param.getIsBlank().equals(BusiConstants.Booleans.T.name());
+			String str1 = null;
+			String addrFullName = null;
+			if(null != parentNode){
+				str1 = parentNode.getStr1() +slash + addrName;
+				addrFullName = parentNode.getAddrFullName() + ( isBlank ? "": addrName );
+			}else{//如果没有上级,这里一定是一级地址
+				str1 = addrName;
+				addrFullName = ( isBlank ? "": addrName );
+			}
+			tree.setStr1(str1);
+			tree.setAddrFullName(addrFullName);
+			tree.setStatus(BusiConstants.StringConstants.ADDR_INIT_STATUS);
+			adTreeMapper.insertSelective(tree);
+			Integer addrId = tree.getAddrId();
+			
+			String addrPrivateName = BusiConstants.StringConstants.TOP_PID + addrId + slash ;
+			if(null != parentNode){
+				addrPrivateName = parentNode.getAddrPrivateName()  + addrId + slash ;
+			}
+			tree.setAddrPrivateName(addrPrivateName);
+			adTreeMapper.updateByPrimaryKeySelective(tree);
+			succNum ++;
+		}
+		result.add(succNum);
+		result.add(failedNum);
+		return result;
+	}
+	
+	/**
 	 * 批量添加地址.
 	 * @param param 本次通用参数.
 	 * @param addrNamePreffix	地址名 前缀.
@@ -412,6 +490,7 @@ public class TreeService {
 		if(roleOID == null){
 			throw new MessageException(StatusCodeConstant.USER_NOT_AUTHORIZED);
 		}
+		optr.setRoleIdInSys(roleOID);
 		List<AdRoleRes> rrs = adRoleResMapper.selectByRoleId(roleOID);
 		if(rrs==null || rrs.size() ==0 ){
 			throw new MessageException(StatusCodeConstant.USER_NOT_AUTHORIZED);
@@ -786,7 +865,25 @@ public class TreeService {
 		//以上留 空的接口
 		delTree(addrId, createDoneCode,false);
 	}
-
+	
+	/**
+	 * 级联删除当前节点以及以下的所有子节点.
+	 * @param addrId
+	 * @throws Throwable
+	 */
+	public void delTreeForceCasecade(Integer addrId) throws Throwable {
+		int createDoneCode = createDoneCode(new Date(), BusiCodeConstants.DEL_ADDR);
+		/**
+		 * delete node one bye one.
+		 */
+		AdTree addr = adTreeMapper.selectByPK(addrId);
+		List<AddrDto> children = adTreeMapper.selectAllPosterityForMerge(addr);
+		for (AddrDto addrDto : children) {
+			delTree(addrDto.getAddrId(), createDoneCode,true);
+		}
+		delTree(addrId, createDoneCode,true);
+	}
+	
 	/**
 	 * @param addrId 要删除的ID.
 	 * @param doneCode 
@@ -801,11 +898,12 @@ public class TreeService {
 		//TODO 判断有没有被BOSS系统引用
 		//TODO 判断有没有被光站系统引用   
 		this.addrNameChecker.usedByOtherSystem(tree);
-		//只要有一个子节点都不给删除
-		Pagination pager = findChildrensAndPagingByPid(addrId, 0, 1);
-		List<Object> children = pager.getRecords();
-		if(children != null && children.size() > 0 && ! force){
-			throw new MessageException(StatusCodeConstant.ADDR_HAS_CHILDREN);
+		if(! force){ //不是强制删除的,只要有一个子节点都不给删除
+			Pagination pager = findChildrensAndPagingByPid(addrId, 0, 1);
+			List<Object> children = pager.getRecords();
+			if(children != null && children.size() > 0 ){
+				throw new MessageException(StatusCodeConstant.ADDR_HAS_CHILDREN);
+			}
 		}
 		tree.setStatus(BusiConstants.Status.INVALID.name());
 		adTreeMapper.deleteByPrimaryKey(tree.getAddrId());
@@ -952,8 +1050,8 @@ public class TreeService {
 		doneCode.setBusiCode(code.name());
 		doneCode.setCreateTime(createTime);
 		doneCode.setOptrId(optr.getUserOID());
-		int createDoneCode = adDoneCodeMapper.insertSelective(doneCode);
-		return createDoneCode;
+		adDoneCodeMapper.insertSelective(doneCode);
+		return doneCode.getDoneCode();
 	}
 	
 	/**
@@ -1065,4 +1163,20 @@ public class TreeService {
 			throw new MessageException(StatusCodeConstant.USER_INSUFFICIENT_AUTHORIZED);
 		}
 	}
+
+	/**
+	 * 根据树节点查询操作的记录.
+	 * @param addrId
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	public Pagination queryOptrLog(AdTreeChange change, Integer start, Integer limit) {
+		start = null == start ? 0 : start;
+		limit = null == limit ? 20 : limit;
+		Pagination pager = new Pagination(change, start, limit);
+		adTreeChangeMapper.selectOptrLog(pager);
+		return pager;
+	}
+	
 }

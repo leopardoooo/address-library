@@ -36,15 +36,21 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 		String servletPath = request.getServletPath();
 		String contextPath = request.getContextPath();
 		String login = BusiConstants.StringConstants.SLASH + BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
+		String ssoLogin = BusiConstants.StringConstants.SLASH + BusiConstants.StringConstants.SSO_LOGIN_ACTION;
 		HttpSession session = request.getSession();
 		Object userInsession = session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 		if(null !=userInsession && userInsession.getClass().equals(UserInSession.class)){
 			ThreadUserParamHolder.setUserInSession((UserInSession)userInsession);
 		}else{
 			//这里多做了点事情,不用重新搞个filter
-			if(!"/user/login".equals(servletPath) && ! login.equals(servletPath)){
-				String ajaxFlag = request.getParameter("$ajaxRequestWiredFlagName");
-				if(!Boolean.parseBoolean(ajaxFlag)){
+			boolean notLogin = !"/user/login".equals(servletPath) && ! login.equals(servletPath);
+			boolean notSsoLogin =!"/user/sso".equals(servletPath) && !ssoLogin.equals(servletPath);
+			notLogin = notLogin && notSsoLogin;
+			if(notLogin){
+//				String ajaxFlag = request.getParameter("$ajaxRequestWiredFlagName");
+				String requestType = request.getHeader("X-Requested-With");
+				boolean isAjax = "XMLHttpRequest".equals(requestType);
+				if(!isAjax){
 					response.sendRedirect(contextPath );
 					return false;
 				}else{//如果不是AJAX请求

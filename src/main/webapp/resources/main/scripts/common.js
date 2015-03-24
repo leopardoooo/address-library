@@ -22,6 +22,9 @@ common = {
 				common.href('');
 			}else if(responseData.code == '311'){//没有登录
 				common.href('');
+			}else if(responseData.code == '312'){//删除节点的时候,被删除的节点还有子节点
+				//TODO 
+				success(responseData);
 			}else{
 //				alert("Ajax Error! code: " + responseData["code"] + ", message: " + responseData["message"]);
 //				Alert("Ajax Error!</br> code: " + responseData["code"] + "</br> message: " + responseData["message"]);
@@ -326,4 +329,27 @@ String.format = String.format || function(source, opts) {
     }  
     return source; 
 };
+
+/**
+ * 截取字符串的首尾,中间省略.
+ * source 要截取的字符串
+ * lengthNeed 保留的长度
+ * replace 替代的字符,默认为 ..
+ */
+String.hideMiddle = String.hideMiddle || function(source,lengthNeed){
+	var replace = replace ? replace : '...';
+	if(! source || typeof source != 'string' || source.length <= lengthNeed){
+		return source;
+	}
+	var realLength = source.length;
+	var diss = lengthNeed - 3;//3 是 替代的省略号的长度
+	var headLength = diss /2;
+	if(headLength != parseInt(headLength)){//取余为1
+		headLength = parseInt( headLength ) + 1;
+	}
+	var tailLength = lengthNeed - headLength - 3;
+	var head =source.substring(0, headLength);
+	var tail = source.substring(realLength - tailLength);
+	return head + replace + tail;
+}
 

@@ -69,6 +69,7 @@
 				<i class="fa fa-angle-down"></i></a> </li>
 		  </ul>
 		  <ul class="nav navbar-nav navbar-right">
+		  <li><a href="javascript:void()" onclick="LogCmp.showUserLog()" target="_blank" title="操作员日志"><i class="glyphicon glyphicon-tags" ></i></a></li>
 		  <li><a href="resources/help.doc" target="_blank" title="帮助文档"><i class="glyphicon glyphicon-book" ></i></a></li>
 			<li><a href="#" title="地址库"><i class="glyphicon glyphicon-map-marker" ></i></a></li>
 			<li><a href="#" title="光纤管理"><i class="glyphicon glyphicon-send"></i></a></li>
@@ -219,7 +220,15 @@
 	<div class="modal fade" id="modAddressModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modModalLabel" aria-hidden="true">
 		<%@ include file="/WEB-INF/views/ModForm.jsp" %>
 	</div>
+	<%-- 
+	<div class="modal fade" id="logModel" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modModalLabel" aria-hidden="true">
+		<%@ include file="/WEB-INF/views/logModel.jsp" %>
+	</div>
+	 --%>
 	
+	<div class="modal fade" id="logModel" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modModalLabel" aria-hidden="true">
+		<%@ include file="/WEB-INF/views/logModel.jsp" %>
+	</div>
 	
 	<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
@@ -277,6 +286,7 @@
 				AddressAdd.initialize();
 				AddressChangeLevel.initialize();
 				AddressSingleMerge.initialize();
+				LogCmp.initialize();
 			}
 		};
 	}();

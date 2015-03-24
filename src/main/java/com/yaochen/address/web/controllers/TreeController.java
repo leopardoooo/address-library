@@ -22,6 +22,7 @@ import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdTree;
+import com.yaochen.address.data.domain.address.AdTreeChange;
 import com.yaochen.address.service.TreeService;
 import com.yaochen.address.web.support.ReturnValueUtil;
 import com.yaochen.address.web.support.Root;
@@ -230,6 +231,22 @@ public class TreeController implements BeanFactoryAware{
 	}
 	
 	/**
+	 * 批量添加地址.
+	 * @param tree 本次新增地址的通用参数.
+	 * @param addrNamePreffix	地址名 前缀.
+	 * @param addrNameSuffix	地址名 后缀.
+	 * @param start		起始位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
+	 * @param end		结束位置	可以是英文字符,也可以是数字,但开始和结束的类型必须一致,都是字符或者都是数字.
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/addTreesWithNames")
+	@ResponseBody
+	public Root<List<Integer>> addTreesWithNames(AdTree tree,String batchNames)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.addTrees(tree,batchNames ));
+	}
+	
+	/**
 	 * 修改地址信息， 如果地址名称修改了，所有子节点的完整名称都需要修改
 	 * @param tree
 	 * @return
@@ -253,6 +270,36 @@ public class TreeController implements BeanFactoryAware{
 	@ResponseBody
 	public Root<Void> delTree(@RequestParam("addrId") Integer addrId)throws Throwable {
 		treeService.delTree(addrId);
+		return ReturnValueUtil.getVoidRoot();
+	}
+	
+	/**
+	 * 根据节点查询操作日志.
+	 * @param addrId 
+	 * @param addrId
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/queryOptrLog")
+	@ResponseBody
+	public Root<Pagination> queryOptrLog(Integer addrId, Integer start, Integer limit)throws Throwable {
+		AdTreeChange change = new AdTreeChange();
+		change.setAddrId(addrId);
+		return ReturnValueUtil.getJsonRoot(treeService.queryOptrLog(change,start,limit));
+	}
+	
+	
+	/**
+	 * 删除子节点，如果删除的子节点有下级子节点，那么需要先删除下级子子节点才给予删除
+	 * 
+	 * @param addrId
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/delTreeForceCasecade")
+	@ResponseBody
+	public Root<Void> delTreeForceCasecade(@RequestParam("addrId") Integer addrId)throws Throwable {
+		treeService.delTreeForceCasecade(addrId);
 		return ReturnValueUtil.getVoidRoot();
 	}
 	

@@ -32,7 +32,7 @@
 								<input type="text" class="form-control"  id="addFormAddrLevel" readonly="readonly" value="5">
 							</div>
 						</div>
-					</div>
+					</div><!-- /row -->
 				</div>
 				<div class="container-fluid">
 					<div class="row">
@@ -63,8 +63,9 @@
 				</div>
 				<div class="form-tabs"> 
 					<ul class="nav nav-tabs" id="addFormTabs" role="tablist">
-						<li role="presentation" class="active"><a href="#singleAddInAddForm" role="tab" data-toggle="tab">单一地址</a></li>
-						<li role="presentation" id="batchAddInAddFormLi" ><a href="#batchAddInAddForm" role="tab" data-toggle="tab">多个地址（前缀+数字+后缀）</a></li>
+						<li role="presentation" class="active"><a href="#singleAddInAddForm" role="tab" data-batch-mode="single" data-toggle="tab">单一地址</a></li>
+						<li role="presentation" id="batchAddInAddFormLi" ><a href="#batchAddInAddForm" role="tab" data-batch-mode="batch" data-toggle="tab">多个地址（前缀+数字+后缀）</a></li>
+						<li role="presentation" id="batchCustomerAddFormLi" ><a href="#batchCustomerAddForm" role="tab" data-with-names="true" data-batch-mode="batch" data-toggle="tab">多个地址（手工输入地址名）</a></li>
 					</ul> 
 					<div class="tab-content">
 						<div role="tabpanel" class="tab-pane active" id="singleAddInAddForm">
@@ -93,6 +94,15 @@
 									<input type="text" class="form-control" id="addFormBatchStartNum" placeholder="开始位置，只能输入数字">
 									<div class="input-group-addon"> <i>至</i> </div>
 									<input type="text" class="form-control" id="addFormBatchEndNum" placeholder="结束位置，只能输入数字">
+								</div><!-- /input-group -->
+								<span class="help-block"></span>
+							</div>
+						</div>
+						<div id="batchCustomerAddForm" role="tabpanel" class="tab-pane" >
+							<div class="form-group">
+								<div class="input-group num-range">
+									<textarea rows="10" cols="80" class="" id="addrBatchNamesArea" 
+											placeholder="请输入要添加的地址名,以逗号分隔.逗号(仅仅都好本身)不区分全半角"></textarea>
 								</div><!-- /input-group -->
 								<span class="help-block"></span>
 							</div>
