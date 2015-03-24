@@ -18,8 +18,11 @@ public class AdTreeChange {
     /** 合并目标地址ID */
     private Integer mergeAddrId;
 
-    /**  */
+    /** 变更操作员ID */
     private String changeOptrId;
+    
+    /** 变更操作员名称 */
+    private String changeOptrName;
 
     /**  */
     private Integer changeDoneCode;
@@ -65,6 +68,8 @@ public class AdTreeChange {
 
     /** 创建操作员 */
     private String createOptrId;
+    /** 创建操作员 名称*/
+    private String createOptrName;
 
     /**  */
     private Integer createDoneCode;
@@ -302,4 +307,21 @@ public class AdTreeChange {
     public void setStr5(String str5) {
         this.str5 = str5 == null ? null : str5.trim();
     }
+
+	public String getChangeOptrName() {
+		return changeOptrName;
+	}
+
+	public void setChangeOptrName(String changeOptrName) {
+		this.changeOptrName = changeOptrName;
+	}
+
+	public String getCreateOptrName() {
+		return createOptrName;
+	}
+
+	public void setCreateOptrName(String createOptrName) {
+		this.createOptrName = createOptrName;
+	}
+    
 }

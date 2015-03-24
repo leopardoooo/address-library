@@ -30,6 +30,10 @@
     <result column="str4" property="str4" jdbcType="VARCHAR" />
     <result column="str5" property="str5" jdbcType="VARCHAR" />
   </resultMap>
+  <resultMap type="com.yaochen.address.data.domain.address.AdTreeChange" id="ResultMapForQuery" extends="BaseResultMap">
+	  <result column="create_optr_name" property="createOptrName" jdbcType="VARCHAR" />
+	  <result column="change_optr_name" property="changeOptrName" jdbcType="VARCHAR" />
+  </resultMap>
   <sql id="Base_Column_List" >
     change_sn, change_type, change_cause, merge_addr_id, change_optr_id, change_done_code, 
     change_time, addr_id, addr_name, addr_level, addr_type, addr_use, is_blank, addr_parent, 
@@ -42,6 +46,24 @@
     from ad_tree_change
     where change_sn = #{changeSn,jdbcType=INTEGER}
   </select>
+  
+  <!-- selectOptrLog -->
+  <select id="selectOptrLog" resultMap="ResultMapForQuery" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
+    select 
+    c.* ,
+    u.username as create_optr_name,u2.username as change_optr_name
+    from ad_tree_change c
+left join ad_sys_user u2 on  c.change_optr_id  = u2.userid 
+left join ad_sys_user u on c.create_optr_id = u.userid 
+where 1=1
+    <if test="addrId != null">
+      and addr_id = #{addrId,jdbcType=INTEGER}
+    </if>
+    <if test="changeOptrId != null">
+    	and change_optr_id = #{changeOptrId,jdbcType=VARCHAR}
+    </if>
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from ad_tree_change
     where change_sn = #{changeSn,jdbcType=INTEGER}

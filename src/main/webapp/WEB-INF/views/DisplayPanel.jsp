@@ -5,6 +5,7 @@
 	<div class="panel-heading clearfix">
 		<span class="text">地址信息</span>
 		<div class="pull-right">
+			<button type="button" class="btn btn-default" id="displayPanelLogBtn" title="节点日志" data-toggle="modal" data-target="#logModel"> <i class="glyphicon glyphicon-tags"></i></button>
 			<button type="button" class="btn btn-default" id="displayPanelCollectBtn" title="收藏"> <i class="glyphicon glyphicon-eye-open"></i></button>
 			<button type="button" class="btn btn-default" id="displayPanelDeleteBtn" title="删除"> <i class="glyphicon glyphicon-trash"></i></button>
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addAddressModal" title="添加下级地址"> <i class="glyphicon glyphicon-plus-sign"></i></button>

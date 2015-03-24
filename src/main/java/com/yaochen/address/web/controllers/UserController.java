@@ -13,13 +13,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdOaCountyRef;
 import com.yaochen.address.data.domain.address.AdTree;
+import com.yaochen.address.data.domain.address.AdTreeChange;
 import com.yaochen.address.data.mapper.address.AdOaCountyRefMapper;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.service.TreeService;
+import com.yaochen.address.service.UserService;
 import com.yaochen.address.support.AddrNameChecker;
 import com.yaochen.address.support.LoginWebServiceClient;
 import com.yaochen.address.support.ThreadUserParamHolder;
@@ -38,7 +41,58 @@ public class UserController {
 	@Autowired
 	private TreeService treeService;
 	@Autowired
+	private UserService userService;
+	@Autowired
 	private AdOaCountyRefMapper adOaCountyRefMapper;
+
+	@RequestMapping("/sso")
+	public String sso(HttpServletRequest req)throws Throwable {
+		String userName = req.getParameter("UserName");
+		String password = req.getParameter("Password");
+		String targetUrl = req.getParameter("Url");//暂时忽略这个
+		if(logger.isDebugEnabled()){
+			logger.debug("单点登录请求targetUrl : " + targetUrl);
+		}
+		String fromOa = req.getParameter("OA");
+		UserInSession login = null;
+		HttpSession session = req.getSession(true);
+		
+		if(!"1".equals(fromOa)){
+			logger.warn("单点登录错误: 不是来自OA系统." );
+			session.setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, "不是来自OA的单点登录,拒绝登录.");
+			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
+		}
+		
+		
+		try {
+			login = loginWebServiceClient.login(userName, password);
+		} catch (Throwable e) {
+			logger.info("登录错误: " + e.getMessage());
+			session.setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, e.getMessage());
+		}
+		if(login == null){
+			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
+		}
+		
+		//这里要保证OA传过来的countyId 是数字型
+		AdOaCountyRef countyObj = adOaCountyRefMapper.selectByPrimaryKey(login.getCompanyOID());
+		if(null == countyObj){
+			session.setAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION, "未能找到OA系统于地址库系统的分公司对应关系");
+			return BusiConstants.StringConstants.LOGIN_FAILURE_VIEW;
+		}
+		String countyId = countyObj.getCountyId();
+		login.setCompanyOID(countyId);
+		logger.info("当前登录用户  " + login.getUserName() + " 分公司 " + login.getCompanyName() + " countyId : " + login.getCompanyOID());
+		//登录的用户放到session和线程变量里
+		int maxLevel = treeService.getMaxAllowedLevel(login);
+		login.setMaxLevelAllowed(maxLevel);
+		ThreadUserParamHolder.setUserInSession(login);
+		session.setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
+		String success = BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
+		userService.updateUserInfo(login);
+		return success;
+	}
+	
 	
 	@RequestMapping("/login")
 	public String login(HttpServletRequest req)throws Throwable {
@@ -72,7 +126,20 @@ public class UserController {
 		ThreadUserParamHolder.setUserInSession(login);
 		session.setAttribute(BusiConstants.StringConstants.USER_IN_SESSION, login);
 		String success = BusiConstants.StringConstants.REDIRECT_ACTION + BusiConstants.StringConstants.SLASH +  BusiConstants.StringConstants.LOGIN_SUCCESS_VIEW;
+		userService.updateUserInfo(login);
 		return success;
+	}
+	
+	/**
+	 * 根据节点查询操作日志.
+	 * @param addrId
+	 * @return
+	 * @throws Throwable
+	 */
+	@RequestMapping("/queryOptrLog")
+	@ResponseBody
+	public Root<Pagination> queryOptrLog(AdTreeChange change, Integer start, Integer limit)throws Throwable {
+		return ReturnValueUtil.getJsonRoot(treeService.queryOptrLog(change,start,limit));
 	}
 	
 	/**

@@ -303,6 +303,8 @@ AddressAdd = function(){
 	var $addFormAddrNamePreffix = $("#addFormAddrNamePreffix"),
 		$addFormAddrNameSuffix = $("#addFormAddrNameSuffix"),
 		$addFormBatchStartNum = $("#addFormBatchStartNum"),
+		$addrBatchNamesArea = $('#addrBatchNamesArea'),
+		$batchModeWithNames=false,
 		$addFormBatchEndNum = $("#addFormBatchEndNum");
 	
 	var $win = $("#addAddressModal");
@@ -311,8 +313,8 @@ AddressAdd = function(){
 	var parentAddressObj = null;
 	var mode = "single"; // batch
 	
-	function toggleMode(){
-		mode = mode == "single" ? "batch" : "single";
+	function toggleMode(m){
+		mode = m;
 	}
 	function isBatchMode(){
 		return mode === "batch";
@@ -341,7 +343,9 @@ AddressAdd = function(){
 			});
 			
 			$('#addFormTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-				toggleMode();
+				var el = $(e.target);
+				toggleMode(el.attr('data-batch-mode'));
+				$batchModeWithNames = el.attr('data-with-names') == 'true';
 				if(isBatchMode()){
 					$("#addFormSaveToNextBtn").hide();
 					$("#addFormSaveContinue").hide();
@@ -405,6 +409,7 @@ AddressAdd = function(){
 			
 			$addrNameInput.val("");
 			$addFormAddrNamePreffix.val("");
+			$addrBatchNamesArea.val("");
 			$addFormAddrNameSuffix.val("");
 			$addFormBatchStartNum.val("");
 			$addFormBatchEndNum.val("");
@@ -430,9 +435,13 @@ AddressAdd = function(){
 		},
 		doSave: function(callback){
 			if(isBatchMode()){
-				if(!$addFormBatchStartNum.val() && !$addFormBatchEndNum.val()){
+				debugger;
+				if(!$batchModeWithNames && !$addFormBatchStartNum.val() && !$addFormBatchEndNum.val()){
 					Alert("开始或结束数字不能为空");
 					return;
+				}else if($batchModeWithNames && (!$addrBatchNamesArea.val() || $addrBatchNamesArea.val().trim().length == 0) ){
+					Alert("地址名不能为空");
+					return; 
 				}
 			}else{
 				if($isBlankInput.val() === "F" && !$addrNameInput.val()){
@@ -452,13 +461,19 @@ AddressAdd = function(){
 			
 			// 如果是批量模式
 			if(isBatchMode()){
-				data["addrNamePreffix"] = $addFormAddrNamePreffix.val();
-				data["addrNameSuffix"] = $addFormAddrNameSuffix.val();
-				data["start"] = $addFormBatchStartNum.val();
-				data["end"] = $addFormBatchEndNum.val();
-				uri = "tree/addTrees";
-				addrFullName = parentAddressObj["addrFullName"] + data["addrNamePreffix"] 
+				if($batchModeWithNames){
+					data["batchNames"] = $addrBatchNamesArea.val();
+					addrFullName = data["batchNames"];
+					uri = "tree/addTreesWithNames";
+				}else{
+					data["addrNamePreffix"] = $addFormAddrNamePreffix.val();
+					data["addrNameSuffix"] = $addFormAddrNameSuffix.val();
+					data["start"] = $addFormBatchStartNum.val();
+					data["end"] = $addFormBatchEndNum.val();
+					uri = "tree/addTrees";
+					addrFullName = parentAddressObj["addrFullName"] + data["addrNamePreffix"] 
 					+ (data["start"] + "-" + data["end"]) + data["addrNameSuffix"] ;
+				}
 			}else{
 				data["addrName"] = $addrNameInput.val();
 				data["addrFullName"] = parentAddressObj["addrFullName"] + data["addrName"];
@@ -494,7 +509,6 @@ AddressDisplay = function(){
 		$display_panel=$('#display_panel'),
 		$addrName = $("#displayPanelAddrName");
 	var $collectBtn = $("#displayPanelCollectBtn");
-	
 	// 保存最后一条记录
 	var lastAddrTreeObj = null; 
 	var that = null;
@@ -620,15 +634,33 @@ AddressDisplay = function(){
 			var message = String.format('确定要删除“#{addrFullName}”?', lastAddrTreeObj);
 			Confirm(message, {title:'提示',yesTxt:'确认删除',calcelTxt:'取消'}, function(){
 				common.post("tree/delTree", {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
-					Alert("删除成功!");
-					Collections.doRender();
-					Address.doShowAddressById(lastAddrTreeObj.addrParent);
-					if(mode === "detail"){ 
-						//清空表单
-						that.resetForm();
+					debugger;
+					if(responseData && responseData["code"] == 312 ){
+						Confirm('当前地址下仍有子节点地址,是否强制删除?',  {title:'提示',yesTxt:'确认强制删除',calcelTxt:'取消'}, function(){
+							common.post("tree/delTreeForceCasecade", {addrId: lastAddrTreeObj["addrId"]}, function(responseData){
+								Alert("删除成功!");
+								Collections.doRender();
+								Address.doShowAddressById(lastAddrTreeObj.addrParent);
+								if(mode === "detail"){
+									//清空表单
+									that.resetForm();
+								}else{
+									Address.reloadAddress();
+								}
+							});
+						});
 					}else{
-						Address.reloadAddress();
+						Alert("删除成功!");
+						Collections.doRender();
+						Address.doShowAddressById(lastAddrTreeObj.addrParent);
+						if(mode === "detail"){ 
+							//清空表单
+							that.resetForm();
+						}else{
+							Address.reloadAddress();
+						}
 					}
+					
 				});
 			});
 		},
@@ -992,4 +1024,138 @@ AddressChangeLevel = function(){
 			}
 		}
 	};
+}();
+
+LogCmp=function(){
+	var $win = $('#logModel');
+	var pageConfig = {
+			prevTpl: '<button class="btn btn-default" data-type="prev" title="首页"><b class="glyphicon glyphicon-chevron-left"></b></button> \n',
+			nextTpl: '<button class="btn btn-default" data-type="next" title="末页"><b class="glyphicon glyphicon-chevron-right"></b></button> \n',
+			numTPl: '<button class="btn btn-default" data-type="num" title="第#{0}页" data-num="#{0}" >#{0}</button> \n',
+			activeTPl: '<button class="btn btn-default active" data-type="active" title="当前页">#{0}</button> \n',
+			maxBlock: 9  
+		};
+	var limit = 10;
+	return {
+		initialize:function(){
+			$win.on("show.bs.modal", function(e){
+				LogCmp.showLog();
+			});
+			//关闭模态窗口的时候，刷新地址
+			$win.on("hide.bs.modal", function(e){
+				$win.attr('userLog',null);
+			});
+			
+			// 分页条事件注册
+			$("#logPagingTool").click(function(e){
+				var tag = e.target.tagName, $target = null;
+				
+				if(/button/i.test(tag)){
+					$target = $(e.target);
+				}else if(/b/i.test(tag)){
+					$target = $(e.target).parent();
+				}else{
+					return;
+				}
+				
+				var type = $target.attr("data-type");
+				if(type === "active") return;
+				var start = 0, currentStart = LogCmp.data["offset"], totalCount = LogCmp.data["totalCount"];
+				switch(type){
+				case "next": 
+					start = (totalCount % limit > 0) ? (totalCount - totalCount % limit) : (totalCount - limit); 
+					break;
+				case "prev":
+					start = 0;
+					break;
+				default: 
+					start = (parseInt($target.attr("data-num")) - 1) * limit;
+				}
+				if(start != currentStart){
+					LogCmp.showLog( start);
+				}
+			});
+		},
+		showUserLog:function(){
+			$win.attr('userLog',true);
+			$win.modal('show');
+		},
+		showLog:function(start){
+			start = start || 0;
+			var url = 'user/queryOptrLog';
+			var reqParam = { "start" : start, "limit" : limit };
+			if(!$win.attr('userLog') ){
+				url = 'tree/queryOptrLog';
+				$('#logModalTitle').html('节点操作日志(字段过长,中间有省略号的,鼠标放上去显示全部内容)');
+				reqParam.addrId = AddressDisplay.getLastAddrTreeObj().addrId;
+			}else{
+				$('#logModalTitle').html('操作员操作日志(字段过长,中间有省略号的,鼠标放上去显示全部内容)');
+			}
+			common.post(url, reqParam, function(responseData){
+				LogCmp.data = responseData;
+				if( responseData && responseData.records && responseData.records.length > 0 ){
+					LogCmp.renderer(responseData);
+				}
+			});
+		},
+		shinkAndAddTip:function(str){//增加提示
+			return '<a href="javascript:void()" class="tooltip-hide" data-toggle="tooltip"' +  
+		      'data-placement="bottom" title="' + str + '">' + String.hideMiddle(str,14); + '</a>';
+		},
+		renderer:function(responseData){
+			var table = $('#logModelTable');
+			var records = responseData.records;
+			var html = '';
+			var className = 'success';
+			var rowTpl = '<tr class="#{className}"><td>#{str1}</td><td>#{changeType}</td><td>#{changeCause}</td><td>#{changeTime}</td><td>#{createOptrName}</td><td>#{addrParent}</td><td>#{changeDoneCode}</td></tr>';
+			for (var index = 0; index < records.length; index++) {
+				className = index % 2 ==1 ? 'info': 'success';
+				var rec = records[index];
+				rec.str1 = LogCmp.shinkAndAddTip(rec.str1);
+				rec.changeCause = LogCmp.shinkAndAddTip(rec.changeCause);
+				rec.className = className;
+				html += String.format(rowTpl,rec);
+			}
+			table.children('tbody').html(html);
+			LogCmp.doRenderPaging();
+		},
+		doRenderPaging: function(){
+			
+			var start = LogCmp.data["offset"], 
+				total = LogCmp.data["totalCount"],
+				currentPage = start / limit + 1,
+				totalPage = Math.floor(total / limit) + (total % limit > 0 ? 1 : 0);
+			if(total == 0){
+				$("#logModelTable").html("");
+				return;
+			}
+			
+			var halfNum = Math.floor(pageConfig.maxBlock / 2),
+			leftBlock = currentPage - halfNum,
+			rightBlock = currentPage + pageConfig.maxBlock - halfNum; 
+			
+			if(totalPage <= pageConfig.maxBlock){
+				leftBlock = 1;
+				rightBlock = totalPage;
+			}else{
+				if(leftBlock <= 0 ){ 
+					rightBlock += -leftBlock;
+					leftBlock = 1;
+				}else{
+					rightBlock --;
+				} 
+				if(rightBlock > totalPage){
+					leftBlock -= rightBlock - totalPage;
+					rightBlock = totalPage;
+				}
+			}
+			
+			var links = String.format(pageConfig.prevTpl) ;
+			for(var i = leftBlock; i <= rightBlock; i++){
+				links += String.format(pageConfig[currentPage === i?"activeTPl":"numTPl"], i);
+			}
+			links += String.format(pageConfig.nextTpl); 
+			$("#logPagingTool").html(links);
+		}
+	}
 }();

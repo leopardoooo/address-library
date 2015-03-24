@@ -13,6 +13,8 @@ public class BusiConstants {
 		
 		public static String LOGIN_FAILURE_VIEW = "login";
 		
+		public static String SSO_LOGIN_ACTION = "sso";
+		
 		public static String LOGIN_SUCCESS_VIEW = "index";
 		public static String USER_IN_SESSION = "loginUserInSession";
 		/**存放在session里的关于登录的错误信息**/

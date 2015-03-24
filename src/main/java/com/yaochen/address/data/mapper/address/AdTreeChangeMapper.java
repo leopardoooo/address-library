@@ -3,7 +3,10 @@
  */
 package com.yaochen.address.data.mapper.address;
 
+import java.util.List;
+
 import com.easyooo.framework.sharding.annotation.Table;
+import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.data.domain.address.AdTreeChange;
 import com.yaochen.address.support.Repository;
 
@@ -21,4 +24,6 @@ public interface AdTreeChangeMapper {
     int updateByPrimaryKeySelective(AdTreeChange record);
 
     int updateByPrimaryKey(AdTreeChange record);
+
+	List<AdTreeChange> selectOptrLog(Pagination pager);
 }
