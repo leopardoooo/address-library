@@ -48,6 +48,7 @@ public class LoginWebServiceClient {
 				this.loginMethod == null || loginMethod.trim().length() == 0){
 			throw new MessageException(StatusCodeConstant.WS_CFG_ERROR);
 		}
+		password = MD5Util.EncodePassword(password);
 		Object[] remoteInvokeRaw = this.remoteInvokeRaw(loginMethod, username,password);
 		
 		if(remoteInvokeRaw == null || remoteInvokeRaw.length ==0){
@@ -131,7 +132,7 @@ public class LoginWebServiceClient {
 		String json = extractTarget.getTextContent();
 		
 		UserInSession parseObject = JSON.parseObject(json,UserInSession.class);
-		
+		System.err.println(parseObject);
 	}
 	
 	public static Node extractTarget(NodeList childNodes,String nodeName) {
