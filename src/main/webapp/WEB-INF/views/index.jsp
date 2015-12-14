@@ -1,3 +1,4 @@
+<%@page import="com.yaochen.address.common.CollectionHelper"%>
 <%@page import="com.alibaba.fastjson.JSON"%>
 <%@page import="com.sun.tools.xjc.reader.dtd.TDTDReader"%>
 <%@page import="com.yaochen.address.dto.UserInSession"%>
@@ -8,8 +9,7 @@
 <%@page import="java.util.Map"%>
 <%@page import="com.yaochen.address.web.controllers.TreeController"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <%
 	Map<String, Object> params = TreeController.getCurrentIndexParams(session);
@@ -21,23 +21,36 @@
 			maxLevel = lev.getLevelNum();
 		}
 	}
-	Object city = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_SCOPE_TEXT);
-	
+	Object city = session.getAttribute("countyStr");
 	UserInSession user = (UserInSession)session.getAttribute(BusiConstants.StringConstants.USER_IN_SESSION);
 	String env = System.getProperty("runEnv");
 %>
 <html>
-<head> 
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<!-- 引入 jquery 和 bootstrapt  -->
 	<%@ include file="/WEB-INF/common/head.jsp" %>
 	<script type="text/javascript">
 		var selectableCompanies = <%=JSON.toJSONString(cityList) %>;
 		//允许操作的最低级的地址级别
 		var GlobalMaxLevelAllowed = <%=maxLevel%>;
 		var GlobalCountyId = '<%=session.getAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID)%>';
+		var levelsRange = [];
+		var levesTmp = <%= JSON.toJSONString(levelList) %>;
+		for(var index =0;index<levesTmp.length;index++){
+			var lev = levesTmp[index];
+			lev.levelName = lev.levelName+'(' + lev.levelNum +')';
+			levelsRange.push(lev);
+		}
+		levelsRange.push({levelNum:-1,levelName:'不限'});
+		window.canEditNotice = <%=params.get("canEditNotice")%>;
+		window.isDqgs = <%=user.isDqgs()%>;
 	</script>
 </head>
 <body>
-	<nav id="topNav" class="navbar navbar-static-top" role="navigation">
+<span></span>
+<!-- //TODO  修改背景色  -->
+	<nav id="topNav" class="navbar navbar-static-top" role="navigation" style="background-color: #157fcc;">
 	  <div class="container-fluid">
 		<!-- Brand and toggle get grouped for better mobile display -->
 		<div class="navbar-header">
@@ -62,17 +75,16 @@
 				<p class="navbar-text">
 					<span> 中国 </span>
 					<span> 广西 </span>
+					<span> <%=city == null ? "选择城市": city.toString() %> </span>
 				</p>
 			</li>
-			<li><a href="#" data-toggle="modal" data-target="#switchCityModal">
-				<span id="switchCityModalTargetlabel"><%=city == null ? "选择城市": city.toString() %></span>
-				<i class="fa fa-angle-down"></i></a> </li>
 		  </ul>
 		  <ul class="nav navbar-nav navbar-right">
-		  <li><a href="javascript:void()" onclick="LogCmp.showUserLog()" target="_blank" title="操作员日志"><i class="glyphicon glyphicon-tags" ></i></a></li>
-		  <li><a href="resources/help.doc" target="_blank" title="帮助文档"><i class="glyphicon glyphicon-book" ></i></a></li>
-			<li><a href="#" title="地址库"><i class="glyphicon glyphicon-map-marker" ></i></a></li>
-			<li><a href="#" title="光纤管理"><i class="glyphicon glyphicon-send"></i></a></li>
+		  <li ><a href="#" target="_self" onclick="javascript:Addr.noticeListWin.show();" title="通知公告" notice="notice"><span class="badge" style="background-color: red;padding-right: 10px;mar">0</span>  &nbsp;&nbsp;&nbsp;通知公告</a></li>
+		  <li><a href="#" onclick="javascript:Addr.logWin.show()" target="_self" title="操作日志">操作日志</a></li>
+		  <li><a href="resources/help.doc" target="_blank" title="帮助文档">帮助文档</a></li>
+		  <li><a href="#" onclick="javascript:Addr.addrAuditWin.showWin()" target="_self" title="审核">审核</a></li>
+			  
 			<li><a href="#" class="admin-pic"> <img alt="" class="img-circle" src="<%=RES %>/main/t2.jpg"> </a></li>
 			<li class="dropdown">
 				  <a href="#" class="dropdown-toggle admin-info" data-toggle="dropdown">
@@ -87,214 +99,74 @@
 		</div><!-- /.navbar-collapse -->
 	  </div><!-- /.container-fluid -->
 	</nav>
-	<div id="search" class="container-fluid">
-		<div class="row">
-			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="col-md-6" id="searchLeft">
-				<div class="input-group">
-					<div class="input-group-btn condition">
-						<button type="button" class="btn btn-default dropdown-toggle" id="searchLevelBtn" data-toggle="dropdown"><span id="levelLabel">所有</span> <span class="caret"></span></button>
-						<ul class="dropdown-menu" id="searchLevelList" role="menu">
-							<li><a href="#" data-level="-1">所有</a></li>
-							<li class="divider"></li>
-							<% for(AdLevel level: levelList){
-								String levelName = level.getLevelName();
-								if(levelName.length() > 4){
-									levelName = levelName.substring(0, 4) + "..";
-								}
-							%>
-								<li><a title="<%=level.getLevelDesc() %>" href="#" data-level="<%=level.getLevelNum() %>">
-									<%=levelName %> (<%=level.getLevelNum() %>)</a></li>
-							<%} %>
-							<li class="divider"></li>
-							<li class="dropdown-header">“选择一个级别开始搜索”</li>
-							<li class="divider"></li>
-							<li><a href="#" data-level="0">根据ID查询</a>
-						</ul>
-					</div><!-- /btn-group -->
-					<div class="input-container">
-						<input type="text" class="form-control" id="searchInput" placeholder="输入关键字，搜索地址信息 " autocomplete="off"
-							x-webkit-speech="" x-webkit-grammar="builtin:translate" >
-						<ul id="matchingResult" class="dropdown-menu">
-							<li class="empty">等待输入进行搜索..</li>
-						</ul>
-					</div>
-					<span class="input-group-btn search-submit">
-						<button class="btn btn-primary" id="indexSearchBtn" type="button"> <i class="glyphicon glyphicon-search"></i></button>
-					</span>
-				</div><!-- /input-group -->
-		    </div>
-			<div class="col-md-6 container-fluid" id="searchRight">
-				<!--  -->
-			</div>
-		</div>
-		
-	</div>
-	
-	<!--搜索内容 -->
-	<section id="main" class="absolute">
-		<%@ include file="/WEB-INF/views/DisplayPanel.jsp" %>
-		<div id="resultList">
-			<!-- 搜索结果集 -->
-			<div class="panel panel-default">
-				<div class="panel-heading clearfix" id="resultHeading">
-					
-					<div id="resultDesc" class="" style="width: 98%;" >
-						<i class="glyphicon glyphicon-map-marker"></i>
-						<label id="currentAddressLabel">（无）</label>
-					</div>
-					<div id="addrChildrenFilterDiv" class="pull-left" style="padding-left: 20px;">
-						<input id="addrChildrenFilterTxt" placeholder="输入关键字过滤" style="height: 31px;">
-						<button id="addrChildrenFilterBtn" class="btn btn-default" title="过滤结果">
-							<b class="glyphicon glyphicon-search" ></b>
-						</button>
-						
-						
-					</div>
-					<div class="pull-right" id="resultPagingTool"></div>
-				</div>
-				<div class="panel-body" id="resultBody">
-					<p class="empty">
-						<i class="glyphicon glyphicon-search"></i>
-						<span id="resultEmptyText">请使用搜索，定位上级地址！</span>
-					</p>
-				</div>
-			</div><!-- 搜索结果集结束 -->
-		</div>
-	</section>
 
-	<!-- 模式窗口 -->
-	<div class="modal fade" id="switchCityModal" tabindex="-1" role="dialog" aria-labelledby="switchCityModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-					<h4 class="modal-title" id="switchCityModalLabel">选择城市</h4>
-				</div>
-				<div class="modal-body">
-					<div class="switch-city-body">
-						<div class="item-list city">
-							<%int count = cityList.size();int totalPage = count / 11 + (( count % 11 ==0 ) ? 0 : 1); %>
-							<p>分公司列表,共 <%=totalPage %>页，当前已选中 “<label></label>” 
-								&nbsp;&nbsp;&nbsp;&nbsp;<input id="companyFilter" value="" placeholder="输入关键字，敲回车过滤">
-							</p>
-								<div id="companyPagerToolBar">
-									<ol class="breadcrumb">
-									<%for(int index = 1;index<=totalPage;index++){ %>
-									<li current-page="<%=index %>" style="color: blue;"><a current-page="<%=index %>" href="#">第<%=index %>页</a></li>
-									<%} %>
-									</ol>
-								</div>
-							<div id="cityList" class="buttons" total-page="<%=totalPage %>">
-								<%
-									int rows = 0;
-									int cells = 0;
-									for (AdTree tree : cityList) {
-										String addrName = tree.getAddrName();
-										String nameSub = addrName.length() > 3 ? 
-												addrName.substring(0,3) + ".." : addrName;
-										cells ++;
-										boolean dataShow = rows < 2;
-								%>
-								<button class="btn" data-show="<%=dataShow %>" title="<%=addrName %>" data-addr-id="<%=tree.getAddrId() %>" ><%=nameSub %></button>
-								<%
-									if(cells % 6 ==0){
-										rows ++;
-									}
-								} %>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" id="switchCityModalOkBtn">确定</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
-		<%@ include file="/WEB-INF/views/AddForm.jsp" %>
-	</div>
-	
-	<div class="modal fade" id="modAddressModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modModalLabel" aria-hidden="true">
-		<%@ include file="/WEB-INF/views/ModForm.jsp" %>
-	</div>
-	<%-- 
-	<div class="modal fade" id="logModel" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modModalLabel" aria-hidden="true">
-		<%@ include file="/WEB-INF/views/logModel.jsp" %>
-	</div>
-	 --%>
-	
-	<div class="modal fade" id="logModel" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="modModalLabel" aria-hidden="true">
-		<%@ include file="/WEB-INF/views/logModel.jsp" %>
-	</div>
-	
-	<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-					<h4 class="modal-title" id="alertModalLabel">提示</h4>
-				</div>
-				<div class="modal-body" id="alertBody"></div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" data-dismiss="modal" id="alertModalOkBtn">确定</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<!-- 模态框（Modal） -->
-	<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog"
-		data-backdrop="static" aria-labelledby="confirmModalLabel"
-		aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="confirmModalLabel">模态框（Modal）标题</h4>
-				</div>
-				<div id="confirmBody" class="modal-body">在这里添加一些文本</div>
-				<div class="modal-footer">
-					<button type="button" id="confirmCancelBtn" class="btn btn-default" data-dismiss="modal">关闭
-					</button>
-					<button type="button" id="confirmYesBtn" class="btn btn-primary">提交更改</button>
-				</div>
-			</div>
-			<!-- /.modal-content -->
-		</div>
-		<!-- /.modal -->
+		<%@ include file="/WEB-INF/common/extLib.jsp" %>
+		
+		<script src="<%=RES %>/main/scripts/common.js"></script>
+		
+		<script type="text/javascript">
+		common.settings.path = '<%=ROOT %>';
+		</script>
+			
+			<script src="<%=RES %>/main/js/init.js"> </script>
+			
+			<script src="<%=RES %>/main/js/stdDev.js"> </script>
+			<script src="<%=RES %>/main/js/stdOptr.js"> </script>
+			<script src="<%=RES %>/main/js/top.js"> </script>
+			<script src="<%=RES %>/main/js/left.js"> </script>
+			<script src="<%=RES %>/main/js/center.js"> </script>
+			<script src="<%=RES %>/main/js/right.js"> </script>
+			
+			<script src="<%=RES %>/main/js/contextMenu.js"> </script>
+			
+			<script src="<%=RES %>/main/js/index.js"> </script>
+			<script src="<%=RES %>/main/js/addrAudit.js"> </script>
+			
+			<script src="<%=RES %>/main/js/notice.js"> </script>
+			
+			<%-- <script src="<%=RES %>/ext/pages/index.js"> </script> --%>
+
+			<!-- 引入 ueditor -->
+			<script src="<%=RES %>/ueditor/ueditor.config.js"> </script>
+			<script src="<%=RES %>/ueditor/ueditor.all.js"> </script>
+			
+	<div id="mainViewPort"></div>
+		
 </body>
 <%@ include file="/WEB-INF/common/foot.jsp" %>
-<script src="<%=RES %>/main/scripts/common.js"></script>
-<script src="<%=RES %>/main/scripts/address.js"></script>
-<script src="<%=RES %>/main/scripts/addressEdit.js"></script>
-<script src="<%=RES %>/main/scripts/index.js"></script>
-<script>
-	/** 首页初始化函数 */
-	Main = function(){
-		return {
-			initialize: function(){
-				SwitchCityModal.initialize('<%=city %>');
-				Search.initialize();
-				Collections.initialize();
-				Address.initialize();
-				AddressDisplay.initialize();
-				AddressEdit.initialize();
-				AddressAdd.initialize();
-				AddressChangeLevel.initialize();
-				AddressSingleMerge.initialize();
-				LogCmp.initialize();
-			}
-		};
-	}();
+<script type="text/javascript">
+	
+	if(!Addr){
+		Ext.ns('Addr');
+	}
+	Addr.allCountyMap = <%=JSON.toJSONString(session.getAttribute("allCountyMap")) %>;
+	Addr.singleCountyMap = <%=JSON.toJSONString(session.getAttribute("singleMap")) %>;
+	
+	Addr.loginUserInSession = <%=JSON.toJSONString(user) %>;
+	Addr.util.selectAbleCounties = [];
+	
+	
+	 var checkNotice = function () {
+		 	
+		 	Addr.util.req(appBase+'/notice/countUnRead',{},function(data){
+		 		var html = '';
+		 		if(data.data>0){
+		 			html = '<span class="badge" style="background-color: red;">' + data.data +'</span>&nbsp;&nbsp;&nbsp;通知公告' ;
+		 		}else{
+		 			html = '通知公告';
+		 		}
+		 		var noticeEl = Ext.query('a[notice=notice]');
+			 	noticeEl = noticeEl[0];
+			 	noticeEl.innerHTML=html;
+		 	});
+		 	
+		 };
 
-	$(document).ready(function(){
-		common.settings.path = '<%=ROOT %>';
-		
-		Main.initialize();
-	});
+		 var taskChecker = new Ext.util.TaskRunner();
+		 var task = taskChecker.start({
+					run : checkNotice,
+					interval : 600000//十分钟
+					//interval : 60000//30秒,测试
+				});
 </script>
 </html>

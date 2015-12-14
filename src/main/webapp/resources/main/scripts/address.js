@@ -136,7 +136,7 @@ Address = function(){
 					return ;
 				}
 				common.post("tree/queryById", {
-					"addrId": addrTreeObj["addrParent"],
+					"addrId": addrTreeObj["addrParent"]
 				}, function(data){
 					that.doShowAddress(data);
 				});
@@ -173,7 +173,7 @@ Address = function(){
 			if(!addrId) return;
 			// ajax post 
 			common.post("tree/queryById", {
-				"addrId": addrId,
+				"addrId": addrId
 			}, function(data){
 				that.doShowAddress(data);
 			});
@@ -553,11 +553,11 @@ AddressDisplay = function(){
 		},
 		switchCollectClass: function(){
 			if(lastAddrTreeObj.collected == 1){//没收藏
-				$collectBtn.attr("title", "收藏")
-					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-open");
+//				$collectBtn.attr("title", "收藏地址之后,可以方便的点击收藏条目直接定位到该地址.").find("i").attr("class", "glyphicon glyphicon glyphicon-eye-open");
+				$collectBtn.text('收藏');
 			}else{//已收藏
-				$collectBtn.attr("title", "取消收藏") 
-					.find("i").attr("class", "glyphicon glyphicon glyphicon-eye-close");
+//				$collectBtn.attr("title", "收藏地址之后,可以方便的点击收藏条目直接定位到该地址.").find("i").attr("class", "glyphicon glyphicon glyphicon-eye-close");
+				$collectBtn.text('取消收藏');
 			}
 		},
 		setValues: function(addrTreeObj){
@@ -837,7 +837,7 @@ AddressSingleMerge = function(){
 				Confirm(confirmMsg, {yesTxt:'合并'}, function(){
 					common.post("tree/singleMerge", {
 						"merger": selected.addrId,
-						"mergered": lastAddrTreeObj.addrId,
+						"mergered": lastAddrTreeObj.addrId
 					}, function(data){
 						if(data && data.addrId){
 							Address.doShowAddressById(data.addrId);
@@ -1014,7 +1014,7 @@ AddressChangeLevel = function(){
 				Confirm(confirmMsg, {yesTxt:'确认变更'}, function(){
 					common.post("tree/changeParent", {
 						"pid": selected.addrId,
-						"addrId": lastAddrTreeObj.addrId,
+						"addrId": lastAddrTreeObj.addrId
 					}, function(data){
 						if(data && data.addrId){
 							Address.doShowAddressById(data.addrId);
@@ -1026,136 +1026,3 @@ AddressChangeLevel = function(){
 	};
 }();
 
-LogCmp=function(){
-	var $win = $('#logModel');
-	var pageConfig = {
-			prevTpl: '<button class="btn btn-default" data-type="prev" title="首页"><b class="glyphicon glyphicon-chevron-left"></b></button> \n',
-			nextTpl: '<button class="btn btn-default" data-type="next" title="末页"><b class="glyphicon glyphicon-chevron-right"></b></button> \n',
-			numTPl: '<button class="btn btn-default" data-type="num" title="第#{0}页" data-num="#{0}" >#{0}</button> \n',
-			activeTPl: '<button class="btn btn-default active" data-type="active" title="当前页">#{0}</button> \n',
-			maxBlock: 9  
-		};
-	var limit = 10;
-	return {
-		initialize:function(){
-			$win.on("show.bs.modal", function(e){
-				LogCmp.showLog();
-			});
-			//关闭模态窗口的时候，刷新地址
-			$win.on("hide.bs.modal", function(e){
-				$win.attr('userLog',null);
-			});
-			
-			// 分页条事件注册
-			$("#logPagingTool").click(function(e){
-				var tag = e.target.tagName, $target = null;
-				
-				if(/button/i.test(tag)){
-					$target = $(e.target);
-				}else if(/b/i.test(tag)){
-					$target = $(e.target).parent();
-				}else{
-					return;
-				}
-				
-				var type = $target.attr("data-type");
-				if(type === "active") return;
-				var start = 0, currentStart = LogCmp.data["offset"], totalCount = LogCmp.data["totalCount"];
-				switch(type){
-				case "next": 
-					start = (totalCount % limit > 0) ? (totalCount - totalCount % limit) : (totalCount - limit); 
-					break;
-				case "prev":
-					start = 0;
-					break;
-				default: 
-					start = (parseInt($target.attr("data-num")) - 1) * limit;
-				}
-				if(start != currentStart){
-					LogCmp.showLog( start);
-				}
-			});
-		},
-		showUserLog:function(){
-			$win.attr('userLog',true);
-			$win.modal('show');
-		},
-		showLog:function(start){
-			start = start || 0;
-			var url = 'user/queryOptrLog';
-			var reqParam = { "start" : start, "limit" : limit };
-			if(!$win.attr('userLog') ){
-				url = 'tree/queryOptrLog';
-				$('#logModalTitle').html('节点操作日志(字段过长,中间有省略号的,鼠标放上去显示全部内容)');
-				reqParam.addrId = AddressDisplay.getLastAddrTreeObj().addrId;
-			}else{
-				$('#logModalTitle').html('操作员操作日志(字段过长,中间有省略号的,鼠标放上去显示全部内容)');
-			}
-			common.post(url, reqParam, function(responseData){
-				LogCmp.data = responseData;
-				if( responseData && responseData.records && responseData.records.length > 0 ){
-					LogCmp.renderer(responseData);
-				}
-			});
-		},
-		shinkAndAddTip:function(str){//增加提示
-			return '<a href="javascript:void()" class="tooltip-hide" data-toggle="tooltip"' +  
-		      'data-placement="bottom" title="' + str + '">' + String.hideMiddle(str,14); + '</a>';
-		},
-		renderer:function(responseData){
-			var table = $('#logModelTable');
-			var records = responseData.records;
-			var html = '';
-			var className = 'success';
-			var rowTpl = '<tr class="#{className}"><td>#{str1}</td><td>#{changeType}</td><td>#{changeCause}</td><td>#{changeTime}</td><td>#{createOptrName}</td><td>#{addrParent}</td><td>#{changeDoneCode}</td></tr>';
-			for (var index = 0; index < records.length; index++) {
-				className = index % 2 ==1 ? 'info': 'success';
-				var rec = records[index];
-				rec.str1 = LogCmp.shinkAndAddTip(rec.str1);
-				rec.changeCause = LogCmp.shinkAndAddTip(rec.changeCause);
-				rec.className = className;
-				html += String.format(rowTpl,rec);
-			}
-			table.children('tbody').html(html);
-			LogCmp.doRenderPaging();
-		},
-		doRenderPaging: function(){
-			
-			var start = LogCmp.data["offset"], 
-				total = LogCmp.data["totalCount"],
-				currentPage = start / limit + 1,
-				totalPage = Math.floor(total / limit) + (total % limit > 0 ? 1 : 0);
-			if(total == 0){
-				$("#logModelTable").html("");
-				return;
-			}
-			
-			var halfNum = Math.floor(pageConfig.maxBlock / 2),
-			leftBlock = currentPage - halfNum,
-			rightBlock = currentPage + pageConfig.maxBlock - halfNum; 
-			
-			if(totalPage <= pageConfig.maxBlock){
-				leftBlock = 1;
-				rightBlock = totalPage;
-			}else{
-				if(leftBlock <= 0 ){ 
-					rightBlock += -leftBlock;
-					leftBlock = 1;
-				}else{
-					rightBlock --;
-				} 
-				if(rightBlock > totalPage){
-					leftBlock -= rightBlock - totalPage;
-					rightBlock = totalPage;
-				}
-			}
-			
-			var links = String.format(pageConfig.prevTpl) ;
-			for(var i = leftBlock; i <= rightBlock; i++){
-				links += String.format(pageConfig[currentPage === i?"activeTPl":"numTPl"], i);
-			}
-			links += String.format(pageConfig.nextTpl); 
-			$("#logPagingTool").html(links);
-		}
-	}
-}();

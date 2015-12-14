@@ -29,6 +29,9 @@ public class UserInSession {
 	/**允许操作的最高级别**/
 	private Integer maxLevelAllowed;
 	
+	//是否是地区公司的,地区公司的只有查询而没有增删改的权限
+	private boolean dqgs;
+	
 	public List<SystemFunction> getSystemFunction() {
 		return SystemFunction;
 	}
@@ -166,6 +169,12 @@ public class UserInSession {
 	}
 	public void setRoleIdInSys(Integer roleIdInSys) {
 		this.roleIdInSys = roleIdInSys;
+	}
+	public boolean isDqgs() {
+		return dqgs;
+	}
+	public void setDqgs(boolean dqgs) {
+		this.dqgs = dqgs;
 	}
 	
 }

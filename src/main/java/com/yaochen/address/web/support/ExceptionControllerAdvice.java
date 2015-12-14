@@ -36,7 +36,7 @@ public class ExceptionControllerAdvice {
 		}
 		
 		ErrorObject eo = new ErrorObject();
-		
+		eo.setSuccess(false);
 		if(error instanceof HttpMessageNotReadableException){
 			StatusCodeConstant scc = StatusCodeConstant.FORM_PARAMS_ERROR;
 			eo.setStatusCode(scc);

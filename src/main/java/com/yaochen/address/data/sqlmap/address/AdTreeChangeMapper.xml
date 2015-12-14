@@ -47,28 +47,11 @@
     where change_sn = #{changeSn,jdbcType=INTEGER}
   </select>
   
-  <!-- selectOptrLog -->
-  <select id="selectOptrLog" resultMap="ResultMapForQuery" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
-    select 
-    c.* ,
-    u.username as create_optr_name,u2.username as change_optr_name
-    from ad_tree_change c
-left join ad_sys_user u2 on  c.change_optr_id  = u2.userid 
-left join ad_sys_user u on c.create_optr_id = u.userid 
-where 1=1
-    <if test="addrId != null">
-      and addr_id = #{addrId,jdbcType=INTEGER}
-    </if>
-    <if test="changeOptrId != null">
-    	and change_optr_id = #{changeOptrId,jdbcType=VARCHAR}
-    </if>
-  </select>
-  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from ad_tree_change
     where change_sn = #{changeSn,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" useGeneratedKeys="true" keyProperty="changeSn">
     insert into ad_tree_change (change_sn, change_type, change_cause, 
       merge_addr_id, change_optr_id, change_done_code, 
       change_time, addr_id, addr_name, 
@@ -88,7 +71,7 @@ where 1=1
       #{status,jdbcType=VARCHAR}, #{str1,jdbcType=VARCHAR}, #{str2,jdbcType=VARCHAR}, 
       #{str3,jdbcType=VARCHAR}, #{str4,jdbcType=VARCHAR}, #{str5,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" >
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdTreeChange" useGeneratedKeys="true" keyProperty="changeSn" >
     insert into ad_tree_change
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="changeSn != null" >

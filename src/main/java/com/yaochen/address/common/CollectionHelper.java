@@ -303,4 +303,32 @@ public class CollectionHelper {
 		dto.setChildren(children);
 	}
 	
+	/**
+	 * 在操作集合之前确保不抛出空指针.
+	 * @param raw
+	 * @return
+	 */
+	public static <T> List<T> makesureNotNull(List<T> raw){
+		if(null != raw){
+			return raw;
+		}
+		return new ArrayList<T>();
+	}
+	
+	/**
+	 * 拷贝
+	 * @param raw
+	 * @return
+	 */
+	public static <T> List<T> copyList(List<T> raw){
+		List<T> list = new ArrayList<T>();
+		if(null == raw){
+			return list;
+		}
+		for (T t : raw) {
+			list.add(t);
+		}
+		return list;
+	}
+	
 }

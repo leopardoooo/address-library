@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.sys.SysNoticeReadMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.sys.SysNoticeRead" >
+    <id column="notice_id" property="noticeId" jdbcType="INTEGER" />
+    <id column="optr_id" property="optrId" jdbcType="VARCHAR" />
+    <result column="mark_time" property="markTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    notice_id, optr_id, mark_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_notice_read
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+      and optr_id = #{optrId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_notice_read
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+      and optr_id = #{optrId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.sys.SysNoticeRead" >
+    insert into sys_notice_read (notice_id, optr_id, mark_time
+      )
+    values (#{noticeId,jdbcType=INTEGER}, #{optrId,jdbcType=VARCHAR}, #{markTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.sys.SysNoticeRead" >
+    insert into sys_notice_read
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="noticeId != null" >
+        notice_id,
+      </if>
+      <if test="optrId != null" >
+        optr_id,
+      </if>
+      <if test="markTime != null" >
+        mark_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="noticeId != null" >
+        #{noticeId,jdbcType=INTEGER},
+      </if>
+      <if test="optrId != null" >
+        #{optrId,jdbcType=VARCHAR},
+      </if>
+      <if test="markTime != null" >
+        #{markTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.sys.SysNoticeRead" >
+    update sys_notice_read
+    <set >
+      <if test="markTime != null" >
+        mark_time = #{markTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+      and optr_id = #{optrId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.sys.SysNoticeRead" >
+    update sys_notice_read
+    set mark_time = #{markTime,jdbcType=TIMESTAMP}
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+      and optr_id = #{optrId,jdbcType=VARCHAR}
+  </update>
+</mapper>

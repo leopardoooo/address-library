@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.sys.SysSeqMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.sys.SysSeq" >
+    <id column="seq_value" property="seqValue" jdbcType="INTEGER" />
+    <result column="seq_key" property="countyId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    seq_value, seq_key
+  </sql>
+  
+  <insert id="getAddrSequence" parameterType="com.yaochen.address.data.domain.sys.SysSeq" useGeneratedKeys="true"  keyProperty="seqValue">
+		REPLACE INTO sys_seq(seq_key) VALUES('addr_id')
+  </insert>
+  
+</mapper>

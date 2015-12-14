@@ -19,6 +19,7 @@ public enum StatusCodeConstant {
 	//具体业务
 	ADDR_NAME_INVALID(306, "地址名称不符合要求"),
 	USER_NOT_AUTHORIZED(307, "用户未被授权本系统"),
+	USER_HAS_NO_SUFFICIENT_ROLE(301, "用户未被赋予操作的角色."),
 	ADDR_NOT_EXISTS(308, "地址不存在"),
 	ADDR_COLL_ALREADY_EXISTS(309, "已经收藏了该地址"),
 	ADDR_COLL_NOT_EXISTS(310, "尚未收藏该地址"),
@@ -43,6 +44,10 @@ public enum StatusCodeConstant {
 	CHANGE_LEVEL_PARENT_LEVEL_WRONG(328, "更改上级时,上级地址的级别只能比当前地址级别高上一级"),
 	NONE_BLANK_ADDRESS_WRONG_NAME(329, "非留空地址,名字不能使用“留空”"),
 	PARAM_ERROR_WHEN_QUERY_BY_ID(330, "根据ID查询地址的时候,传入的参数错误,应为数字"),
+	
+	STD_DEV_HAS_CHILDREN(331, "标准设备还有下级机构/设备"),
+	ADDR_LEVEL_NOT_EXISTS(332, "符合条件的地址级别不存在."),
+	ADDR_LEVEL_NOT_WELL_FORMATTED(333, "输入的地址级别格式不符要求."),
 	
 	
 	//名字校验返回的错误 1005

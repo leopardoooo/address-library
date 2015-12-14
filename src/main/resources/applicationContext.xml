@@ -35,7 +35,8 @@
 		<property name="arguments">
 			<list>
 				<value>ADDR_SYS_FUN_CODE</value>
-				<value>${OA.sysFunctionId}</value>
+				<!-- <value>${OA.sysFunctionId}</value> -->
+				<value>${OA.sysFunctionName}</value>
 			</list>
 		</property>
 	</bean>
@@ -55,12 +56,32 @@
 		</property>
 	</bean>
 	
+	<!-- 设置系统是正式还是测试的系统 ,用于前台页面上的显示-->
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass">
+			<value>java.lang.System</value>
+		</property>
+		<property name="targetMethod">
+			<value>setProperty</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<value>maxTreeLevel</value>
+				<value>${runtime.maxTreeLevel}</value>
+			</list>
+		</property>
+	</bean>
+	
+	
 	<bean name="loginWebServiceClient" class="com.yaochen.address.support.LoginWebServiceClient" >
 		<property name="wsdlUrl">
 			<value>${login.url}</value>
 		</property>
 		<property name="loginMethod">
 			<value>${login.action}</value>
+		</property>
+		<property name="ssoWebserviceKey">
+			<value>${login.SsoWebserviceKey}</value>
 		</property>
 	</bean>
 	<!-- 检验地址名称是否合法 -->

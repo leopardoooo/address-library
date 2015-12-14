@@ -4,11 +4,12 @@
   <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.address.AdOaCountyRef" >
     <id column="company_id" property="companyId" jdbcType="VARCHAR" />
     <result column="county_id" property="countyId" jdbcType="VARCHAR" />
+    <result column="pid" property="pid" jdbcType="VARCHAR" />
     <result column="county_name" property="countyName" jdbcType="VARCHAR" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    company_id, county_id, county_name, remark
+    company_id, county_id, county_name, remark,pid
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
@@ -16,15 +17,23 @@
     from ad_oa_county_ref
     where company_id = #{companyId,jdbcType=VARCHAR}
   </select>
+  
+  <!-- selectAll -->
+  <select id="selectAll" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from ad_oa_county_ref
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
     delete from ad_oa_county_ref
     where company_id = #{companyId,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
     insert into ad_oa_county_ref (company_id, county_id, county_name, 
-      remark)
+      remark,pid)
     values (#{companyId,jdbcType=VARCHAR}, #{countyId,jdbcType=VARCHAR}, #{countyName,jdbcType=VARCHAR}, 
-      #{remark,jdbcType=VARCHAR})
+      #{remark,jdbcType=VARCHAR},#{pid,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
     insert into ad_oa_county_ref
@@ -41,6 +50,9 @@
       <if test="remark != null" >
         remark,
       </if>
+      <if test="pid != null" >
+        pid,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="companyId != null" >
@@ -55,6 +67,9 @@
       <if test="remark != null" >
         #{remark,jdbcType=VARCHAR},
       </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
@@ -62,6 +77,9 @@
     <set >
       <if test="countyId != null" >
         county_id = #{countyId,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null" >
+        pid = #{pid,jdbcType=VARCHAR},
       </if>
       <if test="countyName != null" >
         county_name = #{countyName,jdbcType=VARCHAR},
@@ -76,6 +94,7 @@
     update ad_oa_county_ref
     set county_id = #{countyId,jdbcType=VARCHAR},
       county_name = #{countyName,jdbcType=VARCHAR},
+      pid = #{pid,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR}
     where company_id = #{companyId,jdbcType=VARCHAR}
   </update>

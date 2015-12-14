@@ -63,7 +63,10 @@ input:focus, textarea:focus {outline: 0;outline: thin dotted \9;}
 #searchRight .col-md-4{padding:0; margin: 0;}
 #searchRight a{text-align: left;width: 100%; color: #6c6c6c;padding: 3px 6px;}
 #search .search-footer{background: #d8dbe1; border-top: 1px dotted #cbd1dc; }
-#resultDesc{color: #858eb2; padding-top: 15px; display: inline-block; padding-left: 14px;}
+#resultDesc{color: #858eb2; padding-top: 8px; display: inline-block; padding-left: 14px;}
+/* 
+#resultDesc{color: #858eb2; padding-top: 15px; display: inline-block; padding-left: 14px;} 
+*/
 #resultDesc>label{display: inline\9; }
 #tools{margin-right: 2px;}
 #tools>li>a{padding: 15px; margin:0; font-size: 16px; color: #858eb2;}
@@ -85,7 +88,11 @@ input:focus, textarea:focus {outline: 0;outline: thin dotted \9;}
 #main .panel-heading>.pull-right>button{ color: #b5b8bd;font-weight: normal;}
 #main .panel-heading.scroll{box-shadow: 0 1px 5px rgba(0,0,0,.075); -webkit-box-shadow: 0 1px 5px rgba(0,0,0,.075);}
 
+#resultBody {margin: 0; padding: 0; position: absolute; left: 0; right:0; top: 30px; bottom:10px; overflow: auto;}
+/*
 #resultBody {margin: 0; padding: 0; position: absolute; left: 0; right:0; top: 75px; bottom:10px; overflow: auto;}
+*/
+
 #resultBody>.item{position: relative; float: left; width: 48%;border-radius: 4px; font-size: 15px; border:1px solid; margin-left: 1%; margin-top: 10px;}
 #resultBody>.item>i, #resultBody>.item>b{position: relative; border-left: 1px solid; border-color: inherit;  cursor:pointer; color: inherit; width: 36px; padding: 8px 0; text-align: center; display: block; font: normal normal normal 14px/1 'Glyphicons Halflings';}
 #resultBody>.item>i{float: right;}

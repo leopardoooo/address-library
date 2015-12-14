@@ -53,6 +53,98 @@
     where addr_id = #{addrId,jdbcType=INTEGER}
   </select>
   
+  <!-- queryRelatedAddrs -->
+   <select id="queryRelatedAddrs" resultMap="BaseResultMap" parameterType="map" >
+    SELECT t.* from ad_tree t ,std_device_addr_rel r
+		WHERE t.addr_id = r.addr_id
+		and r.gjd_id  = #{gzId,jdbcType=INTEGER}
+  </select>
+  
+  <!-- queryAddrByName -->
+  <select id="queryAddrByName" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree where 1=1
+    <if test="countyId !=null">
+     	and county_id = #{countyId,jdbcType=INTEGER}
+     </if>
+     <if test="addrName != null">
+     	and addr_name like '%${addrName}%'
+     </if>
+     <if test="status != null">
+     	and status = #{status,jdbcType=VARCHAR}
+     </if>
+  </select>
+  
+  
+  <!-- queryComplex -->
+  <select id="queryComplex" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree where 1=1
+    <if test="addrLevel !=null">
+     	and addr_level in <foreach item="item" index="index" collection="addrLevel" open="(" separator="," close=")">  #{item} </foreach>
+     </if>
+ 
+     <!-- 根据地址名称查询，分集中清空 -->
+     <if test="addrName != null and addrName != '' and addrNameFlag == 1 ">
+     	and addr_name = #{addrName,jdbcType=VARCHAR}
+     </if>
+	 
+	 <if test="addrName != null and addrName != '' and addrNameFlag == 2 ">
+     	and addr_name like '%${addrName}%'
+     </if>
+	 
+	 
+	 <!-- 查询父级,两种情况 -->
+	  
+	 <if test="addrParent != null and addrParent != '' ">
+	 	
+	 	<if test="addrParentFlag == 1 "> <!-- 等于 -->
+		 	and addr_parent in 
+			(
+				SELECT s.addr_id from ad_tree s where s.`status` = 'ACTIVE' and s.addr_name = '${addrParent}'
+			)
+	 	</if>
+	 	
+	 	<if test="addrParentFlag == 2 "> <!-- like -->
+	 		and addr_parent in 
+		(
+			SELECT s.addr_id from ad_tree s where s.`status` = 'ACTIVE' and s.addr_name like '%${addrParent}%'
+		)
+	 	</if>
+	 	
+	 </if>
+     
+     <if test="addrType != null ">
+     	and addr_type in <foreach item="item" index="index" collection="addrType" open="(" separator="," close=")">  #{item} </foreach>
+     </if>
+     
+     <if test="countyId !=null">
+     	and county_id = #{countyId,jdbcType=INTEGER}
+     </if>
+     <if test="countyIds!=null">
+	    and county_id in <foreach item="item" index="index" collection="countyIds" open="(" separator="," close=")">#{item} </foreach>
+    </if>
+     <if test="status != null">
+     	and status = #{status,jdbcType=VARCHAR}
+     </if>
+     order by addr_level,addr_id 
+  </select>
+  
+  <!-- deleteAddrNotProved  -->
+ <delete id="deleteAddrNotProved" parameterType="map" >
+    delete from ad_tree
+    where addr_id in <foreach item="item" index="index" collection="array" open="(" separator="," close=")">  #{item} </foreach>
+  </delete>
+  
+  <!-- saveAddrProved  -->
+  <update id="saveAddrProved" parameterType="map" >
+    update ad_tree
+    set status = 'ACTIVE' ,addr_name = LEFT( addr_name,(char_length( addr_name) -5 ) )
+    where addr_id in <foreach item="item" index="index" collection="array" open="(" separator="," close=")">  #{item} </foreach>
+  </update>
+  
   <!-- selectByKeyWordLevel -->
   <select id="selectByKeyWordLevel" resultMap="BaseResultMapWithCollectInfo" parameterType="map" >
    select null collected ,t.addr_id,t.addr_name,t.addr_level,t.addr_type,t.addr_use,t.is_blank,t.addr_parent,t.addr_private_name,
@@ -86,11 +178,27 @@
     select 
     <include refid="Base_Column_List" />
     from ad_tree
-    where addr_parent = #{addrId,jdbcType=INTEGER} and status = #{status,jdbcType=VARCHAR}
+    where addr_parent = #{addrId,jdbcType=INTEGER} 
+    <!-- and status = #{status,jdbcType=VARCHAR}  -->
     <if test="countyId!=null">
 	    and county_id = #{countyId,jdbcType=VARCHAR}
     </if>
   </select>
+  
+  <!-- queryCountiesByCountyIds 查询可用的  分公司 -->
+  <select id="queryCountiesByCountyIds" resultMap="BaseResultMap" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_tree
+    where addr_level &lt; 2
+    <if test="addrParent != null and addrParent != '' ">
+		    addr_parent = #{addrParent,jdbcType=INTEGER} 
+    </if> 
+    <if test="countyIds!=null">
+	    and county_id in <foreach item="item" index="index" collection="countyIds" open="(" separator="," close=")">#{item} </foreach>
+    </if>
+  </select>
+  
   <!-- selectAllPosterityForMerge 查询所有的子集 -->
   <select id="selectAllPosterityForMerge" resultMap="AddrDto" parameterType="com.yaochen.address.data.domain.address.AdTree" >
     select 
@@ -114,9 +222,7 @@
     	and t.addr_level = #{addrLevel,jdbcType=INTEGER}
     	and t.is_blank = 'F' 
     </if>
-     <if test="baseScope !=null">
-     	and t.addr_private_name like '${baseScope}%' 
-     </if>
+    
      <if test="keyword != null">
      	and t.addr_full_name like '%${keyword}%'
      </if>
@@ -156,17 +262,39 @@
      <if test="status != null">
      	and t.status = #{status,jdbcType=VARCHAR}
      </if>
+     
      <if test="countyId != null">
      	and t.county_id = #{countyId,jdbcType=VARCHAR}
      </if>
+     
      <if test="filter != null">
      	and t.addr_name like '${filter}%' 
      </if>
-     <if test="baseScope !=null">
-     	and t.addr_private_name like '${baseScope}%' 
-     </if>
      order by t.addr_level ,addr_name 
   </select>
+  
+  
+  <!-- selectAllInfoForPage -->
+  <select id="selectAllInfoForPage" resultMap="BaseResultMapWithCollectInfo" parameterType="map" >
+   select * from ad_tree t 
+   where (
+	   t.addr_level &lt;=#{treeLevel,jdbcType=INTEGER} 
+   or t.addr_level=#{childLevel,jdbcType=INTEGER}  
+   )
+   <if test="countyId!=null and countyId != ''">
+   		and t.county_id = #{countyId,jdbcType=VARCHAR} 
+   </if>
+   <if test="null != pids">
+   and t.addr_parent in  
+    <foreach item="item" index="index" collection="pids" open="(" separator="," close=")">  
+  #{item}  
+ </foreach>
+   </if>
+   
+order by t.addr_level,t.addr_name
+  </select>
+  
+  
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from ad_tree
@@ -188,6 +316,7 @@
       #{str1,jdbcType=VARCHAR}, #{str2,jdbcType=VARCHAR}, #{str3,jdbcType=VARCHAR}, #{str4,jdbcType=VARCHAR}, 
       #{str5,jdbcType=VARCHAR})
   </insert>
+  
   <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.address.AdTree" useGeneratedKeys="true" keyProperty="addrId">
     insert into ad_tree
     <trim prefix="(" suffix=")" suffixOverrides="," >

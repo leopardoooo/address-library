@@ -1,8 +1,15 @@
 package com.yaochen.address.common;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import com.alibaba.fastjson.JSON;
+import com.easyooo.framework.common.util.CglibUtil;
 
 public class StringHelper {
 	
@@ -32,10 +39,7 @@ public class StringHelper {
 	}
 	
 	public static String replaceAllEmpty(String raw){
-		if(isEmpty(raw)){
-			return raw;
-		}
-		raw = raw.trim();
+		raw = checkAndTrim(raw);
 		String [] empties = new String [ ]{" ","\r","\n"};
 		for (String string : empties) {
 			raw = raw.replaceAll(string, "");
@@ -122,7 +126,8 @@ public class StringHelper {
 		// 只允许字母和数字
 		// String regEx = "[^a-zA-Z0-9]";
 		// 所有特殊字符
-		String regEx = "[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+//		String regEx = "[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+		String regEx = "[`~!@#$%^&*+=|{}':;',\\[\\].<>/?~！@#￥%……&*——+|{}【】‘；：”“’。，、？]";
 		Pattern p = Pattern.compile(regEx);
 		Matcher m = p.matcher(str);
 		if(m.find()){
@@ -132,7 +137,7 @@ public class StringHelper {
 		return false;
 	}
 
-	public static void main(String[] args) {
+	public static void main1(String[] args) {
 		System.err.println(isChinese("aaa"));
 		System.err.println(isChinese("啊"));
 		System.err.println(isChinese("a 啊 1"));
@@ -244,6 +249,171 @@ public class StringHelper {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * 給定一个字符串,默认按照以 "_" 分割,截成 驼峰型.
+	 * @param str
+	 * @return
+	 */
+	public static String camellize(String str) {
+		str = checkAndTrim(str);
+		return camellize(str,"_");
+	}
+	
+	/**
+	 * 給定一个 驼峰型 字符串,默认按照以 "_" 分割,截成 非驼峰型.
+	 * @param str
+	 * @return
+	 */
+	public static String deCamellize(String str) {
+		str = checkAndTrim(str);
+		return deCamellize(str,"_");
+	}
+
+	private static String checkAndTrim(String str) {
+		if(isEmpty(str)){
+			return str;
+		}
+		str = str.trim();
+		return str;
+	}
+
+	public static String deCamellize(String str, String spliter) {
+		str = checkAndTrim(str);
+		StringBuffer sb = new StringBuffer();
+		for (int index = 0; index < str.length(); index++) {
+			char chr = str.charAt(index);
+			if(Character.isUpperCase(chr)){
+				sb.append(spliter);
+				sb.append(Character.toLowerCase(chr));
+			}else{
+				sb.append(chr);
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String camellize(String columnName, String spliter) {
+		if(isEmpty(columnName)){
+			return columnName;
+		}
+		String rst = "";
+		String[] split = columnName.split(spliter);
+		int index = 0;
+		for (String str : split) {
+			if(index >0){
+				str = upperFirst(str);
+			}
+			rst += str;
+			index++;
+		}
+		return rst;
+	}
+
+	public static void main(String[] args) {
+		String str = "AD_TREE".toLowerCase();
+		String camellize = camellize(str);
+		System.err.println(camellize);
+		System.err.println(deCamellize(camellize));
+	}
+
+	/**
+	 * 首字母转小写
+	 * @param rawStr
+	 * @return
+	 */
+	public static String lowerFirst(String rawStr) {
+		if (Character.isLowerCase(rawStr.charAt(0))) {
+			return rawStr;
+		}
+		return (new StringBuilder()).append(Character.toLowerCase(rawStr.charAt(0)))
+				.append(rawStr.substring(1)).toString();
+	}
+
+	/**
+	 *  首字母转大写
+	 * @param rawStr
+	 * @return
+	 */
+	public static String upperFirst(String rawStr) {
+		if (Character.isUpperCase(rawStr.charAt(0))) {
+			return rawStr;
+		}
+		return (new StringBuilder()).append(Character.toUpperCase(rawStr.charAt(0)))
+				.append(rawStr.substring(1)).toString();
+	}
+
+	public static boolean equalsAsString(Object first, Object second) {
+		boolean firstNull = first == null;
+		boolean secondNull = second == null;
+		//两个都为空,返回true.
+		if((firstNull && secondNull)){
+			return true;
+		}
+		// 两个其中有一个为空,返回false.
+		if((firstNull || secondNull)){
+			return false;
+		}
+		return first.toString().equals(second.toString());
+	}
+	
+	/**
+	 * @param tpl 模版,变量名用 ${} 包裹.如  ${var1}
+	 * @param obj 普通的javabean.
+	 * @return
+	 * @throws Exception 
+	 */
+	@SuppressWarnings("unchecked")
+	public static String formatTpl(String tpl,Object obj) throws Exception{
+		obj = null == obj ? new Object() : obj;
+		Class<? extends Object> objClass = obj.getClass();
+		boolean isCollection = Collection.class.isAssignableFrom(objClass);
+		if(objClass.isArray() || isCollection){
+			throw new IllegalArgumentException("不接受数据或者集合类型的参数.");
+		}
+		Map<String, Object> describe = new HashMap<String, Object>(); 
+		if(null != obj){
+			if(Map.class.isAssignableFrom(objClass)){
+				describe = (Map<String, Object>) obj;
+			}else{
+				describe = CglibUtil.describe(obj);
+			}
+		}
+		return formatTpl(tpl, describe);
+	}
+	
+	public static String formatTpl(String tpl,Map<String, Object> obj) throws Exception {
+		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z_0-9\\.]+\\}");
+		Matcher matcher = pattern.matcher(tpl);
+		String result = tpl;
+		while(matcher.find()){
+			String group = matcher.group();
+			String varName = group.substring(2, group.length() -1);
+			Object varVal = obj.get(varName);
+			varVal = varVal == null ? "" : varVal;//保证不抛错
+			String replace = "";
+			if(Date.class.isAssignableFrom(varVal.getClass())){
+				replace = DateHelper.format((Date) varVal, DateHelper.FORMAT_TIME);
+			}else if(String.class.isAssignableFrom(varVal.getClass()) || varVal.getClass().isPrimitive() ){
+				//数组或者集合
+				replace = varVal.toString();
+			}else if(varVal.getClass().isArray() || Collection.class.isAssignableFrom(varVal.getClass()) ){
+				//数组或者集合
+				replace = JSON.toJSONString(varVal);
+			}else{
+				replace = varVal.toString();
+			}
+			
+			String regex = "\\$\\{" + varName + "\\}";
+			try {
+				result = result.replaceAll(regex, replace );
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return result;
 	}
 	
 }

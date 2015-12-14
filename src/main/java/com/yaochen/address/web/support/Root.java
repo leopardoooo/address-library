@@ -7,6 +7,7 @@ package com.yaochen.address.web.support;
 public class Root<T> {
 	private Integer code;
 	private Object message;
+	private boolean success = true;
 	private T data;
 	
 	public Root(){
@@ -39,4 +40,13 @@ public class Root<T> {
 	public void setData(T data) {
 		this.data = data;
 	}
+
+	public boolean isSuccess() {
+		return success;
+	}
+
+	public void setSuccess(boolean success) {
+		this.success = success;
+	}
+	
 }

@@ -2,7 +2,6 @@ package com.yaochen.address.support;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -13,7 +12,6 @@ import org.w3c.dom.NodeList;
 
 import com.alibaba.fastjson.JSON;
 import com.yaochen.address.common.BusiConstants;
-import com.yaochen.address.common.CollectionHelper;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.dto.SystemFunction;
@@ -23,7 +21,8 @@ public class LoginWebServiceClient {
 	private Logger logger = Logger.getLogger(getClass());
 	private Client client;
 	private String wsdlUrl;
-	String loginMethod ;
+	private String ssoWebserviceKey;
+	private String loginMethod ;
 	
 	private Object[] remoteInvokeRaw(String methodName, Object... params)
 			throws Exception, MalformedURLException {
@@ -48,8 +47,8 @@ public class LoginWebServiceClient {
 				this.loginMethod == null || loginMethod.trim().length() == 0){
 			throw new MessageException(StatusCodeConstant.WS_CFG_ERROR);
 		}
-		password = MD5Util.EncodePassword(password);
-		Object[] remoteInvokeRaw = this.remoteInvokeRaw(loginMethod, username,password);
+//		password = MD5Util.EncodePassword(password);
+		Object[] remoteInvokeRaw = this.remoteInvokeRaw(loginMethod, username,password,this.ssoWebserviceKey);
 		
 		if(remoteInvokeRaw == null || remoteInvokeRaw.length ==0){
 			throw new MessageException(StatusCodeConstant.WS_REQ_FAILURE);
@@ -57,21 +56,23 @@ public class LoginWebServiceClient {
 		String json = remoteInvokeRaw[0].toString();
 		UserInSession parseObject = JSON.parseObject(json,UserInSession.class);
 		List<SystemFunction> sysFuns = parseObject.getSystemFunction();
-		List<SystemFunction> funs = new ArrayList<SystemFunction>();
 		String code = System.getProperty(BusiConstants.StringConstants.ADDR_SYS_FUN_CODE);
-		logger.info("系统配置的functionId " + code );
+		logger.info("系统配置的functionName " + code );
+		boolean authed = false;//是否可以登录本系统.
 		for (SystemFunction fun : sysFuns) {
-			if(fun.getFunctionOID().toString().equals(code)){
-				funs.add(fun);
+			if(fun.getFunctionName().equals(code)){
+				authed = true;
 				break;
 			}
 		}
-		logger.debug("webservice获得登录用户数据: \n "  + json);
-		if(CollectionHelper.isEmpty(funs)){
-			throw new Exception("当前用户未被授权登录地址库系统(FunctionOID [" + code + "])");
+		if(logger.isDebugEnabled()){
+			logger.debug("webservice获得登录用户数据: \n "  + json);
+		}
+		if(!authed){
+			throw new Exception("当前用户未被授权登录地址库系统(FunctionName [" + code + "])");
 		}
 			
-		parseObject.setSystemFunction(funs);
+		parseObject.setSystemFunction(sysFuns);
 		return parseObject;
 	}
 	
@@ -159,4 +160,9 @@ public class LoginWebServiceClient {
 	public void setLoginMethod(String loginMethod) {
 		this.loginMethod = loginMethod;
 	}
+
+	public void setSsoWebserviceKey(String ssoWebserviceKey) {
+		this.ssoWebserviceKey = ssoWebserviceKey;
+	}
+	
 }

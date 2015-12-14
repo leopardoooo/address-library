@@ -17,10 +17,26 @@
     from ad_sys_user
     where userid = #{userid,jdbcType=VARCHAR}
   </select>
+  
+  <!-- selectByUserName  -->
+  <select id="selectByUserName" resultMap="BaseResultMap" parameterType="com.yaochen.address.data.domain.address.AdSysUser" >
+    select 
+    <include refid="Base_Column_List" />
+    from ad_sys_user where 1=1
+    <if test="username != null" >
+    		and username  like '%${username}%'
+     </if>
+     <if test="countyId != null" >
+    		and county_id  = #{countyId,jdbcType=VARCHAR}
+     </if>
+    
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
     delete from ad_sys_user
     where userid = #{userid,jdbcType=VARCHAR}
   </delete>
+  
   <insert id="insert" parameterType="com.yaochen.address.data.domain.address.AdOaCountyRef" >
     insert into ad_sys_user (userid, county_id, role_id, username,`password`)
     values (#{userid,jdbcType=VARCHAR}, #{countyId,jdbcType=VARCHAR}, #{roleId,jdbcType=INTEGER}, 

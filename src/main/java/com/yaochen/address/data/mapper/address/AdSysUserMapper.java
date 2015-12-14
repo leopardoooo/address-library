@@ -1,5 +1,7 @@
 package com.yaochen.address.data.mapper.address;
 
+import java.util.List;
+
 import com.easyooo.framework.sharding.annotation.Table;
 import com.yaochen.address.data.domain.address.AdSysUser;
 import com.yaochen.address.support.Repository;
@@ -18,4 +20,6 @@ public interface AdSysUserMapper {
     int updateByPrimaryKeySelective(AdSysUser record);
 
     int updateByPrimaryKey(AdSysUser record);
+
+	List<AdSysUser> selectByUserName(AdSysUser record);
 }

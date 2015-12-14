@@ -1,6 +1,8 @@
 package com.yaochen.address.web.support;
 
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.common.StatusCodeConstant;
 import com.yaochen.address.common.StringHelper;
+import com.yaochen.address.data.domain.address.AdOaCountyRef;
 import com.yaochen.address.dto.UserInSession;
 import com.yaochen.address.support.ThreadUserParamHolder;
 
@@ -65,14 +68,30 @@ public class TimerHandlerInterceptor implements HandlerInterceptor{
 			}
 			
 		}
-		Object baseScope = session.getAttribute(BusiConstants.StringConstants.GOLBEL_QUERY_PRECND);
-		if(baseScope!=null && StringHelper.isNotEmpty(baseScope.toString().trim())){
-			ThreadUserParamHolder.setBaseQueryScope(baseScope.toString());
-		}
+		
 		Object countyId = session.getAttribute(BusiConstants.StringConstants.GOLBEL_COUNTY_ID);
 		if(countyId!=null && StringHelper.isNotEmpty(countyId.toString().trim())){
 			ThreadUserParamHolder.setGlobeCountyId(countyId.toString());
 		}
+		
+		Object allCountyMap = session.getAttribute("allCountyMap");
+		if(allCountyMap !=null){
+			@SuppressWarnings("unchecked")
+			Map<String, List<AdOaCountyRef>> map = (Map<String, List<AdOaCountyRef>>) allCountyMap;
+			ThreadUserParamHolder.setCountyChildrenMap(map);
+		}else{
+			logger.warn("没有查找到存放市级和县级分公司子集的线程变量！！！！！");
+		}
+		
+		Object singleMapObj = session.getAttribute("singleMap");
+		if(null != singleMapObj){
+			@SuppressWarnings("unchecked")
+			Map<String, AdOaCountyRef> singleMap = (Map<String, AdOaCountyRef>) singleMapObj;
+			ThreadUserParamHolder.setCountyMap(singleMap);
+		}else{
+			logger.warn("没有查找到存放市级和县级分公司信息的线程变量！！！！！");
+		}
+		
 		request.setAttribute(TIMER_HANDLER_START_KEY, System.currentTimeMillis());
 		return true;
 	}

@@ -46,6 +46,10 @@
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
+	<session-config>
+		<session-timeout>120</session-timeout>
+	</session-config>
+	
 	<!-- Disables Servlet Container welcome file handling. 
 	Needed for compatibility with Servlet 3.0 and Tomcat 7.0 -->
 	<welcome-file-list>

@@ -123,7 +123,7 @@ SwitchCityModal = function(w){
 		},
 		doSubmit: function(pid, pidText, subId, subIdText){
 			var scopeText = pidText + "/" + subIdText;
-			common.post("user/setAddrScope", {
+			common.post("/user/setAddrScope", {
 				"pid": pid,
 				"subId": subId || null,
 				"scopeText": scopeText
@@ -196,7 +196,7 @@ Collections = function(){
 		},
 		doRender: function(){
 			common.post("tree/findCollects", {
-				"limit": collectionLimit,
+				"limit": collectionLimit
 			}, function(data){
 				if(!data || data.length ==0){
 					return;

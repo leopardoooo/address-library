@@ -353,3 +353,83 @@ String.hideMiddle = String.hideMiddle || function(source,lengthNeed){
 	return head + replace + tail;
 }
 
+/*
+ * jQuery placeholder, fix for IE6,7,8,9
+ * @author JENA
+ * @since 20131115.1504
+ * @website ishere.cn
+ */
+var JPlaceHolder = {
+    //检测
+    _check : function(){
+        return 'placeholder' in document.createElement('input');
+    },
+    //初始化
+    init : function(){
+        if(!this._check()){
+            this.fix();
+        }
+    },
+    //修复
+    fix : function(){
+        jQuery(':input[placeholder]').each(function(index, element) {
+            var self = $(this), txt = self.attr('placeholder');
+            self.wrap($('<div></div>').css({position:'relative', zoom:'1', border:'none', background:'none', padding:'none', margin:'none'}));
+            var pos = self.position(), h = self.outerHeight(true), paddingleft = self.css('padding-left');
+            var holder = $('<span></span>').text(txt).css({position:'absolute', left:pos.left, top:pos.top, height:h, lienHeight:h, paddingLeft:paddingleft, color:'#aaa'}).appendTo(self.parent());
+            self.focusin(function(e) {
+                holder.hide();
+            }).focusout(function(e) {
+                if(!self.val()){
+                    holder.show();
+                }
+            });
+            holder.click(function(e) {
+                holder.hide();
+                self.focus();
+            });
+        });
+    }
+};
+//执行
+jQuery(function(){
+    JPlaceHolder.init();    
+});
+
+
+function copyToClipBoard(s) {
+	//alert(s);
+	if (window.clipboardData) {
+		window.clipboardData.setData("Text", s);
+		alert("已经复制到剪切板！" + "\n" + s);
+	} else if (navigator.userAgent.indexOf("Opera") != -1) {
+		window.location = s;
+	} else if (window.netscape) {
+		try {
+			netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+		} catch (e) {
+			alert("被浏览器拒绝！\n请在浏览器地址栏输入'about:config'并回车\n然后将'signed.applets.codebase_principal_support'设置为'true'");
+		}
+		var clip = Components.classes['@mozilla.org/widget/clipboard;1']
+				.createInstance(Components.interfaces.nsIClipboard);
+		if (!clip)
+			return;
+		var trans = Components.classes['@mozilla.org/widget/transferable;1']
+				.createInstance(Components.interfaces.nsITransferable);
+		if (!trans)
+			return;
+		trans.addDataFlavor('text/unicode');
+		var str = new Object();
+		var len = new Object();
+		var str = Components.classes["@mozilla.org/supports-string;1"]
+				.createInstance(Components.interfaces.nsISupportsString);
+		var copytext = s;
+		str.data = copytext;
+		trans.setTransferData("text/unicode", str, copytext.length * 2);
+		var clipid = Components.interfaces.nsIClipboard;
+		if (!clip)
+			return false;
+		clip.setData(trans, null, clipid.kGlobalClipboard);
+		alert("已经复制到剪切板！" + "\n" + s)
+	}
+}

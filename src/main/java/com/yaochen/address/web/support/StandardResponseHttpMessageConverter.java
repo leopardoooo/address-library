@@ -83,6 +83,7 @@ public class StandardResponseHttpMessageConverter extends
 		if(object instanceof ErrorObject){
 			response = new Root<Object>();
 			ErrorObject eo = (ErrorObject) object;
+			response.setSuccess(eo.isSuccess());
 			response.setCode(eo.getStatusCode().getCode());
 			response.setMessage(eo.getMessage());
 		}else if(object instanceof Root){
@@ -91,10 +92,14 @@ public class StandardResponseHttpMessageConverter extends
 			response.setCode(StatusCodeConstant.RESPONSE_SUCCESS.getCode());
 			response.setMessage(SUCCESS);
 		}else{
+			/*
 			response = new Root<Object>();
 			StatusCodeConstant scc = StatusCodeConstant.CONTROLLER_RETURN_ROOT;
 			response.setCode(scc.getCode());
 			response.setMessage(scc.getDesc());
+			*/
+			super.writeInternal(object, outputMessage);
+			return;
 		}
 		
 		super.writeInternal(response, outputMessage);

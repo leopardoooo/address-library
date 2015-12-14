@@ -12,7 +12,7 @@
 <style>
 	HTML,BODY{background: #fff; }
 	.body{width: 500px; height: 260px; background: #ddd; border-radius: 4px; padding-top: 50px; margin-top: 100px;}
-	.header{background: #3b5598;}
+	.header{background: #157fcc;}
 	.container{width: 1000px;}
 	.header .container{font-size: 40px; color: #fff; font-weight: bold; padding: 30px 0 10px 0; text-shadow: 0 1px 0 #fff;}
 	#loginForm{width: 450px; border-radius: 4px; border:1px solid #ccc; padding: 20px;}
@@ -56,7 +56,8 @@
 			</script>
 			
 			<% 		
-		}
+			session.removeAttribute(BusiConstants.StringConstants.LOGIN_ERROR_IN_SESSION);	
+	}
 	%>
 	
 </body>

@@ -84,4 +84,37 @@ public interface AdTreeMapper {
 	 */
 	List<AddrDto> selectAllPosterityForMerge(AdTree param);
 
+	List<AdTree> queryAddrByName(Pagination pager);
+
+	List<AdTree> selectAllInfoForPage(Map<String, Object> qm);
+
+	/**
+	 * 根据各种条件查询.
+	 * @param startLevel
+	 * @param endLevel
+	 * @param addrName
+	 * @param addrParent
+	 * @param addrType
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	List<AdTree> queryComplex(Pagination pager);
+
+	/**
+	 * 审核不通过
+	 * @param addrIds
+	 */
+	void deleteAddrNotProved(Integer[] addrIds);
+
+	/**
+	 * 审核通过
+	 * @param addrIds
+	 */
+	void saveAddrProved(Integer[] addrIds);
+
+	List<AdTree> queryRelatedAddrs(Map<String, Object> pager);
+
+	List<AdTree> queryCountiesByCountyIds(Map<String, Object> param);
+
 }

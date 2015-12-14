@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.sys.SysNoticeMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.sys.SysNotice" >
+    <id column="notice_id" property="noticeId" jdbcType="INTEGER" />
+    <result column="notice_title" property="noticeTitle" jdbcType="VARCHAR" />
+    <result column="notice_content" property="noticeContent" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_optr" property="createOptr" jdbcType="VARCHAR" />
+    <result column="eff_date" property="effDate" jdbcType="TIMESTAMP" />
+    <result column="invalid_date" property="invalidDate" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <!-- 显示属性 -->
+    <result column="read" property="read" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    notice_id, notice_title, notice_content, create_time, create_optr, eff_date, invalid_date, 
+    `status`
+  </sql>
+  
+  <sql id="Base_Column_List2" >
+  	t.notice_id,t.notice_title,t.notice_content,t.create_time,t.create_optr,t.eff_date,t.invalid_date,t.`status`
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_notice
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </select>
+  
+  <!-- queryUnchecked -->
+  <select id="queryUnchecked" resultMap="BaseResultMap" parameterType="com.yaochen.address.dto.db.NoticeQueryForm" >
+	  SELECT <include refid="Base_Column_List2" />,'F' as `read` from sys_notice t ,sys_notice_county c
+		where t.notice_id = c.notice_id AND t.invalid_date > now() and t.`status` = 'ACTIVE'
+		and t.notice_id not in ( SELECT r.notice_id from sys_notice_read r where r.notice_id = t.notice_id and r.optr_id = #{optr,jdbcType=VARCHAR}  )
+		and c.county_id = #{countyId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- queryAllValid -->
+  <select id="queryAllValid" resultMap="BaseResultMap" parameterType="com.yaochen.address.dto.db.NoticeQueryForm" >
+	  		SELECT <include refid="Base_Column_List2" />, CASE WHEN r.optr_id is null then 'F' ELSE 'T' END as `read`
+			from sys_notice_county c,sys_notice t
+			LEFT JOIN sys_notice_read r on r.notice_id = t.notice_id and r.optr_id = #{optr,jdbcType=VARCHAR}
+			where c.notice_id = t.notice_id AND t.invalid_date > now() and t.status = 'ACTIVE' 
+			<if test="countyId != null and countyId != '' ">
+				and c.county_id = #{countyId,jdbcType=VARCHAR}
+			</if>
+  </select>
+  
+  <!-- queryAllValidForAdmin  -->
+  <select id="queryAllValidForAdmin" resultMap="BaseResultMap" >
+	  		SELECT <include refid="Base_Column_List2" />
+			from sys_notice t
+			where t.status = 'ACTIVE' 
+  </select>
+  
+    <!-- countUnChecked -->
+    <select id="countUnChecked" resultType="java.lang.Integer" parameterType="map" >
+    SELECT COUNT(1) from sys_notice t ,sys_notice_county c
+		where t.notice_id = c.notice_id AND t.invalid_date > now() and t.`status` = 'ACTIVE'
+		and t.notice_id not in ( SELECT r.notice_id from sys_notice_read r where r.notice_id = t.notice_id and r.optr_id = #{userID,jdbcType=VARCHAR}  )
+		and c.county_id = #{countyId,jdbcType=VARCHAR}
+	  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sys_notice
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.sys.SysNotice"  useGeneratedKeys="true" keyProperty="noticeId">
+    insert into sys_notice (notice_id, notice_title, notice_content, 
+      create_time, create_optr, eff_date, 
+      invalid_date, status)
+    values (#{noticeId,jdbcType=INTEGER}, #{noticeTitle,jdbcType=VARCHAR}, #{noticeContent,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{createOptr,jdbcType=VARCHAR}, #{effDate,jdbcType=TIMESTAMP}, 
+      #{invalidDate,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.sys.SysNotice"  useGeneratedKeys="true" keyProperty="noticeId">
+    insert into sys_notice
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="noticeId != null" >
+        notice_id,
+      </if>
+      <if test="noticeTitle != null" >
+        notice_title,
+      </if>
+      <if test="noticeContent != null" >
+        notice_content,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createOptr != null" >
+        create_optr,
+      </if>
+      <if test="effDate != null" >
+        eff_date,
+      </if>
+      <if test="invalidDate != null" >
+        invalid_date,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="noticeId != null" >
+        #{noticeId,jdbcType=INTEGER},
+      </if>
+      <if test="noticeTitle != null" >
+        #{noticeTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeContent != null" >
+        #{noticeContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createOptr != null" >
+        #{createOptr,jdbcType=VARCHAR},
+      </if>
+      <if test="effDate != null" >
+        #{effDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="invalidDate != null" >
+        #{invalidDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.sys.SysNotice" >
+    update sys_notice
+    <set >
+      <if test="noticeTitle != null" >
+        notice_title = #{noticeTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeContent != null" >
+        notice_content = #{noticeContent,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createOptr != null" >
+        create_optr = #{createOptr,jdbcType=VARCHAR},
+      </if>
+      <if test="effDate != null" >
+        eff_date = #{effDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="invalidDate != null" >
+        invalid_date = #{invalidDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.sys.SysNotice" >
+    update sys_notice
+    set notice_title = #{noticeTitle,jdbcType=VARCHAR},
+      notice_content = #{noticeContent,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_optr = #{createOptr,jdbcType=VARCHAR},
+      eff_date = #{effDate,jdbcType=TIMESTAMP},
+      invalid_date = #{invalidDate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=VARCHAR}
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </update>
+</mapper>

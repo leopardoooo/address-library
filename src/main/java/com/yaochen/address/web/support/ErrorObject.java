@@ -10,7 +10,7 @@ import com.yaochen.address.common.StatusCodeConstant;
 public class ErrorObject {
 	private StatusCodeConstant statusCode;
 	private Object message;
-	
+	private boolean success = true;
 	public ErrorObject(){
 	}
 	
@@ -30,5 +30,13 @@ public class ErrorObject {
 	}
 	public void setMessage(Object message) {
 		this.message = message;
+	}
+
+	public boolean isSuccess() {
+		return success;
+	}
+
+	public void setSuccess(boolean success) {
+		this.success = success;
 	}
 }

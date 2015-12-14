@@ -6,6 +6,7 @@ package com.yaochen.address.data.domain.address;
 import java.util.Date;
 
 import com.yaochen.address.common.BusiConstants;
+import com.yaochen.address.common.BusiConstants.Status;
 import com.yaochen.address.common.StringHelper;
 
 public class AdTree {
@@ -29,8 +30,6 @@ public class AdTree {
     /** 地址用途(一般是客户地址最后一级填写)：城市小区、工业园厂房、城市酒店、小区商铺 */
     private String addrUse;
     
-    private String addrUseText;
-
     /** 是否留空 */
     private String isBlank;
     
@@ -62,6 +61,8 @@ public class AdTree {
 
     /** 状态:正常、待审核 */
     private String status;
+    
+    private String status_name;
 
     /**  */
     private String str1;
@@ -128,15 +129,6 @@ public class AdTree {
 
     public void setAddrUse(String addrUse) {
         this.addrUse = addrUse == null ? null : addrUse.trim();
-        if(StringHelper.isEmpty(this.addrUse)){
-        	this.addrUseText = "";
-        }else{
-        	try {
-        		this.addrUseText = BusiConstants.AddrUsage.valueOf(addrUse).getDesc();
-        	} catch (Exception e) {
-        		e.printStackTrace();
-        	}
-        }
     }
 
     public String getIsBlank() {
@@ -226,6 +218,8 @@ public class AdTree {
 
     public void setStatus(String status) {
         this.status = status == null ? null : status.trim();
+        Status st = BusiConstants.Status.forName(this.status);
+        this.status_name = st !=null ? st.getDesc() : null;
     }
 
     public String getStr1() {
@@ -272,10 +266,6 @@ public class AdTree {
 		return addrTypeText;
 	}
 
-	public String getAddrUseText() {
-		return addrUseText;
-	}
-
 	public Integer getCollected() {
 		return collected;
 	}
@@ -287,11 +277,7 @@ public class AdTree {
 	public void setAddrTypeText(String addrTypeText) {
 		this.addrTypeText = addrTypeText;
 	}
-
-	public void setAddrUseText(String addrUseText) {
-		this.addrUseText = addrUseText;
-	}
-
+	
 	public String getIsBlankText() {
 		return isBlankText;
 	}
@@ -299,5 +285,12 @@ public class AdTree {
 	public void setIsBlankText(String isBlankText) {
 		this.isBlankText = isBlankText;
 	}
-	
+
+	public String getStatus_name() {
+		return status_name;
+	}
+
+	public void setStatus_name(String status_name) {
+		this.status_name = status_name;
+	}
 }

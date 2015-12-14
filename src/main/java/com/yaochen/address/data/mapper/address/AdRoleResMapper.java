@@ -20,5 +20,5 @@ public interface AdRoleResMapper {
 
     int insertSelective(AdRoleRes record);
 
-	List<AdRoleRes> selectByRoleId(@Param("roleId") Integer roleId);
+    List<AdRoleRes> selectByRoleId(@Param("roleId") Integer roleId);
 }

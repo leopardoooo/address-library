@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.sys.SysNoticeCountyMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.sys.SysNoticeCounty" >
+    <id column="notice_id" property="noticeId" jdbcType="INTEGER" />
+    <id column="county_id" property="countyId" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="map" >
+    delete from sys_notice_county
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+      and county_id = #{countyId,jdbcType=VARCHAR}
+  </delete>
+  <!-- deleteByNoticeId -->
+  <delete id="deleteByNoticeId" parameterType="java.lang.Integer" >
+    delete from sys_notice_county
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </delete>
+  
+  <select id="selectByNoticeId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select * from sys_notice_county
+    where notice_id = #{noticeId,jdbcType=INTEGER}
+  </select>
+  
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.sys.SysNoticeCounty" >
+    insert into sys_notice_county (notice_id, county_id)
+    values (#{noticeId,jdbcType=INTEGER}, #{countyId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.sys.SysNoticeCounty" >
+    insert into sys_notice_county
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="noticeId != null" >
+        notice_id,
+      </if>
+      <if test="countyId != null" >
+        county_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="noticeId != null" >
+        #{noticeId,jdbcType=INTEGER},
+      </if>
+      <if test="countyId != null" >
+        #{countyId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

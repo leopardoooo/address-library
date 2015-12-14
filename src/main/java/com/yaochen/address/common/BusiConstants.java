@@ -1,7 +1,14 @@
 package com.yaochen.address.common;
 
-public class BusiConstants {
+import java.io.Serializable;
+
+
+public class BusiConstants implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/**首页查询收藏的数目**/
 	public static Integer COLLECTIONS_QUERY_COUNT = 6;
 	
@@ -20,6 +27,7 @@ public class BusiConstants {
 		/**存放在session里的关于登录的错误信息**/
 		public static String LOGIN_ERROR_IN_SESSION = "LOGIN_ERROR_IN_SESSION";
 		public static String SLASH = "/";
+		public static String SUCCESS = "success";
 		/**顶级树的id**/
 		public static String TOP_PID = "0";
 		public static String GOLBEL_QUERY_PRECND = "GOLBEL_QUERY_PRECND";
@@ -37,8 +45,19 @@ public class BusiConstants {
 		public static String BLANK_ADDR_NAME = "留空";
 		/**新增的地址的初始状态,如果以后需要审核,修改这里**/
 		public static String ADDR_INIT_STATUS = Status.ACTIVE.name();
+		/** 存放系统左侧树的最大级别的变量名 **/
+		public static String MAX_TREE_LEVEL_PROP_NAME = "maxTreeLevel";
 		
 		public static String ADDR_SYS_FUN_CODE = "ADDR_SYS_FUN_CODE";
+		
+		/** 系统角色名的前缀,后面跟数字，比如： address_1 **/
+		public static String ADDR_SYS_ROLE_PREFIX = "address_";
+		
+//		public static String ADDR_NOT_AUDITED_SUFFIX="(未审核)";
+		public static String ADDR_NOT_AUDITED_SUFFIX="";//现在又要求通过地址库系统加入的都是ACTIVE
+		
+		public static String SYS_ADMIN_USER_NAME = "admin";
+		
 	}
 	
 	public static enum Booleans{
@@ -91,16 +110,69 @@ public class BusiConstants {
 		}
 	}
 	
+	public static enum TreeChangeFields{
+		addrUseText("用处"),addrLevel("级别"),isBlankText("是否留空"),addrName("地址名"),addrParent("父节点"),addrTypeText("类型");
+		private String desc;
+
+		public String getDesc() {
+			return desc;
+		}
+
+		public void setDesc(String desc) {
+			this.desc = desc;
+		}
+
+		private TreeChangeFields(String desc) {
+			this.desc = desc;
+		}
+	}
+	
 	public static enum Status{
-		NOT_AUDITED,
-		ACTIVE,
-		INVALID
+		NOT_AUDITED("未审核",0),
+		REJECTED("审核不通过",2),
+		REQ_APPROVED("审核通过",1),
+		ACTIVE("正常",1),
+		INVALID("作废",0);
+		private int order;
+		private String desc ;
+		public String getDesc() {
+			return desc;
+		}
+		
+		private Status( String desc,int order) {
+			this.order = order;
+			this.desc = desc;
+		}
+
+		public int getOrder() {
+			return order;
+		}
+
+		public void setOrder(int order) {
+			this.order = order;
+		}
+
+		public void setDesc(String desc) {
+			this.desc = desc;
+		}
+
+		public static Status forName(String status) {
+			for (Status item : Status.values()) {
+				if(item.name().equals(status)){
+					return item;
+				}
+			}
+			return null;
+		}
+		
 	}
 	
 	/**
 	 * 异动类型.
 	 */
 	public static enum AddrChangeType{
+		/**新增**/
+		ADD,
 		/**编辑 */
 		EDIT,
 		/**变更父级**/
@@ -111,6 +183,24 @@ public class BusiConstants {
 		AUDIT_FAILED,
 		/** 审核成功 */
 		AUDIT_SUCCESS
+	}
+	
+	public static enum GzLevel{
+		JF("机房/分前端"),
+		JJX("交接箱/光分路器"),
+		GZ("光站/光机"); 
+		
+		private String name;
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		private GzLevel(String name) {
+			this.name = name;
+		}
+
 	}
 	
 	

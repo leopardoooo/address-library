@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yaochen.address.data.mapper.std.StdServiceTeamMapper" >
+  <resultMap id="BaseResultMap" type="com.yaochen.address.data.domain.std.StdServiceTeam" >
+    <id column="team_id" property="teamId" jdbcType="INTEGER" />
+    <result column="team_name" property="teamName" jdbcType="VARCHAR" />
+    <result column="create_optr" property="createOptr" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="county_id" property="countyId" jdbcType="VARCHAR" />
+    <result column="base_addr_id" property="baseAddrId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    team_id, team_name, create_optr, create_time, county_id, base_addr_id, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from std_service_team
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from std_service_team
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yaochen.address.data.domain.std.StdServiceTeam" >
+    insert into std_service_team (team_id, team_name, create_optr, 
+      create_time, county_id, base_addr_id, 
+      status)
+    values (#{teamId,jdbcType=INTEGER}, #{teamName,jdbcType=VARCHAR}, #{createOptr,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{countyId,jdbcType=VARCHAR}, #{baseAddrId,jdbcType=INTEGER}, 
+      #{status,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yaochen.address.data.domain.std.StdServiceTeam" >
+    insert into std_service_team
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="teamId != null" >
+        team_id,
+      </if>
+      <if test="teamName != null" >
+        team_name,
+      </if>
+      <if test="createOptr != null" >
+        create_optr,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="countyId != null" >
+        county_id,
+      </if>
+      <if test="baseAddrId != null" >
+        base_addr_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="teamId != null" >
+        #{teamId,jdbcType=INTEGER},
+      </if>
+      <if test="teamName != null" >
+        #{teamName,jdbcType=VARCHAR},
+      </if>
+      <if test="createOptr != null" >
+        #{createOptr,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="countyId != null" >
+        #{countyId,jdbcType=VARCHAR},
+      </if>
+      <if test="baseAddrId != null" >
+        #{baseAddrId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yaochen.address.data.domain.std.StdServiceTeam" >
+    update std_service_team
+    <set >
+      <if test="teamName != null" >
+        team_name = #{teamName,jdbcType=VARCHAR},
+      </if>
+      <if test="createOptr != null" >
+        create_optr = #{createOptr,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="countyId != null" >
+        county_id = #{countyId,jdbcType=VARCHAR},
+      </if>
+      <if test="baseAddrId != null" >
+        base_addr_id = #{baseAddrId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yaochen.address.data.domain.std.StdServiceTeam" >
+    update std_service_team
+    set team_name = #{teamName,jdbcType=VARCHAR},
+      create_optr = #{createOptr,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      county_id = #{countyId,jdbcType=VARCHAR},
+      base_addr_id = #{baseAddrId,jdbcType=INTEGER},
+      status = #{status,jdbcType=VARCHAR}
+    where team_id = #{teamId,jdbcType=INTEGER}
+  </update>
+</mapper>

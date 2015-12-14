@@ -44,6 +44,8 @@
 		    <mvc:mapping path="/**" />
 		    <mvc:exclude-mapping path="/"/>
 		    <mvc:exclude-mapping path="/resources/**"/>
+		    <!-- 百度的 ueditor 插件上传文件的路径 -->
+		    <mvc:exclude-mapping path="/ueditor/**"/>
 		    <bean class="com.yaochen.address.web.support.TimerHandlerInterceptor"></bean>
 		</mvc:interceptor>
 	</mvc:interceptors>

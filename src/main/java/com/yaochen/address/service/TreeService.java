@@ -16,6 +16,7 @@ import com.easyooo.framework.support.mybatis.Pagination;
 import com.yaochen.address.common.BusiCodeConstants;
 import com.yaochen.address.common.BusiConstants;
 import com.yaochen.address.common.BusiConstants.AddrChangeType;
+import com.yaochen.address.common.BusiConstants.TreeChangeFields;
 import com.yaochen.address.common.CollectionHelper;
 import com.yaochen.address.common.MessageException;
 import com.yaochen.address.common.StatusCodeConstant;
@@ -26,16 +27,23 @@ import com.yaochen.address.data.domain.address.AdLevel;
 import com.yaochen.address.data.domain.address.AdRoleRes;
 import com.yaochen.address.data.domain.address.AdTree;
 import com.yaochen.address.data.domain.address.AdTreeChange;
+import com.yaochen.address.data.domain.address.AdTreeChangeDetail;
+import com.yaochen.address.data.domain.sys.SysSeq;
 import com.yaochen.address.data.mapper.address.AdCollectionsMapper;
 import com.yaochen.address.data.mapper.address.AdDoneCodeMapper;
 import com.yaochen.address.data.mapper.address.AdLevelMapper;
 import com.yaochen.address.data.mapper.address.AdOaCountyRefMapper;
 import com.yaochen.address.data.mapper.address.AdRoleResMapper;
+import com.yaochen.address.data.mapper.address.AdSysUserMapper;
+import com.yaochen.address.data.mapper.address.AdTreeAuditMapper;
+import com.yaochen.address.data.mapper.address.AdTreeChangeDetailMapper;
 import com.yaochen.address.data.mapper.address.AdTreeChangeMapper;
 import com.yaochen.address.data.mapper.address.AdTreeMapper;
+import com.yaochen.address.data.mapper.sys.SysSeqMapper;
 import com.yaochen.address.dto.AddrDto;
 import com.yaochen.address.dto.SystemFunction;
 import com.yaochen.address.dto.UserInSession;
+import com.yaochen.address.dto.db.LogQueryForm;
 import com.yaochen.address.support.AddrNameChecker;
 import com.yaochen.address.support.ThreadUserParamHolder;
 import com.yaochen.address.web.controllers.UserController;
@@ -45,6 +53,10 @@ public class TreeService {
 	private Logger logger = Logger.getLogger(getClass());
 	@Autowired
 	private AdTreeMapper adTreeMapper;
+	@Autowired
+	private SysSeqMapper sysSeqMapper;
+	@Autowired
+	private AdTreeAuditMapper adTreeAuditMapper;
 	@Autowired
 	private AddrNameChecker addrNameChecker;
 	@Autowired
@@ -58,7 +70,10 @@ public class TreeService {
 	@Autowired
 	private AdTreeChangeMapper adTreeChangeMapper;
 	@Autowired
+	private AdTreeChangeDetailMapper adTreeChangeDetailMapper;
+	@Autowired
 	private AdOaCountyRefMapper adOaCountyRefMapper;
+	@Autowired private AdSysUserMapper adSysUserMapper;
 	
 	/**
 	 * 新增地址.
@@ -106,17 +121,32 @@ public class TreeService {
 		tree.setAddrFullName(fullName);
 		tree.setStr1(str1);
 		tree.setStatus(BusiConstants.StringConstants.ADDR_INIT_STATUS);
+		Integer newAddedAddrId = getAddrId4Insert(tree);
+		tree.setAddrId(newAddedAddrId);
+		
 		//新增的树的ID
 		adTreeMapper.insertSelective(tree);
-		Integer newAddedAddrId = tree.getAddrId();
 		
 		String addrPrivateName = BusiConstants.StringConstants.TOP_PID + slash + newAddedAddrId + slash ;
 		if(null != parentNode){
 			addrPrivateName = parentNode.getAddrPrivateName() + newAddedAddrId + slash ;
 		}
 		tree.setAddrPrivateName(addrPrivateName);
+		tree.setAddrName(tree.getAddrName() + BusiConstants.StringConstants.ADDR_NOT_AUDITED_SUFFIX);
 		adTreeMapper.updateByPrimaryKeySelective(tree);
-		return queryByKey(tree.getAddrId());
+		AdTree treeNew = queryByKey(tree.getAddrId());
+		saveAddChange(createTime, optrId, createDoneCode, treeNew);
+		return treeNew;
+	}
+
+	private Integer getAddrId4Insert(AdTree tree) {
+		Integer newAddedAddrId = tree.getAddrId();
+		if(null == newAddedAddrId){
+			SysSeq sysSeq = new SysSeq();
+			sysSeqMapper.getAddrSequence(sysSeq);
+			newAddedAddrId = sysSeq.getSeqValue();
+		}
+		return newAddedAddrId;
 	}
 
 	/**
@@ -223,20 +253,47 @@ public class TreeService {
 			tree.setStr1(str1);
 			tree.setAddrFullName(addrFullName);
 			tree.setStatus(BusiConstants.StringConstants.ADDR_INIT_STATUS);
+			
+			Integer addrId = getAddrId4Insert(tree);
+			tree.setAddrId(addrId);
+			
 			adTreeMapper.insertSelective(tree);
-			Integer addrId = tree.getAddrId();
 			
 			String addrPrivateName = BusiConstants.StringConstants.TOP_PID + addrId + slash ;
 			if(null != parentNode){
 				addrPrivateName = parentNode.getAddrPrivateName()  + addrId + slash ;
 			}
 			tree.setAddrPrivateName(addrPrivateName);
+			tree.setAddrName(addrName + BusiConstants.StringConstants.ADDR_NOT_AUDITED_SUFFIX);
 			adTreeMapper.updateByPrimaryKeySelective(tree);
+			
+			saveAddChange(createTime, optrId,createDoneCode, tree);
+			
+			List<AdCollections> colls = checkAddressIsCollected(addrId);
+			colls = CollectionHelper.isEmpty(colls) ? new ArrayList<AdCollections>():colls;
+			for (AdCollections coll : colls) {
+				adCollectionsMapper.deleteByAddrAndUser(coll);
+			}
+			
 			succNum ++;
 		}
 		result.add(succNum);
 		result.add(failedNum);
 		return result;
+	}
+
+	private AdTreeChange saveAddChange(Date createTime, String optrId,
+			int createDoneCode, AdTree tree) {
+		AdTreeChange change = new AdTreeChange();
+		CglibUtil.copy(tree, change);
+		change.setChangeTime(createTime);
+		change.setChangeCause("新增");
+		change.setChangeDoneCode(createDoneCode);
+		change.setChangeType(AddrChangeType.ADD.name());
+		change.setChangeOptrId(optrId);
+		adTreeChangeMapper.insertSelective(change);
+		saveTreeChanges(change, null, tree);
+		return change;
 	}
 	
 	/**
@@ -341,15 +398,20 @@ public class TreeService {
 			tree.setStr1(str1);
 			tree.setAddrFullName(addrFullName);
 			tree.setStatus(BusiConstants.StringConstants.ADDR_INIT_STATUS);
+			
+			Integer addrId = getAddrId4Insert(tree);
+			tree.setAddrId(addrId);
+			
 			adTreeMapper.insertSelective(tree);
-			Integer addrId = tree.getAddrId();
 			
 			String addrPrivateName = BusiConstants.StringConstants.TOP_PID + addrId + slash ;
 			if(null != parentNode){
 				addrPrivateName = parentNode.getAddrPrivateName()  + addrId + slash ;
 			}
 			tree.setAddrPrivateName(addrPrivateName);
+			tree.setAddrName(addrName + BusiConstants.StringConstants.ADDR_NOT_AUDITED_SUFFIX);
 			adTreeMapper.updateByPrimaryKeySelective(tree);
+			saveAddChange(createTime, optrId, createDoneCode, tree);
 			succNum ++;
 		}
 		result.add(succNum);
@@ -369,8 +431,7 @@ public class TreeService {
 	public Pagination doSearchAddress(Integer targetLevel, String keyword,
 			Integer start, Integer limit) throws Throwable {
 		Map<String, Object> param = new HashMap<String, Object>();
-		String baseScope = getBaseScope();
-		param.put("baseScope", baseScope);
+		
 		UserInSession userInSession = getUserInSession();
 		String globeCountyId = getGlobeCountyId();
 		int total = 0;
@@ -427,7 +488,7 @@ public class TreeService {
 	 * @return 结果集进行分页
 	 * @throws Throwable
 	 */
-	public Pagination searchParentLevelAddrs(Integer level, String keyword, Integer currentAddrId,boolean sameParent,
+	public Pagination searchParentLevelAddrs(Integer level, String keyword, String countyId,Integer currentAddrId,boolean sameParent,
 			Integer start, Integer limit) throws Throwable {
 		Map<String, Object> param = new HashMap<String, Object>();
 		AdTree tree = queryByKey(currentAddrId);
@@ -443,11 +504,13 @@ public class TreeService {
 			
 		}
 		UserInSession user = getUserInSession();
-		param.put("countyId", user.getCompanyOID());
+		if(StringHelper.isEmpty(countyId)){
+			countyId = user.getCompanyOID();
+		}
+		param.put("countyId", countyId );
 		param.put("addrLevel", level);
 		param.put("currentAddrId", currentAddrId);
 		param.put("userid", user.getUserOID());
-		param.put("countyId", getGlobeCountyId());
 		param.put("keyword", keyword);//全名
 		param.put("status", BusiConstants.Status.ACTIVE.name());
 		Pagination pager = new Pagination(param,start,limit);
@@ -480,18 +543,28 @@ public class TreeService {
 		List<SystemFunction> systemFunction = optr.getSystemFunction();
 		Integer roleOID = null;
 		for (SystemFunction fun : systemFunction) {
-			Integer functionOID = fun.getFunctionOID();
+			String funName = fun.getFunctionName();
 			String code = System.getProperty(BusiConstants.StringConstants.ADDR_SYS_FUN_CODE);
-			if(code.equals(""+functionOID)){
-				roleOID = fun.getRoleOID();
-				break;
+			if(code.equals(""+funName)){
+				continue;
+			}
+			String tmp = ""+fun.getFunctionName();
+			try{
+				int rid = Integer.parseInt(tmp.replace(BusiConstants.StringConstants.ADDR_SYS_ROLE_PREFIX, ""));
+				if(null == roleOID || rid < roleOID){
+					roleOID = rid;
+				}
+			}catch(Exception e){
+				continue;
 			}
 		}
+		
 		if(roleOID == null){
-			throw new MessageException(StatusCodeConstant.USER_NOT_AUTHORIZED);
+			throw new MessageException(StatusCodeConstant.USER_HAS_NO_SUFFICIENT_ROLE);
 		}
 		optr.setRoleIdInSys(roleOID);
 		List<AdRoleRes> rrs = adRoleResMapper.selectByRoleId(roleOID);
+		
 		if(rrs==null || rrs.size() ==0 ){
 			throw new MessageException(StatusCodeConstant.USER_NOT_AUTHORIZED);
 		}
@@ -540,6 +613,26 @@ public class TreeService {
 			}
 			tree.setCollected(collected);
 		}
+		pager.setRecords(selectByKeyWord);
+		return pager;
+	}
+	
+	/**
+	 * 根据addrName like 查询, countyId 限制在当前设置的分公司下.
+	 * @param addrName
+	 * @param start
+	 * @param limit
+	 * @return
+	 * @throws Throwable
+	 */
+	public Pagination queryAddrByName(String addrName, Integer start,Integer limit) throws Throwable {
+		Map<String, Object>	param = new HashMap<String, Object>();
+		param.put("addrName", addrName);
+		param.put("countyId", ThreadUserParamHolder.getGlobeCountyId());
+		param.put("status", BusiConstants.Status.ACTIVE.name());
+		Pagination pager = new Pagination(param,start,limit);
+		List<AdTree> selectByKeyWord = adTreeMapper.queryAddrByName(pager);
+		
 		pager.setRecords(selectByKeyWord);
 		return pager;
 	}
@@ -625,7 +718,7 @@ public class TreeService {
 		change.setChangeType(AddrChangeType.EDIT.name());
 		change.setChangeOptrId(ThreadUserParamHolder.getOptr().getUserOID());
 		adTreeChangeMapper.insert(change);
-		
+		saveTreeChanges(change, oldTree, adTreeMapper.selectByPrimaryKey(query));
 	}
 	
 	/**
@@ -671,6 +764,8 @@ public class TreeService {
 		change.setChangeCause("变更父级 => " + parent.getStr1() + "( " + pid + " )"   );
 		change.setChangeType(AddrChangeType.CHANGE_PARENT.name());
 		adTreeChangeMapper.insert(change);
+		
+		saveTreeChanges(change, sourceChild, sourceCopy);
 		return sourceChild;
 	}
 	
@@ -714,14 +809,40 @@ public class TreeService {
 		}
 		AdTree targetParent = queryByKey(target.getAddrParent());
 		int createDoneCode = createDoneCode(new Date(), BusiCodeConstants.MERGE);
+		mergeSingle(target, source, targetParent, createDoneCode);
+		return target;
+	}
+
+	private void mergeSingle(AddrDto target, AddrDto source,
+			AdTree targetParent, int createDoneCode) throws Throwable {
 		List<Map<Boolean, Integer>> ids2beDelete = new ArrayList<Map<Boolean,Integer>>();
 		//true : source false : target
 		Map<Boolean, Integer> map = new HashMap<Boolean, Integer>();
-		map.put(true, sourceId);
-		map.put(false, targetId);
+		map.put(true, source.getAddrId());
+		map.put(false, target.getAddrId());
 		ids2beDelete.add(map);
 		mergeAddress(source, target, targetParent, ids2beDelete);
 		delMergeredTree(ids2beDelete,createDoneCode);
+	}
+	
+
+	public AdTree saveMerge(Integer targetId, Integer[] sources) throws Throwable{
+		List<AddrDto> sourceList = new ArrayList<AddrDto>();
+		AddrDto target = queryAndBuildTree(targetId);
+		checkRole(target.getAddrLevel());
+		for (Integer addrId : sources) {
+			AddrDto source = queryAndBuildTree(addrId);
+			if(!target.getAddrLevel().equals(source.getAddrLevel())){
+				throw new MessageException(StatusCodeConstant.MERGE_ERROR_LEVEL_DISMATCH);
+			}
+			sourceList.add(source);
+		}
+		int createDoneCode = createDoneCode(new Date(), BusiCodeConstants.MERGE);
+		
+		AdTree targetParent = queryByKey(target.getAddrParent());
+		for (AddrDto source : sourceList) {
+			mergeSingle(target, source, targetParent, createDoneCode);
+		}
 		return target;
 	}
 	
@@ -762,6 +883,7 @@ public class TreeService {
 				adCollectionsMapper.deleteByAddrAndUser(coll);
 			}
 			adTreeChangeMapper.insert(change);
+			saveTreeChanges(change, tree, null);
 		}
 	}
 
@@ -921,6 +1043,7 @@ public class TreeService {
 		}
 		
 		adTreeChangeMapper.insert(change);
+		saveTreeChanges(change, tree, null);
 	}
 
 	/**
@@ -1134,17 +1257,6 @@ public class TreeService {
 		return optr;
 	}
 	
-	/**
-	 * 获取当前操作员的地址级别.
-	 * @see UserController#setAddrScopeForCurrentUser(String, String, javax.servlet.http.HttpSession)
-	 * @return
-	 * @throws MessageException
-	 */
-	private String getBaseScope() throws MessageException{
-		String baseQueryScope = ThreadUserParamHolder.getBaseQueryScope();
-		return baseQueryScope;
-	}
-	
 	
 	/**
 	 * 获取当前操作员的地址级别.
@@ -1164,19 +1276,83 @@ public class TreeService {
 		}
 	}
 
-	/**
-	 * 根据树节点查询操作的记录.
-	 * @param addrId
-	 * @param start
-	 * @param limit
-	 * @return
-	 */
-	public Pagination queryOptrLog(AdTreeChange change, Integer start, Integer limit) {
-		start = null == start ? 0 : start;
-		limit = null == limit ? 20 : limit;
-		Pagination pager = new Pagination(change, start, limit);
-		adTreeChangeMapper.selectOptrLog(pager);
+	private void saveTreeChanges(AdTreeChange change,AdTree oad, AdTree nad){
+		
+		Integer changeSn = change.getChangeSn();
+		Integer doneCode = change.getChangeDoneCode();
+		Integer addrId = change.getAddrId();
+		Date changeTime = change.getChangeTime();
+		
+		Map<String, Object> oldMap = descriptTree(oad);
+		Map<String, Object> newMap = descriptTree(nad);
+		
+		TreeChangeFields[] values = TreeChangeFields.values();
+		for (TreeChangeFields field : values) {
+			String name = field.name();
+			String desc = field.getDesc();
+			AdTreeChangeDetail dt = new AdTreeChangeDetail();
+			dt.setChangeSn(changeSn);
+			dt.setAddrId(addrId);
+			dt.setChangeCause(change.getChangeCause());
+			dt.setAddrName(change.getAddrName());
+			dt.setChangeDoneCode(doneCode);
+			dt.setAddrPid(change.getAddrParent());
+			dt.setChangeOptrId(change.getChangeOptrId());
+			dt.setChangeTime(changeTime);
+			dt.setChangeType(change.getChangeType());
+			dt.setStr1(change.getStr1());
+			dt.setColumnName(StringHelper.deCamellize(name).toLowerCase());
+			dt.setColumnDesc(desc);
+			dt.setAddrLevel(change.getAddrLevel());
+			Object ovRaw = oldMap.get(name);
+			Object nvRaw = newMap.get(name);
+			String newValue = nvRaw == null ? "": nvRaw.toString();
+			String oldValue = ovRaw == null ? "": ovRaw.toString();
+			if(!newValue.equals(oldValue)){
+				dt.setNewValue(newValue);
+				dt.setOldValue(oldValue);
+				adTreeChangeDetailMapper.insert(dt);
+			}
+		}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> descriptTree(AdTree tree) {
+		Map<String, Object> desc = new HashMap<String, Object>();
+		if(null != tree){
+			desc = CglibUtil.describe(tree);
+		}
+		return desc;
+	}
+
+	public Pagination queryAllLog(LogQueryForm form, Integer start, Integer limit) {
+		Pagination pager = new Pagination(form, start, limit);
+		adTreeChangeDetailMapper.queryLogDetail(pager);
 		return pager;
+	}
+
+	public void saveAudit(Integer[] addrIds, boolean proved) throws Throwable {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("ids", addrIds);
+		param.put("status", proved ?BusiConstants.Status.REQ_APPROVED.getOrder(): BusiConstants.Status.REJECTED.getOrder());
+		adTreeAuditMapper.audit(param);
+		if(!proved){
+			return;
+		}
+		
+		for (Integer id : addrIds) {
+			AdTree audit = adTreeAuditMapper.selectByPK(id);
+			String addrName = audit.getAddrName();
+			int indexOf = addrName.indexOf("(");
+			if(indexOf>0){
+				addrName = addrName.substring(0, indexOf);
+			}
+			audit.setAddrName(addrName);
+			
+			audit.setStatus(BusiConstants.Status.ACTIVE.name());
+			this.addTree(audit);
+		}
 	}
 	
 }

@@ -117,6 +117,7 @@ public class MiscTest extends BaseTest{
 	
 	
 
+	@SuppressWarnings("unused")
 	private void mergeAddrChildren(AdTree target, AdTree source,AdTree parent, List<Integer> ids)throws Throwable {
 		ids.add(source.getAddrId());
 		if(target.getAddrName().equals(source.getAddrName())){

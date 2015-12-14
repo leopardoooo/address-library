@@ -4,7 +4,7 @@
 	No DTD check -->
 <generatorConfiguration>
 	
-	<project path="F:\WorkBenchs\addressLib\address-library"/>
+	<project path="F:\WorkSpaces\addr-lib\address-library\"/>
 	
 	<!-- MySQL  1 -->
 	<queryTables>show tables</queryTables>	
@@ -33,7 +33,7 @@
 	<modules>
 		<!-- push -->
 		<module subPackage="address">
-			<include startWith="ad_" />
+			<include startWith="ad_tree_change" />
 		</module>
 	</modules>
 </generatorConfiguration>

@@ -3,6 +3,8 @@
  */
 package com.yaochen.address.data.mapper.address;
 
+import java.util.List;
+
 import com.easyooo.framework.sharding.annotation.Table;
 import com.yaochen.address.data.domain.address.AdOaCountyRef;
 import com.yaochen.address.support.Repository;
@@ -21,4 +23,6 @@ public interface AdOaCountyRefMapper {
     int updateByPrimaryKeySelective(AdOaCountyRef record);
 
     int updateByPrimaryKey(AdOaCountyRef record);
+
+	List<AdOaCountyRef> selectAll();
 }

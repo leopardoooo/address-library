@@ -10,7 +10,7 @@
   
   	<plugin type="com.yaochen.builder.mybatis.impl.AnnotationPlugin">
   		<property name="annotation" value="@Repository"/>
-  		<property name="annotationClass" value="com.easyooo.show.data.support.Repository"/>
+  		<property name="annotationClass" value="com.yaochen.address.support.Repository"/>
   		<property name="table" value="@Table"/>
   		<property name="tableClass" value="com.easyooo.framework.sharding.annotation.Table"/>
   	</plugin>
@@ -21,7 +21,7 @@
   
     <!--  MySQL Connection -->
     <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-        connectionURL="jdbc:mysql://192.168.1.204:3306/address"
+        connectionURL="jdbc:mysql://127.0.0.1:3306/address"
         userId="root"
         password="123456">
     </jdbcConnection>
